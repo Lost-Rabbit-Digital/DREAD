@@ -22,8 +22,8 @@
 -- #############################################################################
 
 let DREAD = {
-    version: "0.2.0",
-    debug: true,
+    version: "0.2.1",
+    debug: false,
     initialized: false,
     config: {}
 };
@@ -280,6 +280,18 @@ let DREAD_DEFAULT_CONFIG = {
     }
 };
 
+-- Helper to safely get nested config value (must be defined before DREAD_LoadConfig)
+let DREAD_SafeGet = func(obj, key, default_val) {
+    if (obj == undefined) {
+        return default_val;
+    }
+    let val = obj[key];
+    if (val == undefined) {
+        return default_val;
+    }
+    return val;
+};
+
 let DREAD_LoadConfig = func() {
     DREAD_LogDebug("Config", "Loading configuration...");
 
@@ -293,53 +305,46 @@ let DREAD_LoadConfig = func() {
         DREAD.config = DREAD_DEFAULT_CONFIG;
     }
 
-    DREAD.debug = DREAD_ConfigGet("general.debug_mode", true);
+    let general = DREAD_SafeGet(DREAD.config, "general", {});
+    DREAD.debug = DREAD_SafeGet(general, "debug_mode", false);
 
     return DREAD.config;
 };
 
-let DREAD_ConfigGet = func(path, default_value) {
-    let parts = StringSplit(path, ".");
-    let current = DREAD.config;
-
-    let i = 0;
-    while (i < ArrayLength(parts)) {
-        if (current == undefined) {
-            return default_value;
-        }
-        current = current[parts[i]];
-        i += 1;
-    }
-
-    if (current == undefined) {
-        return default_value;
-    }
-
-    return current;
-};
-
 let DREAD_IsFeatureEnabled = func(feature) {
+    let cfg = DREAD.config;
     match feature {
-        case "mod" { return DREAD_ConfigGet("general.enabled", true); }
-        case "chaos" { return DREAD_ConfigGet("chaos_mode.enabled", false); }
-        case "squads" { return DREAD_ConfigGet("squad_spawning.enabled", true); }
-        case "invasions" { return DREAD_ConfigGet("invasion_events.enabled", true); }
+        case "mod" {
+            return DREAD_SafeGet(DREAD_SafeGet(cfg, "general", {}), "enabled", true);
+        }
+        case "chaos" {
+            return DREAD_SafeGet(DREAD_SafeGet(cfg, "chaos_mode", {}), "enabled", false);
+        }
+        case "squads" {
+            return DREAD_SafeGet(DREAD_SafeGet(cfg, "squad_spawning", {}), "enabled", true);
+        }
+        case "invasions" {
+            return DREAD_SafeGet(DREAD_SafeGet(cfg, "invasion_events", {}), "enabled", true);
+        }
         else { return false; }
     }
 };
 
 let DREAD_GetSpawnMultiplier = func() {
-    return DREAD_ConfigGet("general.spawn_multiplier", 1.0);
+    let general = DREAD_SafeGet(DREAD.config, "general", {});
+    return DREAD_SafeGet(general, "spawn_multiplier", 1.0);
 };
 
 let DREAD_IsZoneEnabled = func(zone_name) {
-    let path = "zones." + zone_name + ".enabled";
-    return DREAD_ConfigGet(path, false);
+    let zones = DREAD_SafeGet(DREAD.config, "zones", {});
+    let zone = DREAD_SafeGet(zones, zone_name, {});
+    return DREAD_SafeGet(zone, "enabled", true);
 };
 
 let DREAD_GetZoneDensity = func(zone_name) {
-    let path = "zones." + zone_name + ".spawn_density";
-    let density = DREAD_ConfigGet(path, "normal");
+    let zones = DREAD_SafeGet(DREAD.config, "zones", {});
+    let zone = DREAD_SafeGet(zones, zone_name, {});
+    let density = DREAD_SafeGet(zone, "spawn_density", "normal");
 
     match density {
         case "sparse" { return 0.5; }
@@ -351,7 +356,8 @@ let DREAD_GetZoneDensity = func(zone_name) {
 };
 
 let DREAD_ApplyDifficultyPreset = func(preset_name) {
-    let preset = DREAD_ConfigGet("difficulty_presets." + preset_name, undefined);
+    let presets = DREAD_SafeGet(DREAD.config, "difficulty_presets", {});
+    let preset = DREAD_SafeGet(presets, preset_name, undefined);
 
     if (preset == undefined) {
         DREAD_LogError("Unknown difficulty preset: " + preset_name);
@@ -698,7 +704,9 @@ let DREAD_SpawnSquad = func(faction, center_x, center_y, size, with_leader) {
     let squad_members = [];
     let spawn_radius = 40;
 
-    let has_leader = with_leader && (DREAD_RandomFloat() < DREAD_ConfigGet("squad_spawning.leader_chance", 0.3));
+    let squad_cfg = DREAD_SafeGet(DREAD.config, "squad_spawning", {});
+    let leader_chance = DREAD_SafeGet(squad_cfg, "leader_chance", 0.3);
+    let has_leader = with_leader && (DREAD_RandomFloat() < leader_chance);
 
     let i = 0;
     while (i < size) {
@@ -735,8 +743,9 @@ let DREAD_SpawnSquad = func(faction, center_x, center_y, size, with_leader) {
 };
 
 let DREAD_SpawnRandomSquad = func(faction, center_x, center_y) {
-    let min_size = DREAD_ConfigGet("squad_spawning.min_squad_size", 2);
-    let max_size = DREAD_ConfigGet("squad_spawning.max_squad_size", 5);
+    let squad_cfg = DREAD_SafeGet(DREAD.config, "squad_spawning", {});
+    let min_size = DREAD_SafeGet(squad_cfg, "min_squad_size", 2);
+    let max_size = DREAD_SafeGet(squad_cfg, "max_squad_size", 5);
     let size = DREAD_RandomRange(min_size, max_size);
 
     return DREAD_SpawnSquad(faction, center_x, center_y, size, true);
@@ -912,8 +921,10 @@ let DREAD_SelectWaveEnemy = func(zone) {
 };
 
 let DREAD_SpawnWave = func(zone) {
-    let min_enemies = DREAD_ConfigGet("invasion_events.enemies_per_wave.min", 2);
-    let max_enemies = DREAD_ConfigGet("invasion_events.enemies_per_wave.max", 5);
+    let inv_cfg = DREAD_SafeGet(DREAD.config, "invasion_events", {});
+    let wave_cfg = DREAD_SafeGet(inv_cfg, "enemies_per_wave", {});
+    let min_enemies = DREAD_SafeGet(wave_cfg, "min", 2);
+    let max_enemies = DREAD_SafeGet(wave_cfg, "max", 5);
 
     let count = DREAD_RandomRange(min_enemies, max_enemies);
 
@@ -968,7 +979,8 @@ let DREAD_InitInvasion = func() {
     DREAD_Invasion.timer = 0;
     DREAD_Invasion.enemies_this_raid = 0;
 
-    let first_delay = DREAD_ConfigGet("invasion_events.first_wave_delay_seconds", 120);
+    let inv_cfg = DREAD_SafeGet(DREAD.config, "invasion_events", {});
+    let first_delay = DREAD_SafeGet(inv_cfg, "first_wave_delay_seconds", 120);
     DREAD_Invasion.next_wave_time = first_delay * 60;
 
     DREAD_Log("Invasion system initialized. First wave in " + String(first_delay) + " seconds");
@@ -979,7 +991,8 @@ let DREAD_UpdateInvasion = func() {
         return;
     }
 
-    let max_waves = DREAD_ConfigGet("invasion_events.max_waves", 3);
+    let inv_cfg = DREAD_SafeGet(DREAD.config, "invasion_events", {});
+    let max_waves = DREAD_SafeGet(inv_cfg, "max_waves", 3);
     if (DREAD_Invasion.wave_count >= max_waves) {
         DREAD_Invasion.active = false;
         DREAD_Log("Invasion complete. Spawned " + String(DREAD_Invasion.enemies_this_raid) + " enemies across " + String(DREAD_Invasion.wave_count) + " waves");
@@ -996,7 +1009,7 @@ let DREAD_UpdateInvasion = func() {
             DREAD_SpawnChaosWave();
         }
 
-        let interval = DREAD_ConfigGet("invasion_events.wave_interval_seconds", 180);
+        let interval = DREAD_SafeGet(inv_cfg, "wave_interval_seconds", 180);
         DREAD_Invasion.next_wave_time = DREAD_Invasion.timer + (interval * 60);
     }
 };

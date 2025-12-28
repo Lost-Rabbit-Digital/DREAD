@@ -1,0 +1,103 @@
+[h1]D.R.E.A.D. - Dynamic Randomized Enemy Area Distribution[/h1]
+
+[b]Every raid is different. Every corner is a threat.[/b]
+
+DREAD is a comprehensive spawn overhaul mod that transforms Zero Sievert's enemy encounters with new spawn points, dynamic enemy variety, and challenging late-game features.
+
+[h2]Features[/h2]
+
+[h3]Enhanced Spawn Distribution[/h3]
+[list]
+[*] New spawn points in traditionally empty areas
+[*] Variable squad sizes and compositions
+[*] Per-zone spawn density configuration
+[/list]
+
+[h3]SAIN-Inspired Enemy Archetypes[/h3]
+Enemies spawn with varied equipment and stats:
+[list]
+[*] [b]GigaChad (5%)[/b] - Elite enemies, 150% HP, +30% accuracy, master-tier gear
+[*] [b]Chad (15%)[/b] - Well-equipped veterans, 120% HP, +15% accuracy
+[*] [b]Normal (40%)[/b] - Standard enemies with baseline stats
+[*] [b]Rat (25%)[/b] - Sneaky but poorly equipped, 80% HP
+[*] [b]Timmy (15%)[/b] - Inexperienced with minimal gear, 60% HP
+[/list]
+
+[h3]Squad Spawning[/h3]
+[list]
+[*] Groups of 2-5 enemies spawn together as cohesive units
+[*] 30% chance for squad to have a Chad/GigaChad leader
+[*] Configurable squad sizes and leader probability
+[/list]
+
+[h3]Invasion Waves[/h3]
+Timed enemy waves add pressure during raids:
+[list]
+[*] First wave: 2 minutes after raid start
+[*] Subsequent waves: Every 3 minutes
+[*] Up to 3 waves per raid (configurable)
+[/list]
+
+[h3]Chaos Mode (Optional)[/h3]
+Cross-zone enemy variety with weighted rarity:
+[list]
+[*] Native (60%) - Normal zone enemies
+[*] Uncommon (25%) - Adjacent zone enemies
+[*] Rare (12%) - Distant zone enemies
+[*] Anomalous (3%) - Late-game threats appearing early!
+[/list]
+
+[h2]Configuration[/h2]
+
+DREAD is fully configurable via [b]dread_config.json[/b]. Customize:
+[list]
+[*] Enable/disable individual features
+[*] Spawn density per zone (sparse/normal/dense/extreme)
+[*] Archetype spawn weights
+[*] Squad sizes and leader chances
+[*] Invasion wave timing
+[*] Difficulty presets (Tourist, Normal, Hardcore, Nightmare)
+[/list]
+
+[h2]Current Zone Support[/h2]
+[list]
+[*] Forest - Fully configured with 18 spawn points + boss encounters
+[*] Other zones - Template spawns (community coordinates welcome!)
+[/list]
+
+[h2]Compatibility[/h2]
+[list]
+[*] Works with vanilla Zero Sievert
+[*] Should be compatible with most other mods
+[*] Does not modify core game files
+[/list]
+
+[h2]Installation[/h2]
+Subscribe to install automatically. The mod activates on raid start.
+
+[h2]Known Issues[/h2]
+[list]
+[*] Spawn coordinates for non-Forest zones are estimates - help us improve them!
+[*] Boss spawn chances are currently low (10%) for balance
+[/list]
+
+[h2]Roadmap[/h2]
+[list]
+[*] Accurate spawn coordinates for all zones
+[*] More spawn variety per zone
+[*] Special boss encounter events
+[*] Community-requested features
+[/list]
+
+[h2]Credits[/h2]
+[list]
+[*] [b]Lost Rabbit Digital[/b] - Development
+[*] [b]SAIN Mod (SPT-AKI)[/b] - Inspiration for archetype system
+[*] [b]Zero Sievert Dev Team[/b] - Modding API
+[/list]
+
+[h2]Feedback & Bug Reports[/h2]
+Please leave comments with any issues, suggestions, or zone coordinate contributions!
+
+[b]Version:[/b] 0.2.1
+[b]License:[/b] MIT

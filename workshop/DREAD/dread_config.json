@@ -1,13 +1,13 @@
 {
     "mod_info": {
         "name": "DREAD",
-        "version": "0.2.0",
+        "version": "0.2.1",
         "author": "Lost Rabbit Digital",
         "description": "Dynamic Randomized Enemy Area Distribution - Spawn Overhaul with SAIN-inspired features"
     },
     "general": {
         "enabled": true,
-        "debug_mode": true,
+        "debug_mode": false,
         "spawn_multiplier": 1.0
     },
     "zones": {
