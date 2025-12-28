@@ -1,0 +1,109 @@
+{
+    "mod_info": {
+        "name": "DREAD",
+        "version": "0.2.1",
+        "author": "Lost Rabbit Digital",
+        "description": "Dynamic Randomized Enemy Area Distribution - Spawn Overhaul with SAIN-inspired features"
+    },
+    "general": {
+        "enabled": true,
+        "debug_mode": false,
+        "spawn_multiplier": 1.0
+    },
+    "zones": {
+        "forest": { "enabled": true, "spawn_density": "normal" },
+        "makeshift_camp": { "enabled": false, "spawn_density": "normal" },
+        "industrial_area": { "enabled": false, "spawn_density": "normal" },
+        "swamp": { "enabled": false, "spawn_density": "normal" },
+        "mall": { "enabled": false, "spawn_density": "normal" },
+        "zaton": { "enabled": false, "spawn_density": "normal" },
+        "city": { "enabled": false, "spawn_density": "normal" },
+        "cnpp": { "enabled": false, "spawn_density": "normal" }
+    },
+    "chaos_mode": {
+        "enabled": false,
+        "rarity_weights": {
+            "native": 60,
+            "uncommon": 25,
+            "rare": 12,
+            "anomalous": 3
+        }
+    },
+    "enemy_archetypes": {
+        "_comment": "SAIN-inspired personality archetypes via equipment/stat configuration",
+        "gigachad": {
+            "description": "Elite enemies with top-tier gear, high HP, very accurate",
+            "spawn_weight": 5,
+            "hp_multiplier": 1.5,
+            "accuracy_bonus": 0.3,
+            "preferred_presets": ["master", "veteran"]
+        },
+        "chad": {
+            "description": "Well-equipped enemies, above average stats",
+            "spawn_weight": 15,
+            "hp_multiplier": 1.2,
+            "accuracy_bonus": 0.15,
+            "preferred_presets": ["expert", "veteran"]
+        },
+        "normal": {
+            "description": "Standard enemies with average loadouts",
+            "spawn_weight": 40,
+            "hp_multiplier": 1.0,
+            "accuracy_bonus": 0.0,
+            "preferred_presets": ["intermediate", "skilled"]
+        },
+        "rat": {
+            "description": "Poorly equipped but sneaky, appears in unexpected places",
+            "spawn_weight": 25,
+            "hp_multiplier": 0.8,
+            "accuracy_bonus": -0.1,
+            "preferred_presets": ["rookie", "skilled"]
+        },
+        "timmy": {
+            "description": "Inexperienced enemies with minimal gear",
+            "spawn_weight": 15,
+            "hp_multiplier": 0.6,
+            "accuracy_bonus": -0.2,
+            "preferred_presets": ["rookie"]
+        }
+    },
+    "squad_spawning": {
+        "_comment": "SAIN-inspired squad composition",
+        "enabled": true,
+        "min_squad_size": 2,
+        "max_squad_size": 5,
+        "leader_chance": 0.3,
+        "leader_archetype": "chad",
+        "mixed_archetypes": true
+    },
+    "difficulty_presets": {
+        "tourist": {
+            "spawn_multiplier": 0.3,
+            "chaos_mode": false,
+            "archetype_weights": { "timmy": 50, "rat": 30, "normal": 20 }
+        },
+        "normal": {
+            "spawn_multiplier": 1.0,
+            "chaos_mode": false,
+            "archetype_weights": { "timmy": 15, "rat": 25, "normal": 40, "chad": 15, "gigachad": 5 }
+        },
+        "hardcore": {
+            "spawn_multiplier": 1.5,
+            "chaos_mode": false,
+            "archetype_weights": { "normal": 30, "chad": 40, "gigachad": 30 }
+        },
+        "nightmare": {
+            "spawn_multiplier": 2.0,
+            "chaos_mode": true,
+            "archetype_weights": { "chad": 50, "gigachad": 50 }
+        }
+    },
+    "invasion_events": {
+        "_comment": "Timed spawns during raid for dynamic pressure",
+        "enabled": true,
+        "first_wave_delay_seconds": 120,
+        "wave_interval_seconds": 180,
+        "max_waves": 3,
+        "enemies_per_wave": { "min": 2, "max": 5 }
+    }
+}

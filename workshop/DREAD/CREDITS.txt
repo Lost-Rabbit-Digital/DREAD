@@ -1,0 +1,64 @@
+================================================================================
+                    D.R.E.A.D. - CREDITS & ACKNOWLEDGMENTS
+================================================================================
+
+                    Dynamic Randomized Enemy Area Distribution
+                              Version 0.2.1
+
+================================================================================
+                              DEVELOPMENT
+================================================================================
+
+  Created by:           Lost Rabbit Digital
+
+================================================================================
+                           SPECIAL THANKS
+================================================================================
+
+  ZERO SIEVERT DEVELOPMENT TEAM
+  -----------------------------
+  Thank you for your continued dedication to improving mod support. The
+  expanded modding API, documentation, and community engagement have made
+  projects like DREAD possible. Your willingness to listen to modders and
+  implement requested features shows a genuine commitment to your community.
+  We're excited to see where Zero Sievert goes from here.
+
+  FAMILY & FRIENDS
+  ----------------
+  To my family - thank you for your patience during the late nights of
+  coding, debugging, and "just one more feature." Your support means
+  everything.
+
+  To my friends - thanks for being willing guinea pigs, for the feedback
+  (even the brutal honesty), and for making this journey fun. You know
+  who you are.
+
+================================================================================
+                            INSPIRATION
+================================================================================
+
+  SAIN Mod (SPT-AKI / Escape from Tarkov)
+  ---------------------------------------
+  The archetype system in DREAD was inspired by SAIN's approach to AI
+  personality and behavior variety. While Zero Sievert's API doesn't allow
+  for the same depth of AI modification, we adapted the concept into our
+  archetype system to bring similar variety to encounters.
+
+================================================================================
+                             COMMUNITY
+================================================================================
+
+  To everyone who downloads, plays, and provides feedback - thank you for
+  giving this mod a chance. Your bug reports, suggestions, and zone
+  coordinate contributions help make DREAD better for everyone.
+
+  Special thanks to the Zero Sievert modding Discord for being a helpful
+  and welcoming community.
+
+================================================================================
+
+  "Every raid is different. Every corner is a threat."
+
+================================================================================
+                              LICENSE: MIT
+================================================================================

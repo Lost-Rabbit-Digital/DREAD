@@ -1,0 +1,219 @@
+-- =============================================================================
+-- DREAD: Dynamic Randomized Enemy Area Distribution
+-- =============================================================================
+-- Zero Sievert Spawn Overhaul Mod
+-- Author: Lost Rabbit Digital
+-- License: MIT
+-- Version: 0.2.0
+-- =============================================================================
+--
+-- DREAD enhances Zero Sievert's spawn system with:
+--   - New spawn points in previously empty areas
+--   - SAIN-inspired enemy archetypes (GigaChad, Chad, Rat, Timmy, etc.)
+--   - Squad spawning with leaders
+--   - Invasion waves during raids
+--   - Chaos Mode for cross-zone enemy variety
+--   - Full JSON configuration support
+--
+-- =============================================================================
+
+-- =============================================================================
+-- MODULE INCLUDES
+-- =============================================================================
+-- Note: In actual ZS mod, these would be included via the mod system
+-- For development, all modules are in separate files under src/
+
+-- Core utilities (src/utils/core.catspeak)
+-- Config system (src/utils/config.catspeak)
+-- Archetype system (src/utils/archetypes.catspeak)
+-- Spawning system (src/systems/spawning.catspeak)
+-- Invasion system (src/systems/invasion.catspeak)
+-- Zone configs (src/spawns/*.catspeak)
+
+-- =============================================================================
+-- INITIALIZATION
+-- =============================================================================
+
+let DREAD_Initialize = func() {
+    DREAD_Log("===========================================");
+    DREAD_Log("DREAD v" + DREAD.version + " Initializing...");
+    DREAD_Log("===========================================");
+
+    -- Load configuration
+    DREAD_LoadConfig();
+
+    -- Check if mod is enabled
+    if (!DREAD_IsFeatureEnabled("mod")) {
+        DREAD_Log("DREAD is disabled in configuration");
+        return false;
+    }
+
+    -- Reset spawn statistics
+    DREAD_ResetSpawnStats();
+
+    DREAD.initialized = true;
+    DREAD_Log("DREAD initialized successfully");
+
+    return true;
+};
+
+-- =============================================================================
+-- RAID START HANDLER
+-- =============================================================================
+
+let DREAD_OnRaidStart = func() {
+    if (!DREAD.initialized) {
+        if (!DREAD_Initialize()) {
+            return;
+        }
+    }
+
+    let zone = DREAD_GetCurrentZone();
+
+    DREAD_Log("===========================================");
+    DREAD_Log("Raid started in zone: " + zone);
+    DREAD_Log("===========================================");
+
+    -- Execute zone-specific spawns
+    DREAD_ExecuteZoneSpawns(zone);
+
+    -- Initialize invasion system
+    if (DREAD_IsFeatureEnabled("invasions")) {
+        DREAD_InitInvasion();
+    }
+
+    -- Log final statistics
+    let stats = DREAD_GetSpawnStats();
+    DREAD_Log("Spawn complete. Total: " + String(stats.total_spawned));
+    DREAD_Log("  Humans: " + String(stats.humans_spawned));
+    DREAD_Log("  Mutants: " + String(stats.mutants_spawned));
+    DREAD_Log("  Fauna: " + String(stats.fauna_spawned));
+    DREAD_Log("  Squads: " + String(stats.squads_spawned));
+};
+
+-- =============================================================================
+-- ZONE SPAWN EXECUTION
+-- =============================================================================
+
+let DREAD_ExecuteZoneSpawns = func(zone) {
+    match zone {
+        case "forest" {
+            DREAD_ExecuteForestSpawns();
+            DREAD_ExecuteForestBossSpawns();
+        }
+        case "makeshift_camp" {
+            DREAD_ExecuteZoneSpawnsTemplate("makeshift_camp");
+        }
+        case "industrial_area" {
+            DREAD_ExecuteZoneSpawnsTemplate("industrial_area");
+        }
+        case "swamp" {
+            DREAD_ExecuteZoneSpawnsTemplate("swamp");
+        }
+        case "mall" {
+            DREAD_ExecuteZoneSpawnsTemplate("mall");
+        }
+        case "zaton" {
+            DREAD_ExecuteZoneSpawnsTemplate("zaton");
+        }
+        case "city" {
+            DREAD_ExecuteZoneSpawnsTemplate("city");
+        }
+        case "cnpp" {
+            DREAD_ExecuteZoneSpawnsTemplate("cnpp");
+        }
+        case "hub" {
+            -- Don't spawn in hub
+            DREAD_LogDebug("Zone", "In hub - no spawns");
+        }
+        else {
+            DREAD_LogDebug("Zone", "Unknown zone: " + zone);
+        }
+    }
+
+    -- Chaos mode spawns
+    if (DREAD_IsFeatureEnabled("chaos")) {
+        DREAD_ExecuteChaosSpawns(zone);
+    }
+};
+
+-- =============================================================================
+-- CHAOS MODE SPAWNS
+-- =============================================================================
+
+let DREAD_ExecuteChaosSpawns = func(zone) {
+    DREAD_Log("Chaos Mode active - spawning cross-zone enemies");
+
+    -- Spawn 1-3 chaos enemies at raid start
+    let chaos_count = DREAD_RandomRange(1, 3);
+
+    let i = 0;
+    while (i < chaos_count) {
+        let enemy = DREAD_GetChaosEnemyForZone(zone);
+        if (enemy != undefined) {
+            NpcObjectSpawnNearPlayer(enemy, 1, false);
+            DREAD_LogDebug("Chaos", "Spawned chaos enemy");
+        }
+        i += 1;
+    }
+};
+
+-- =============================================================================
+-- FRAME UPDATE (for invasion system)
+-- =============================================================================
+
+let DREAD_OnStep = func() {
+    if (!DREAD.initialized) {
+        return;
+    }
+
+    if (!DREAD_IsInRaid()) {
+        return;
+    }
+
+    -- Update invasion system
+    DREAD_UpdateInvasion();
+};
+
+-- =============================================================================
+-- EVENT HOOKS
+-- =============================================================================
+
+-- Hook into raid start
+EventAssignFunction("enter_raid", func() {
+    DREAD_OnRaidStart();
+});
+
+-- Hook into player step for invasion updates
+-- Note: This may need adjustment based on ZS mod system
+ObjectSetScript("obj_player", "step_normal_event", func(_inst) {
+    DREAD_OnStep();
+});
+
+-- =============================================================================
+-- HUB EVENTS (optional)
+-- =============================================================================
+
+EventAssignFunction("enter_hub", func() {
+    if (DREAD.initialized) {
+        -- Stop any active invasions
+        DREAD_StopInvasion();
+
+        -- Log session stats
+        let stats = DREAD_GetSpawnStats();
+        DREAD_Log("Returned to hub. Session stats:");
+        DREAD_Log("  Total spawned: " + String(stats.total_spawned));
+    }
+});
+
+-- =============================================================================
+-- STARTUP
+-- =============================================================================
+
+-- Initialize on mod load
+DREAD_Initialize();
+
+DREAD_Log("===========================================");
+DREAD_Log("DREAD v" + DREAD.version + " loaded");
+DREAD_Log("Ready for raids!");
+DREAD_Log("===========================================");

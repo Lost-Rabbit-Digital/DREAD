@@ -1,0 +1,115 @@
+-- =============================================================================
+-- DREAD: Chaos Mode Rarity Tables
+-- =============================================================================
+-- Defines cross-zone enemy spawning for Chaos Mode
+-- Enemies are categorized by rarity tiers with weighted spawn chances
+-- =============================================================================
+
+-- =============================================================================
+-- RARITY TIER DEFINITIONS
+-- =============================================================================
+-- Native (~60%): Zone-appropriate enemies
+-- Uncommon (~25%): Adjacent zone enemies
+-- Rare (~12%): Distant zone enemies
+-- Anomalous (~3%): Late-game enemies appearing early
+
+-- =============================================================================
+-- FOREST ZONE CHAOS TABLES
+-- =============================================================================
+
+let CHAOS_FOREST = {
+    native: {
+        weight: 60,
+        enemies: [
+            obj_enemy_ghoul,
+            obj_enemy_boar,
+            obj_enemy_wolf_brown,
+            obj_bandit_preset_rookie,
+            obj_bandit_preset_skilled
+        ]
+    },
+    uncommon: {
+        weight: 25,
+        enemies: [
+            -- From Makeshift Camp / Industrial Area
+            obj_enemy_blink,
+            obj_green_army_preset_rookie,
+            obj_hunter_preset_rookie
+        ]
+    },
+    rare: {
+        weight: 12,
+        enemies: [
+            -- From Swamp / Mall
+            obj_enemy_spider,
+            obj_enemy_ghoul_2,
+            obj_crimson_preset_rookie
+        ]
+    },
+    anomalous: {
+        weight: 3,
+        enemies: [
+            -- Late-game / Boss zone enemies
+            obj_enemy_big,
+            obj_enemy_spine,
+            obj_watcher_preset_skilled
+        ]
+    }
+};
+
+-- =============================================================================
+-- CHAOS SPAWN FUNCTION
+-- =============================================================================
+
+let DREAD_GetChaosEnemyForZone = func(zone) {
+    let tables;
+
+    match zone {
+        case "forest" { tables = CHAOS_FOREST; }
+        -- TODO: Add other zones
+        else { tables = CHAOS_FOREST; }
+    }
+
+    -- Roll for rarity tier
+    let roll = Irandom(100);
+    let tier;
+
+    let cumulative = 0;
+    cumulative += tables.native.weight;
+    if (roll < cumulative) {
+        tier = tables.native;
+    } else {
+        cumulative += tables.uncommon.weight;
+        if (roll < cumulative) {
+            tier = tables.uncommon;
+        } else {
+            cumulative += tables.rare.weight;
+            if (roll < cumulative) {
+                tier = tables.rare;
+            } else {
+                tier = tables.anomalous;
+            }
+        }
+    }
+
+    -- Select random enemy from tier
+    let enemy_index = Irandom(ArrayLength(tier.enemies) - 1);
+    return tier.enemies[enemy_index];
+};
+
+-- =============================================================================
+-- CHAOS INVASION EVENT
+-- =============================================================================
+-- Special event: Spawn a wave of cross-zone enemies
+
+let DREAD_ChaosInvasion = func(intensity) {
+    -- intensity: 1 (light) to 5 (overwhelming)
+    let spawn_count = intensity * 3;
+
+    let i = 0;
+    while (i < spawn_count) {
+        let enemy = DREAD_GetChaosEnemyForZone("forest");
+        NpcObjectSpawnNearPlayer(enemy, 1, true);
+        i += 1;
+    }
+};

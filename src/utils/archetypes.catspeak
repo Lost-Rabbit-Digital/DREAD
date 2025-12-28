@@ -1,0 +1,204 @@
+-- =============================================================================
+-- DREAD: Enemy Archetype System
+-- =============================================================================
+-- SAIN-inspired personality/archetype system for enemy variety
+-- Archetypes affect equipment tier, HP, and accuracy
+-- =============================================================================
+
+-- =============================================================================
+-- ARCHETYPE DEFINITIONS
+-- =============================================================================
+
+let DREAD_ARCHETYPES = {
+    gigachad: {
+        name: "GigaChad",
+        description: "Elite enemies with top-tier gear",
+        hp_multiplier: 1.5,
+        recoil_modifier: 0.7,      -- Lower = more accurate
+        preset_tier: "master",
+        spawn_weight: 5
+    },
+    chad: {
+        name: "Chad",
+        description: "Well-equipped veteran fighters",
+        hp_multiplier: 1.2,
+        recoil_modifier: 0.85,
+        preset_tier: "expert",
+        spawn_weight: 15
+    },
+    normal: {
+        name: "Normal",
+        description: "Standard enemies",
+        hp_multiplier: 1.0,
+        recoil_modifier: 1.0,
+        preset_tier: "intermediate",
+        spawn_weight: 40
+    },
+    rat: {
+        name: "Rat",
+        description: "Sneaky but poorly equipped",
+        hp_multiplier: 0.8,
+        recoil_modifier: 1.15,
+        preset_tier: "skilled",
+        spawn_weight: 25
+    },
+    timmy: {
+        name: "Timmy",
+        description: "Inexperienced with minimal gear",
+        hp_multiplier: 0.6,
+        recoil_modifier: 1.3,
+        preset_tier: "rookie",
+        spawn_weight: 15
+    }
+};
+
+-- =============================================================================
+-- FACTION PRESET MAPPINGS
+-- =============================================================================
+-- Maps archetype tiers to faction-specific presets
+
+let DREAD_FACTION_PRESETS = {
+    bandits: {
+        master: "bandit_master",
+        expert: "bandit_expert",
+        veteran: "bandit_veteran",
+        intermediate: "bandit_intermediate",
+        skilled: "bandit_skilled",
+        rookie: "bandit_rookie"
+    },
+    green_army: {
+        master: "green_army_master",
+        expert: "green_army_expert",
+        veteran: "green_army_veteran",
+        intermediate: "green_army_intermediate",
+        skilled: "green_army_skilled",
+        rookie: "green_army_rookie"
+    },
+    hunters: {
+        master: "hunter_master",
+        expert: "hunter_expert",
+        veteran: "hunter_veteran",
+        intermediate: "hunter_intermediate",
+        skilled: "hunter_skilled",
+        rookie: "hunter_rookie"
+    },
+    watchers: {
+        master: "watcher_master",
+        expert: "watcher_expert",
+        veteran: "watcher_veteran",
+        intermediate: "watcher_intermediate",
+        skilled: "watcher_skilled",
+        rookie: "watcher_rookie"
+    },
+    crimson: {
+        master: "crimson_master",
+        expert: "crimson_expert",
+        veteran: "crimson_veteran",
+        intermediate: "crimson_intermediate",
+        skilled: "crimson_skilled",
+        rookie: "crimson_rookie"
+    }
+};
+
+-- =============================================================================
+-- ARCHETYPE SELECTION
+-- =============================================================================
+
+-- Get weighted archetype based on config
+let DREAD_SelectArchetype = func() {
+    let weighted_archetypes = [
+        { item: "gigachad", weight: DREAD_ARCHETYPES.gigachad.spawn_weight },
+        { item: "chad", weight: DREAD_ARCHETYPES.chad.spawn_weight },
+        { item: "normal", weight: DREAD_ARCHETYPES.normal.spawn_weight },
+        { item: "rat", weight: DREAD_ARCHETYPES.rat.spawn_weight },
+        { item: "timmy", weight: DREAD_ARCHETYPES.timmy.spawn_weight }
+    ];
+
+    return DREAD_WeightedRandom(weighted_archetypes);
+};
+
+-- Get archetype data
+let DREAD_GetArchetype = func(archetype_name) {
+    match archetype_name {
+        case "gigachad" { return DREAD_ARCHETYPES.gigachad; }
+        case "chad" { return DREAD_ARCHETYPES.chad; }
+        case "normal" { return DREAD_ARCHETYPES.normal; }
+        case "rat" { return DREAD_ARCHETYPES.rat; }
+        case "timmy" { return DREAD_ARCHETYPES.timmy; }
+        else { return DREAD_ARCHETYPES.normal; }
+    }
+};
+
+-- Get preset for faction and archetype
+let DREAD_GetPresetForArchetype = func(faction, archetype_name) {
+    let archetype = DREAD_GetArchetype(archetype_name);
+    let tier = archetype.preset_tier;
+
+    let faction_presets;
+    match faction {
+        case "bandits" { faction_presets = DREAD_FACTION_PRESETS.bandits; }
+        case "green_army" { faction_presets = DREAD_FACTION_PRESETS.green_army; }
+        case "hunters" { faction_presets = DREAD_FACTION_PRESETS.hunters; }
+        case "watchers" { faction_presets = DREAD_FACTION_PRESETS.watchers; }
+        case "crimson" { faction_presets = DREAD_FACTION_PRESETS.crimson; }
+        else { faction_presets = DREAD_FACTION_PRESETS.bandits; }
+    }
+
+    match tier {
+        case "master" { return faction_presets.master; }
+        case "expert" { return faction_presets.expert; }
+        case "veteran" { return faction_presets.veteran; }
+        case "intermediate" { return faction_presets.intermediate; }
+        case "skilled" { return faction_presets.skilled; }
+        case "rookie" { return faction_presets.rookie; }
+        else { return faction_presets.intermediate; }
+    }
+};
+
+-- =============================================================================
+-- ARCHETYPE APPLICATION
+-- =============================================================================
+
+-- Apply archetype modifiers to an NPC
+let DREAD_ApplyArchetypeToNpc = func(npc_id, archetype_name, faction) {
+    let archetype = DREAD_GetArchetype(archetype_name);
+    let preset = DREAD_GetPresetForArchetype(faction, archetype_name);
+
+    -- Apply preset
+    NpcSetPreset(npc_id, preset);
+
+    -- Apply HP modifier (base HP * multiplier)
+    -- Note: We need to know base HP, using 100 as default
+    let base_hp = 100;
+    let modified_hp = base_hp * archetype.hp_multiplier;
+    NpcSetHp(npc_id, modified_hp);
+
+    -- Apply accuracy modifier via recoil
+    -- Higher recoil = less accurate
+    let base_recoil = 10;
+    let modified_recoil = base_recoil * archetype.recoil_modifier;
+    NpcSetRecoilAimRadius(npc_id, modified_recoil);
+
+    DREAD_LogDebug("Archetype", "Applied " + archetype.name + " to " + npc_id);
+
+    return archetype;
+};
+
+-- =============================================================================
+-- LEADER SELECTION
+-- =============================================================================
+
+-- Select a leader archetype (always chad or above)
+let DREAD_SelectLeaderArchetype = func() {
+    let leader_archetypes = [
+        { item: "gigachad", weight: 30 },
+        { item: "chad", weight: 70 }
+    ];
+
+    return DREAD_WeightedRandom(leader_archetypes);
+};
+
+-- Check if archetype should be a squad leader
+let DREAD_IsLeaderArchetype = func(archetype_name) {
+    return (archetype_name == "gigachad") || (archetype_name == "chad");
+};
