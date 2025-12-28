@@ -1,0 +1,156 @@
+-- =============================================================================
+-- DREAD: Dynamic Randomized Enemy Area Distribution
+-- Zero Sievert Spawn Overhaul Mod
+-- =============================================================================
+-- Author: Lost Rabbit Digital
+-- License: MIT
+-- Version: 0.1.0 (Development)
+-- =============================================================================
+
+-- Configuration
+let DREAD_VERSION = "0.1.0";
+let DREAD_DEBUG = true;
+
+-- =============================================================================
+-- INITIALIZATION
+-- =============================================================================
+
+-- Load configuration
+let config = {
+    enabled: true,
+    chaos_mode: false,
+    spawn_multiplier: 1.0,
+    debug: true
+};
+
+-- TODO: Load from JSON config file
+-- let config = FileDataRead("dread_config.json");
+
+-- =============================================================================
+-- DEBUG LOGGING
+-- =============================================================================
+
+let DREAD_Log = func(message) {
+    if (config.debug) {
+        ShowMessage("[DREAD] " + message);
+    }
+};
+
+-- =============================================================================
+-- MAIN EVENT HOOKS
+-- =============================================================================
+
+-- Hook into raid start
+EventAssignFunction("enter_raid", func() {
+    if (config.enabled) {
+        DREAD_Log("Raid started - DREAD active");
+        DREAD_OnRaidStart();
+    }
+});
+
+-- =============================================================================
+-- RAID START HANDLER
+-- =============================================================================
+
+let DREAD_OnRaidStart = func() {
+    let currentRoom = RoomGetCurrent();
+
+    -- Route to zone-specific handlers
+    -- TODO: Implement zone detection
+    -- For POC, we assume Forest zone
+
+    DREAD_Log("Current room: " + currentRoom);
+
+    -- Forest zone spawning
+    DREAD_SpawnForest();
+
+    -- Chaos mode additional spawns
+    if (config.chaos_mode) {
+        DREAD_SpawnChaos();
+    }
+};
+
+-- =============================================================================
+-- FOREST ZONE SPAWNING
+-- =============================================================================
+
+let DREAD_SpawnForest = func() {
+    DREAD_Log("Spawning Forest enemies...");
+
+    -- TODO: Define spawn points based on map analysis
+    -- These are placeholder coordinates
+
+    -- Northwest Quadrant (currently empty in vanilla)
+    -- DREAD_SpawnGroup(500, 500, "bandit", 2, 4);
+
+    -- Lakeside Area
+    -- DREAD_SpawnGroup(1200, 800, "fauna", 1, 3);
+
+    -- Cabin Areas
+    -- DREAD_SpawnGroup(800, 600, "mutant", 1, 2);
+
+    DREAD_Log("Forest spawning complete");
+};
+
+-- =============================================================================
+-- CHAOS MODE SPAWNING
+-- =============================================================================
+
+let DREAD_SpawnChaos = func() {
+    DREAD_Log("Chaos mode active - spawning cross-zone enemies...");
+
+    -- TODO: Implement rarity-weighted enemy selection
+    -- let enemy = DREAD_GetChaosEnemy();
+    -- NpcObjectSpawnNearPlayer(enemy, 1, true);
+
+    DREAD_Log("Chaos spawning complete");
+};
+
+-- =============================================================================
+-- SPAWN UTILITIES
+-- =============================================================================
+
+let DREAD_SpawnGroup = func(x, y, enemy_type, min_count, max_count) {
+    -- Determine group size
+    let count = Irandom(max_count - min_count) + min_count;
+
+    -- Spawn enemies with slight position variance
+    let i = 0;
+    while (i < count) {
+        let spawn_x = x + Irandom(50) - 25;
+        let spawn_y = y + Irandom(50) - 25;
+
+        if (CollisionWalkable(spawn_x, spawn_y)) {
+            -- TODO: Get enemy object from enemy_type string
+            -- InstanceCreate(spawn_x, spawn_y, enemy_obj);
+            DREAD_Log("Would spawn " + enemy_type + " at " + String(spawn_x) + "," + String(spawn_y));
+        }
+
+        i += 1;
+    }
+};
+
+let DREAD_GetChaosEnemy = func() {
+    let roll = Irandom(100);
+
+    -- Rarity weights from design doc
+    if (roll < 60) {
+        -- Native (60%): Zone-appropriate enemies
+        return obj_enemy_ghoul;
+    } else if (roll < 85) {
+        -- Uncommon (25%): Adjacent zone enemies
+        return obj_enemy_blink;
+    } else if (roll < 97) {
+        -- Rare (12%): Distant zone enemies
+        return obj_enemy_spider;
+    } else {
+        -- Anomalous (3%): Late-game enemies
+        return obj_enemy_big;
+    }
+};
+
+-- =============================================================================
+-- STARTUP MESSAGE
+-- =============================================================================
+
+DREAD_Log("DREAD v" + DREAD_VERSION + " loaded");

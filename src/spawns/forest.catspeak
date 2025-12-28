@@ -1,0 +1,121 @@
+-- =============================================================================
+-- DREAD: Forest Zone Spawn Configuration
+-- =============================================================================
+-- This file defines spawn points and enemy configurations for the Forest zone.
+-- =============================================================================
+
+-- =============================================================================
+-- SPAWN POINT DEFINITIONS
+-- =============================================================================
+-- Coordinates are based on Forest map analysis
+-- See: Modding Documentation/Images For Reference/
+--
+-- TODO: Map out actual spawn coordinates from in-game testing
+-- Format: { x, y, type, min_count, max_count, faction }
+
+let FOREST_SPAWN_POINTS = [
+    -- Northwest Quadrant (currently empty in vanilla)
+    { x: 500, y: 500, type: "bandit", min: 2, max: 4, faction: "bandits" },
+    { x: 650, y: 400, type: "bandit", min: 1, max: 3, faction: "bandits" },
+
+    -- Lakeside Areas
+    { x: 1200, y: 800, type: "fauna", min: 1, max: 2, faction: "neutral" },
+    { x: 1400, y: 750, type: "fauna", min: 2, max: 4, faction: "neutral" },
+
+    -- Cabin Areas
+    { x: 800, y: 600, type: "mutant", min: 1, max: 2, faction: "mutant" },
+
+    -- Forest Edge
+    { x: 300, y: 900, type: "fauna", min: 1, max: 3, faction: "neutral" },
+
+    -- Road Intersections
+    { x: 1000, y: 500, type: "bandit", min: 2, max: 3, faction: "bandits" }
+];
+
+-- =============================================================================
+-- ENEMY TYPE MAPPINGS
+-- =============================================================================
+
+let FOREST_ENEMY_TYPES = {
+    bandit: [
+        obj_bandit_preset_rookie,
+        obj_bandit_preset_skilled,
+        obj_bandit_preset_intermediate
+    ],
+    fauna: [
+        obj_enemy_boar,
+        obj_enemy_wolf_brown,
+        obj_enemy_rabbit
+    ],
+    mutant: [
+        obj_enemy_ghoul,
+        obj_enemy_ghoul_2
+    ],
+    boss: [
+        obj_enemy_human_bandit_boss  -- Lazar
+    ]
+};
+
+-- =============================================================================
+-- SPAWN WEIGHTS BY ENEMY TIER
+-- =============================================================================
+
+let FOREST_BANDIT_WEIGHTS = {
+    rookie: 40,
+    skilled: 30,
+    intermediate: 20,
+    expert: 8,
+    veteran: 2
+};
+
+let FOREST_FAUNA_WEIGHTS = {
+    boar: 40,
+    wolf: 35,
+    rabbit: 25
+};
+
+let FOREST_MUTANT_WEIGHTS = {
+    ghoul: 70,
+    ghoul_crystallized: 30
+};
+
+-- =============================================================================
+-- FOREST SPAWN FUNCTION
+-- =============================================================================
+
+let DREAD_SpawnForestAll = func() {
+    let i = 0;
+    while (i < ArrayLength(FOREST_SPAWN_POINTS)) {
+        let point = FOREST_SPAWN_POINTS[i];
+        DREAD_SpawnAtPoint(point);
+        i += 1;
+    }
+};
+
+let DREAD_SpawnAtPoint = func(point) {
+    -- Determine enemy count
+    let count = Irandom(point.max - point.min) + point.min;
+
+    -- Get enemy type list
+    let enemies = FOREST_ENEMY_TYPES[point.type];
+    if (enemies == undefined) {
+        return;
+    }
+
+    -- Spawn enemies
+    let j = 0;
+    while (j < count) {
+        let spawn_x = point.x + Irandom(40) - 20;
+        let spawn_y = point.y + Irandom(40) - 20;
+
+        if (CollisionWalkable(spawn_x, spawn_y)) {
+            -- Select random enemy from type list
+            let enemy_index = Irandom(ArrayLength(enemies) - 1);
+            let enemy = enemies[enemy_index];
+
+            InstanceCreate(spawn_x, spawn_y, enemy);
+        }
+
+        j += 1;
+    }
+};

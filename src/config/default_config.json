@@ -1,0 +1,73 @@
+{
+    "mod_info": {
+        "name": "DREAD",
+        "version": "0.1.0",
+        "author": "Lost Rabbit Digital"
+    },
+    "general": {
+        "enabled": true,
+        "debug_mode": true,
+        "spawn_multiplier": 1.0
+    },
+    "zones": {
+        "forest": {
+            "enabled": true,
+            "spawn_density": "normal"
+        },
+        "makeshift_camp": {
+            "enabled": false,
+            "spawn_density": "normal"
+        },
+        "industrial_area": {
+            "enabled": false,
+            "spawn_density": "normal"
+        },
+        "swamp": {
+            "enabled": false,
+            "spawn_density": "normal"
+        },
+        "mall": {
+            "enabled": false,
+            "spawn_density": "normal"
+        },
+        "zaton": {
+            "enabled": false,
+            "spawn_density": "normal"
+        },
+        "city": {
+            "enabled": false,
+            "spawn_density": "normal"
+        },
+        "cnpp": {
+            "enabled": false,
+            "spawn_density": "normal"
+        }
+    },
+    "chaos_mode": {
+        "enabled": false,
+        "rarity_weights": {
+            "native": 60,
+            "uncommon": 25,
+            "rare": 12,
+            "anomalous": 3
+        }
+    },
+    "difficulty_presets": {
+        "easy": {
+            "spawn_multiplier": 0.5,
+            "chaos_mode": false
+        },
+        "normal": {
+            "spawn_multiplier": 1.0,
+            "chaos_mode": false
+        },
+        "hard": {
+            "spawn_multiplier": 1.5,
+            "chaos_mode": false
+        },
+        "nightmare": {
+            "spawn_multiplier": 2.0,
+            "chaos_mode": true
+        }
+    }
+}
