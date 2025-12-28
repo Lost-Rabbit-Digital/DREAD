@@ -1,0 +1,2051 @@
+{
+  "vaultName": "Modding Documentation",
+  "lastExport": 1747002275186,
+  "pluginVersion": "1.8.01",
+  "validBodyClasses": "publish css-settings-manager theme-dark show-inline-title show-ribbon",
+  "useCustomHeadContent": false,
+  "useCustomFavicon": false,
+  "files": [
+    "Constants and Macros/Calibers.md",
+    "Constants and Macros/Chest IDs.md",
+    "Constants and Macros/Enemy Names.md",
+    "Constants and Macros/Faction Names.md",
+    "Constants and Macros/Faction Reputation.md",
+    "Constants and Macros/Headset Light IDs.md",
+    "Constants and Macros/Item Categories.md",
+    "Constants and Macros/Item IDs.md",
+    "Constants and Macros/Map Names.md",
+    "Constants and Macros/NPC Presets.md",
+    "Constants and Macros/Object Types.md",
+    "Constants and Macros/Pre-Existing Objects.md",
+    "Constants and Macros/Speaker Dialogue Types.md",
+    "Constants and Macros/Weapon Attachment Slots.md",
+    "Constants and Macros/Weapon Firing Modes.md",
+    "Constants and Macros/Weapon Mod Types.md",
+    "Constants and Macros/Weapon Reload Types.md",
+    "Constants and Macros/Weapon Types.md",
+    "Event Hooks/Game Events.md",
+    "Event Hooks/Player and Object Events.md",
+    "Event Hooks/Weapon Script Events.md",
+    "Functions/Arrays/Arrays.md",
+    "Functions/Chests/ChestAddItem.md",
+    "Functions/Chests/ChestAddSpecialItem.md",
+    "Functions/Chests/ChestCreate.md",
+    "Functions/Chests/ChestSetAlwaysSeen.md",
+    "Functions/Chests/ChestSetDestroyWhenEmpty.md",
+    "Functions/Chests/ChestSetFromEnemy.md",
+    "Functions/Chests/ChestSetIsDrop.md",
+    "Functions/Chests/ChestSetItemCount.md",
+    "Functions/Chests/ChestSetItemDropChance.md",
+    "Functions/Chests/ChestSetItemsDecay.md",
+    "Functions/Chests/ChestSetName.md",
+    "Functions/Chests/ChestSetSoundType.md",
+    "Functions/Chests/ChestSetSprite.md",
+    "Functions/Collisions/CollisionWalkable.md",
+    "Functions/Collisions/PlaceMeeting.md",
+    "Functions/Crafting/CraftingRecipeCreate.md",
+    "Functions/Drawing/Drawing.md",
+    "Functions/Events/EventAssignFunction.md",
+    "Functions/Factions/FactionCreate.md",
+    "Functions/Factions/FactionExists.md",
+    "Functions/Factions/FactionSetName.md",
+    "Functions/Factions/FactionSetRelationship.md",
+    "Functions/File Data/FileDataRead.md",
+    "Functions/File Data/FileDataWrite.md",
+    "Functions/Input/Input.md",
+    "Functions/Instances/InstanceCreate.md",
+    "Functions/Inventory/InventoryItemCount.md",
+    "Functions/Inventory/InventoryItemExists.md",
+    "Functions/Items/Ammo/ItemCreateAmmo.md",
+    "Functions/Items/Armor/ItemArmorCreate.md",
+    "Functions/Items/Armor/ItemArmorSetAnomaly.md",
+    "Functions/Items/Armor/ItemArmorSetClass.md",
+    "Functions/Items/Armor/ItemArmorSetFragility.md",
+    "Functions/Items/Armor/ItemArmorSetPierce.md",
+    "Functions/Items/Armor/ItemArmorSetRadiation.md",
+    "Functions/Items/Armor/ItemArmorSetSpriteDead.md",
+    "Functions/Items/Armor/ItemArmorSetSpriteIdle.md",
+    "Functions/Items/Armor/ItemArmorSetSpriteRun.md",
+    "Functions/Items/Backpacks/ItemBackpackCreate.md",
+    "Functions/Items/Backpacks/ItemBackpackSetErgonomic.md",
+    "Functions/Items/Backpacks/ItemBackpackSetMovementSpeed.md",
+    "Functions/Items/Backpacks/ItemBackpackSetSpriteGame.md",
+    "Functions/Items/Backpacks/ItemBackpackSetWeight.md",
+    "Functions/Items/Barter/ItemBarterCreate.md",
+    "Functions/Items/Consumables/ItemConsumableCreate.md",
+    "Functions/Items/Consumables/ItemConsumableSetAnimation.md",
+    "Functions/Items/Consumables/ItemConsumableSetEnergy.md",
+    "Functions/Items/Consumables/ItemConsumableSetEvent.md",
+    "Functions/Items/Consumables/ItemConsumableSetFatigue.md",
+    "Functions/Items/Consumables/ItemConsumableSetRadiation.md",
+    "Functions/Items/Consumables/ItemConsumableSetSound.md",
+    "Functions/Items/Consumables/ItemConsumableSetThirst.md",
+    "Functions/Items/Documents/ItemDocumentCreate.md",
+    "Functions/Items/Generic Usage/ItemCreate.md",
+    "Functions/Items/Generic Usage/ItemSetDescription.md",
+    "Functions/Items/Generic Usage/ItemSetName.md",
+    "Functions/Items/Generic Usage/ItemSetPriceValue.md",
+    "Functions/Items/Generic Usage/ItemSetSpriteIngame.md",
+    "Functions/Items/Generic Usage/ItemSetSpriteInventory.md",
+    "Functions/Items/Generic Usage/ItemSetStackLimit.md",
+    "Functions/Items/Generic Usage/ItemSetWeight.md",
+    "Functions/Items/Grenade/ItemGrenadeCreate.md",
+    "Functions/Items/Grenade/ItemGrenadeSetAnimation.md",
+    "Functions/Items/Grenade/ItemGrenadeSetDamageMax.md",
+    "Functions/Items/Grenade/ItemGrenadeSetDamageMin.md",
+    "Functions/Items/Grenade/ItemGrenadeSetDetonationDuration.md",
+    "Functions/Items/Grenade/ItemGrenadeSetDetonationType.md",
+    "Functions/Items/Grenade/ItemGrenadeSetFuseTime.md",
+    "Functions/Items/Grenade/ItemGrenadeSetRadiusMaxDamage.md",
+    "Functions/Items/Grenade/ItemGrenadeSetRadiusMinDamage.md",
+    "Functions/Items/Grenade/ItemGrenadeSetThrowMax.md",
+    "Functions/Items/Grenade/ItemGrenadeSetThrowMin.md",
+    "Functions/Items/Grenade/ItemGrenadeSetThrowType.md",
+    "Functions/Items/Headset/ItemHeadsetCreate.md",
+    "Functions/Items/Headset/ItemHeadsetSetLightID.md",
+    "Functions/Items/Headset/ItemHeadsetSetType.md",
+    "Functions/Items/Headset/ItemHeadsetSetVisionValues.md",
+    "Functions/Items/Headsets/ItemCreateHeadset (UNFINISHED).md",
+    "Functions/Items/Injectors/ItemInjectorCreate.md",
+    "Functions/Items/Injectors/ItemInjectorSetBleedImmune.md",
+    "Functions/Items/Injectors/ItemInjectorSetBleedRec.md",
+    "Functions/Items/Injectors/ItemInjectorSetDuration.md",
+    "Functions/Items/Injectors/ItemInjectorSetHpRegen.md",
+    "Functions/Items/Injectors/ItemInjectorSetHunger.md",
+    "Functions/Items/Injectors/ItemInjectorSetHungerRegen.md",
+    "Functions/Items/Injectors/ItemInjectorSetMaxHp.md",
+    "Functions/Items/Injectors/ItemInjectorSetMaxWeight.md",
+    "Functions/Items/Injectors/ItemInjectorSetRadDef.md",
+    "Functions/Items/Injectors/ItemInjectorSetRadRegen.md",
+    "Functions/Items/Injectors/ItemInjectorSetStaminaMax.md",
+    "Functions/Items/Injectors/ItemInjectorSetStaminaRegen.md",
+    "Functions/Items/Injectors/ItemInjectorSetThirst.md",
+    "Functions/Items/Injectors/ItemInjectorSetThirstRegen.md",
+    "Functions/Items/Key/ItemKeyCreate.md",
+    "Functions/Items/Medical/ItemMedicalCreate.md",
+    "Functions/Items/Medical/ItemMedicalSetAnimation.md",
+    "Functions/Items/Medical/ItemMedicalSetBleed.md",
+    "Functions/Items/Medical/ItemMedicalSetCanMove.md",
+    "Functions/Items/Medical/ItemMedicalSetDuration.md",
+    "Functions/Items/Medical/ItemMedicalSetMoveSpeedMultiplier.md",
+    "Functions/Items/Medical/ItemMedicalSetRadiation.md",
+    "Functions/Items/Medical/ItemMedicalSetWound.md",
+    "Functions/Items/Repair Items/ItemArmorRepairCreate.md",
+    "Functions/Items/Repair Items/ItemWeaponRepairCreate.md",
+    "Functions/Languages/LanguageCreate.md",
+    "Functions/Languages/LanguageSetFontOffsets.md",
+    "Functions/Languages/LanguageSetFontSizes.md",
+    "Functions/Loadouts/LoadoutAddItem.md",
+    "Functions/Loadouts/LoadoutClear.md",
+    "Functions/Math and Randoms/Math.md",
+    "Functions/Misc/Real.md",
+    "Functions/Misc/RoomGetCurrent.md",
+    "Functions/Misc/ShowMessage.md",
+    "Functions/Misc/String.md",
+    "Functions/NPCs/NpcCopy.md",
+    "Functions/NPCs/NpcCreate.md",
+    "Functions/NPCs/NpcObjectDestroy.md",
+    "Functions/NPCs/NpcObjectSpawnNearPlayer.md",
+    "Functions/NPCs/NpcSetArmor.md",
+    "Functions/NPCs/NpcSetChestDropped.md",
+    "Functions/NPCs/NpcSetExperience.md",
+    "Functions/NPCs/NpcSetFaction.md",
+    "Functions/NPCs/NpcSetFootstep.md",
+    "Functions/NPCs/NpcSetHp.md",
+    "Functions/NPCs/NpcSetImageSpeed.md",
+    "Functions/NPCs/NpcSetMeleeDamage.md",
+    "Functions/NPCs/NpcSetName.md",
+    "Functions/NPCs/NpcSetPreset.md",
+    "Functions/NPCs/NpcSetRecoilAimRadius.md",
+    "Functions/NPCs/NpcSetRecoilCrosshairDelay.md",
+    "Functions/NPCs/NpcSetRotatingAngleRate.md",
+    "Functions/NPCs/NpcSetSpeaker.md",
+    "Functions/NPCs/NpcSetSpriteDead.md",
+    "Functions/NPCs/NpcSetSpriteIdle.md",
+    "Functions/NPCs/NpcSetSpriteMoving.md",
+    "Functions/NPCs/NpcSetSweetAngleChance.md",
+    "Functions/NPCs/NpcSetTraderId.md",
+    "Functions/NPCs/NpcSetWeapon.md",
+    "Functions/NPCs/NpcSpawn.md",
+    "Functions/Objects/ObjectCreate.md",
+    "Functions/Objects/ObjectExists.md",
+    "Functions/Objects/ObjectGetAllInstances.md",
+    "Functions/Objects/ObjectSetScript.md",
+    "Functions/Objects/ObjectSetType.md",
+    "Functions/Objects/ObjectSpawn.md",
+    "Functions/Particles/Particles.md",
+    "Functions/Quests/Objective Types/QuestObjectiveTypeApproach (IN PROGRESS).md",
+    "Functions/Quests/Objective Types/QuestObjectiveTypeCollect.md",
+    "Functions/Quests/Objective Types/QuestObjectiveTypeKill.md",
+    "Functions/Quests/Objective Types/QuestObjectiveTypeSurviveMap.md",
+    "Functions/Quests/Objective Types/QuestObjectiveTypeSurviveMinimumMoney.md",
+    "Functions/Quests/QuestAddObjective.md",
+    "Functions/Quests/QuestAddReward.md",
+    "Functions/Quests/QuestCreate.md",
+    "Functions/Quests/QuestIsComplete.md",
+    "Functions/Quests/QuestSetName.md",
+    "Functions/Quests/QuestSetText.md",
+    "Functions/Scripts/ScriptExpose.md",
+    "Functions/Scripts/ScriptGet.md",
+    "Functions/Sound/SoundGet.md",
+    "Functions/Sound/SoundLoad.md",
+    "Functions/Sound/SoundPlay.md",
+    "Functions/Sound/SoundPlayAt.md",
+    "Functions/Speakers/SpeakerAddDialogueChoice.md",
+    "Functions/Speakers/SpeakerAddHello.md",
+    "Functions/Speakers/SpeakerAddQuest.md",
+    "Functions/Speakers/SpeakerAddQuestion.md",
+    "Functions/Speakers/SpeakerCreate.md",
+    "Functions/Speakers/SpeakerGetIndex.md",
+    "Functions/Sprites/SpriteGet.md",
+    "Functions/Sprites/SpriteGetHeight.md",
+    "Functions/Sprites/SpriteGetWidth.md",
+    "Functions/Sprites/SpriteLoad.md",
+    "Functions/Sprites/SpriteSetOrigin.md",
+    "Functions/Sprites/SpriteSetSpeed.md",
+    "Functions/Structs/Structs.md",
+    "Functions/Time/TimeGetDay.md",
+    "Functions/Time/TimeGetHour.md",
+    "Functions/Time/TimeGetMinute.md",
+    "Functions/Time/TimeGetMonth.md",
+    "Functions/Time/TimeGetSecond.md",
+    "Functions/Time/TimeGetYear.md",
+    "Functions/Traders/TraderAddItem.md",
+    "Functions/Traders/TraderCreate.md",
+    "Functions/Traders/TraderSetFaction.md",
+    "Functions/Traders/TraderSetFormatPages.md",
+    "Functions/Traders/TraderSetMoney.md",
+    "Functions/Traders/TraderSetName.md",
+    "Functions/Weapons/WeaponCopy.md",
+    "Functions/Weapons/WeaponCreate.md",
+    "Functions/Weapons/WeaponModCreate.md",
+    "Functions/Weapons/WeaponModLaserConfigure.md",
+    "Functions/Weapons/WeaponModScopeConfigure.md",
+    "Functions/Weapons/WeaponSetAmmo.md",
+    "Functions/Weapons/WeaponSetCaliber.md",
+    "Functions/Weapons/WeaponSetErgonomics.md",
+    "Functions/Weapons/WeaponSetFireMode.md",
+    "Functions/Weapons/WeaponSetRateOfFire.md",
+    "Functions/Weapons/WeaponSetRecoil.md",
+    "Functions/Weapons/WeaponSetReloadTime.md",
+    "Functions/Weapons/WeaponSetReloadType.md",
+    "Functions/Weapons/WeaponSetScript.md",
+    "Functions/Weapons/WeaponSetWeaponModData.md",
+    "Functions/Weapons/WeaponSetWeaponType.md",
+    "Images For Refernce/mod_eggk47_base-export.png",
+    "Images For Refernce/Pasted image 20241118122905.png",
+    "Images For Refernce/Pasted image 20241118122908.png",
+    "Images For Refernce/Pasted image 20241118122929.png",
+    "Images For Refernce/Pasted image 20241118123122.png",
+    "Images For Refernce/Pasted image 20241118123139.png",
+    "Images For Refernce/Pasted image 20241118123147.png",
+    "Images For Refernce/Pasted image 20250130115356.png",
+    "Images For Refernce/Pasted image 20250325080207.png",
+    "Images For Refernce/Pasted image 20250326090752.png",
+    "Images For Refernce/Pasted image 20250326090759.png",
+    "Images For Refernce/Pasted image 20250326091007.png",
+    "Images For Refernce/Pasted image 20250326091217.png",
+    "Images For Refernce/Pasted image 20250327101717.png",
+    "Images For Refernce/Pasted image 20250327101824.png",
+    "Images For Refernce/Pasted image 20250327110017.png",
+    "Images For Refernce/Pasted image 20250327110027.png",
+    "Images For Refernce/Pasted image 20250327110042.png",
+    "Images For Refernce/Pasted image 20250327130627.png",
+    "Images For Refernce/Pasted image 20250327130655.png",
+    "Images For Refernce/Pasted image 20250327130710.png",
+    "Images For Refernce/Pasted image 20250327131346.png",
+    "Images For Refernce/Pasted image 20250327131420.png",
+    "Images For Refernce/Pasted image 20250327131444.png",
+    "Images For Refernce/Pasted image 20250327131548.png",
+    "Images For Refernce/Pasted image 20250327131728.png",
+    "Images For Refernce/Pasted image 20250327131905.png",
+    "Images For Refernce/Pasted image 20250327132156.png",
+    "Images For Refernce/Pasted image 20250327132355.png",
+    "Images For Refernce/Pasted image 20250327132429.png",
+    "Images For Refernce/Pasted image 20250401134807.png",
+    "Images For Refernce/Pasted image 20250424114805.png",
+    "Images For Refernce/Pasted image 20250424115240.png",
+    "Images For Refernce/Pasted image 20250424115603.png",
+    "Images For Refernce/Pasted image 20250424120642.png",
+    "Images For Refernce/Pasted image 20250424131203.png",
+    "Objects/Objects.md",
+    "Overview/Getting Started.md",
+    "Overview/Items.md",
+    "Overview/Mod Upload Errors and Requirements.md",
+    "Overview/Modding Crashes.md",
+    "Overview/Updating Workshop Mods.md",
+    "Overview/Weapons.md",
+    "Programming Language (Catspeak)/Expressions.md",
+    "Programming Language (Catspeak)/Interacting With Instances.md",
+    "Programming Language (Catspeak)/Keyword Differences.md",
+    "Programming Language (Catspeak)/Lexical Grammar.md",
+    "Programming Language (Catspeak)/Pitfalls.md",
+    "Start.md",
+    "lib/fonts/94f2f163d4b698242fef.otf",
+    "lib/fonts/72505e6a122c6acd5471.woff2",
+    "lib/fonts/2d5198822ab091ce4305.woff2",
+    "lib/fonts/c8ba52b05a9ef10f4758.woff2",
+    "lib/fonts/cb10ffd7684cd9836a05.woff2",
+    "lib/fonts/b5f0f109bc88052d4000.woff2",
+    "lib/fonts/cbe0ae49c52c920fd563.woff2",
+    "lib/fonts/535a6cf662596b3bd6a6.woff2",
+    "lib/fonts/70cc7ff27245e82ad414.ttf",
+    "lib/fonts/454577c22304619db035.ttf",
+    "lib/fonts/52ac8f3034507f1d9e53.ttf",
+    "lib/fonts/05b618077343fbbd92b7.ttf",
+    "lib/fonts/4bb6ac751d1c5478ff3a.woff2",
+    "lib/media/6155340132a851f6089e.svg"
+  ],
+  "mainDependencies": [
+    "lib/fonts/94f2f163d4b698242fef.otf",
+    "lib/fonts/72505e6a122c6acd5471.woff2",
+    "lib/fonts/2d5198822ab091ce4305.woff2",
+    "lib/fonts/c8ba52b05a9ef10f4758.woff2",
+    "lib/fonts/cb10ffd7684cd9836a05.woff2",
+    "lib/fonts/b5f0f109bc88052d4000.woff2",
+    "lib/fonts/cbe0ae49c52c920fd563.woff2",
+    "lib/fonts/535a6cf662596b3bd6a6.woff2",
+    "lib/fonts/70cc7ff27245e82ad414.ttf",
+    "lib/fonts/454577c22304619db035.ttf",
+    "lib/fonts/52ac8f3034507f1d9e53.ttf",
+    "lib/fonts/05b618077343fbbd92b7.ttf",
+    "lib/fonts/4bb6ac751d1c5478ff3a.woff2",
+    "lib/media/6155340132a851f6089e.svg"
+  ],
+  "fileInfo": {
+    "Constants and Macros/Calibers.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 290,
+      "exportedPath": "Constants and Macros/Calibers.html",
+      "dependencies": []
+    },
+    "Constants and Macros/Chest IDs.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 8091,
+      "exportedPath": "Constants and Macros/Chest IDs.html",
+      "dependencies": []
+    },
+    "Constants and Macros/Enemy Names.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 3923,
+      "exportedPath": "Constants and Macros/Enemy Names.html",
+      "dependencies": []
+    },
+    "Constants and Macros/Faction Names.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 574,
+      "exportedPath": "Constants and Macros/Faction Names.html",
+      "dependencies": []
+    },
+    "Constants and Macros/Faction Reputation.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 909,
+      "exportedPath": "Constants and Macros/Faction Reputation.html",
+      "dependencies": []
+    },
+    "Constants and Macros/Headset Light IDs.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 233,
+      "exportedPath": "Constants and Macros/Headset Light IDs.html",
+      "dependencies": []
+    },
+    "Constants and Macros/Item Categories.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 590,
+      "exportedPath": "Constants and Macros/Item Categories.html",
+      "dependencies": []
+    },
+    "Constants and Macros/Item IDs.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 34491,
+      "exportedPath": "Constants and Macros/Item IDs.html",
+      "dependencies": []
+    },
+    "Constants and Macros/Map Names.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 470,
+      "exportedPath": "Constants and Macros/Map Names.html",
+      "dependencies": []
+    },
+    "Constants and Macros/NPC Presets.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1036,
+      "exportedPath": "Constants and Macros/NPC Presets.html",
+      "dependencies": []
+    },
+    "Constants and Macros/Object Types.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 415,
+      "exportedPath": "Constants and Macros/Object Types.html",
+      "dependencies": []
+    },
+    "Constants and Macros/Pre-Existing Objects.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 6694,
+      "exportedPath": "Constants and Macros/Pre-Existing Objects.html",
+      "dependencies": []
+    },
+    "Constants and Macros/Speaker Dialogue Types.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1324,
+      "exportedPath": "Constants and Macros/Speaker Dialogue Types.html",
+      "dependencies": []
+    },
+    "Constants and Macros/Weapon Attachment Slots.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 468,
+      "exportedPath": "Constants and Macros/Weapon Attachment Slots.html",
+      "dependencies": []
+    },
+    "Constants and Macros/Weapon Firing Modes.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 693,
+      "exportedPath": "Constants and Macros/Weapon Firing Modes.html",
+      "dependencies": []
+    },
+    "Constants and Macros/Weapon Mod Types.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 421,
+      "exportedPath": "Constants and Macros/Weapon Mod Types.html",
+      "dependencies": []
+    },
+    "Constants and Macros/Weapon Reload Types.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 958,
+      "exportedPath": "Constants and Macros/Weapon Reload Types.html",
+      "dependencies": []
+    },
+    "Constants and Macros/Weapon Types.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 371,
+      "exportedPath": "Constants and Macros/Weapon Types.html",
+      "dependencies": []
+    },
+    "Event Hooks/Game Events.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1381,
+      "exportedPath": "Event Hooks/Game Events.html",
+      "dependencies": []
+    },
+    "Event Hooks/Player and Object Events.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 2722,
+      "exportedPath": "Event Hooks/Player and Object Events.html",
+      "dependencies": []
+    },
+    "Event Hooks/Weapon Script Events.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1093,
+      "exportedPath": "Event Hooks/Weapon Script Events.html",
+      "dependencies": []
+    },
+    "Functions/Arrays/Arrays.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1569,
+      "exportedPath": "Functions/Arrays/Arrays.html",
+      "dependencies": []
+    },
+    "Functions/Chests/ChestAddItem.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1218,
+      "exportedPath": "Functions/Chests/ChestAddItem.html",
+      "dependencies": []
+    },
+    "Functions/Chests/ChestAddSpecialItem.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1257,
+      "exportedPath": "Functions/Chests/ChestAddSpecialItem.html",
+      "dependencies": []
+    },
+    "Functions/Chests/ChestCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 463,
+      "exportedPath": "Functions/Chests/ChestCreate.html",
+      "dependencies": []
+    },
+    "Functions/Chests/ChestSetAlwaysSeen.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 668,
+      "exportedPath": "Functions/Chests/ChestSetAlwaysSeen.html",
+      "dependencies": []
+    },
+    "Functions/Chests/ChestSetDestroyWhenEmpty.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 623,
+      "exportedPath": "Functions/Chests/ChestSetDestroyWhenEmpty.html",
+      "dependencies": []
+    },
+    "Functions/Chests/ChestSetFromEnemy.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 714,
+      "exportedPath": "Functions/Chests/ChestSetFromEnemy.html",
+      "dependencies": []
+    },
+    "Functions/Chests/ChestSetIsDrop.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 592,
+      "exportedPath": "Functions/Chests/ChestSetIsDrop.html",
+      "dependencies": []
+    },
+    "Functions/Chests/ChestSetItemCount.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 910,
+      "exportedPath": "Functions/Chests/ChestSetItemCount.html",
+      "dependencies": []
+    },
+    "Functions/Chests/ChestSetItemDropChance.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1131,
+      "exportedPath": "Functions/Chests/ChestSetItemDropChance.html",
+      "dependencies": []
+    },
+    "Functions/Chests/ChestSetItemsDecay.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 674,
+      "exportedPath": "Functions/Chests/ChestSetItemsDecay.html",
+      "dependencies": []
+    },
+    "Functions/Chests/ChestSetName.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 527,
+      "exportedPath": "Functions/Chests/ChestSetName.html",
+      "dependencies": []
+    },
+    "Functions/Chests/ChestSetSoundType.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 924,
+      "exportedPath": "Functions/Chests/ChestSetSoundType.html",
+      "dependencies": []
+    },
+    "Functions/Chests/ChestSetSprite.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 560,
+      "exportedPath": "Functions/Chests/ChestSetSprite.html",
+      "dependencies": []
+    },
+    "Functions/Collisions/CollisionWalkable.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 466,
+      "exportedPath": "Functions/Collisions/CollisionWalkable.html",
+      "dependencies": []
+    },
+    "Functions/Collisions/PlaceMeeting.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 804,
+      "exportedPath": "Functions/Collisions/PlaceMeeting.html",
+      "dependencies": []
+    },
+    "Functions/Crafting/CraftingRecipeCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 4045,
+      "exportedPath": "Functions/Crafting/CraftingRecipeCreate.html",
+      "dependencies": []
+    },
+    "Functions/Drawing/Drawing.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 2757,
+      "exportedPath": "Functions/Drawing/Drawing.html",
+      "dependencies": []
+    },
+    "Functions/Events/EventAssignFunction.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 891,
+      "exportedPath": "Functions/Events/EventAssignFunction.html",
+      "dependencies": []
+    },
+    "Functions/Factions/FactionCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 485,
+      "exportedPath": "Functions/Factions/FactionCreate.html",
+      "dependencies": []
+    },
+    "Functions/Factions/FactionExists.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 602,
+      "exportedPath": "Functions/Factions/FactionExists.html",
+      "dependencies": []
+    },
+    "Functions/Factions/FactionSetName.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 700,
+      "exportedPath": "Functions/Factions/FactionSetName.html",
+      "dependencies": []
+    },
+    "Functions/Factions/FactionSetRelationship.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1410,
+      "exportedPath": "Functions/Factions/FactionSetRelationship.html",
+      "dependencies": []
+    },
+    "Functions/File Data/FileDataRead.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 680,
+      "exportedPath": "Functions/File Data/FileDataRead.html",
+      "dependencies": []
+    },
+    "Functions/File Data/FileDataWrite.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 817,
+      "exportedPath": "Functions/File Data/FileDataWrite.html",
+      "dependencies": []
+    },
+    "Functions/Input/Input.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 4650,
+      "exportedPath": "Functions/Input/Input.html",
+      "dependencies": []
+    },
+    "Functions/Instances/InstanceCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 608,
+      "exportedPath": "Functions/Instances/InstanceCreate.html",
+      "dependencies": []
+    },
+    "Functions/Inventory/InventoryItemCount.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 943,
+      "exportedPath": "Functions/Inventory/InventoryItemCount.html",
+      "dependencies": []
+    },
+    "Functions/Inventory/InventoryItemExists.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 713,
+      "exportedPath": "Functions/Inventory/InventoryItemExists.html",
+      "dependencies": []
+    },
+    "Functions/Items/Ammo/ItemCreateAmmo.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 2198,
+      "exportedPath": "Functions/Items/Ammo/ItemCreateAmmo.html",
+      "dependencies": []
+    },
+    "Functions/Items/Armor/ItemArmorCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 2114,
+      "exportedPath": "Functions/Items/Armor/ItemArmorCreate.html",
+      "dependencies": []
+    },
+    "Functions/Items/Armor/ItemArmorSetAnomaly.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 573,
+      "exportedPath": "Functions/Items/Armor/ItemArmorSetAnomaly.html",
+      "dependencies": []
+    },
+    "Functions/Items/Armor/ItemArmorSetClass.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 506,
+      "exportedPath": "Functions/Items/Armor/ItemArmorSetClass.html",
+      "dependencies": []
+    },
+    "Functions/Items/Armor/ItemArmorSetFragility.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 494,
+      "exportedPath": "Functions/Items/Armor/ItemArmorSetFragility.html",
+      "dependencies": []
+    },
+    "Functions/Items/Armor/ItemArmorSetPierce.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 571,
+      "exportedPath": "Functions/Items/Armor/ItemArmorSetPierce.html",
+      "dependencies": []
+    },
+    "Functions/Items/Armor/ItemArmorSetRadiation.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 811,
+      "exportedPath": "Functions/Items/Armor/ItemArmorSetRadiation.html",
+      "dependencies": []
+    },
+    "Functions/Items/Armor/ItemArmorSetSpriteDead.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 965,
+      "exportedPath": "Functions/Items/Armor/ItemArmorSetSpriteDead.html",
+      "dependencies": []
+    },
+    "Functions/Items/Armor/ItemArmorSetSpriteIdle.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 964,
+      "exportedPath": "Functions/Items/Armor/ItemArmorSetSpriteIdle.html",
+      "dependencies": []
+    },
+    "Functions/Items/Armor/ItemArmorSetSpriteRun.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 963,
+      "exportedPath": "Functions/Items/Armor/ItemArmorSetSpriteRun.html",
+      "dependencies": []
+    },
+    "Functions/Items/Backpacks/ItemBackpackCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1676,
+      "exportedPath": "Functions/Items/Backpacks/ItemBackpackCreate.html",
+      "dependencies": []
+    },
+    "Functions/Items/Backpacks/ItemBackpackSetErgonomic.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 754,
+      "exportedPath": "Functions/Items/Backpacks/ItemBackpackSetErgonomic.html",
+      "dependencies": []
+    },
+    "Functions/Items/Backpacks/ItemBackpackSetMovementSpeed.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 695,
+      "exportedPath": "Functions/Items/Backpacks/ItemBackpackSetMovementSpeed.html",
+      "dependencies": []
+    },
+    "Functions/Items/Backpacks/ItemBackpackSetSpriteGame.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 841,
+      "exportedPath": "Functions/Items/Backpacks/ItemBackpackSetSpriteGame.html",
+      "dependencies": []
+    },
+    "Functions/Items/Backpacks/ItemBackpackSetWeight.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 789,
+      "exportedPath": "Functions/Items/Backpacks/ItemBackpackSetWeight.html",
+      "dependencies": []
+    },
+    "Functions/Items/Barter/ItemBarterCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 984,
+      "exportedPath": "Functions/Items/Barter/ItemBarterCreate.html",
+      "dependencies": []
+    },
+    "Functions/Items/Consumables/ItemConsumableCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1626,
+      "exportedPath": "Functions/Items/Consumables/ItemConsumableCreate.html",
+      "dependencies": []
+    },
+    "Functions/Items/Consumables/ItemConsumableSetAnimation.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1705,
+      "exportedPath": "Functions/Items/Consumables/ItemConsumableSetAnimation.html",
+      "dependencies": []
+    },
+    "Functions/Items/Consumables/ItemConsumableSetEnergy.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1061,
+      "exportedPath": "Functions/Items/Consumables/ItemConsumableSetEnergy.html",
+      "dependencies": []
+    },
+    "Functions/Items/Consumables/ItemConsumableSetEvent.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 777,
+      "exportedPath": "Functions/Items/Consumables/ItemConsumableSetEvent.html",
+      "dependencies": []
+    },
+    "Functions/Items/Consumables/ItemConsumableSetFatigue.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1006,
+      "exportedPath": "Functions/Items/Consumables/ItemConsumableSetFatigue.html",
+      "dependencies": []
+    },
+    "Functions/Items/Consumables/ItemConsumableSetRadiation.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 965,
+      "exportedPath": "Functions/Items/Consumables/ItemConsumableSetRadiation.html",
+      "dependencies": []
+    },
+    "Functions/Items/Consumables/ItemConsumableSetSound.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 913,
+      "exportedPath": "Functions/Items/Consumables/ItemConsumableSetSound.html",
+      "dependencies": []
+    },
+    "Functions/Items/Consumables/ItemConsumableSetThirst.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 971,
+      "exportedPath": "Functions/Items/Consumables/ItemConsumableSetThirst.html",
+      "dependencies": []
+    },
+    "Functions/Items/Documents/ItemDocumentCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1136,
+      "exportedPath": "Functions/Items/Documents/ItemDocumentCreate.html",
+      "dependencies": []
+    },
+    "Functions/Items/Generic Usage/ItemCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 827,
+      "exportedPath": "Functions/Items/Generic Usage/ItemCreate.html",
+      "dependencies": []
+    },
+    "Functions/Items/Generic Usage/ItemSetDescription.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 706,
+      "exportedPath": "Functions/Items/Generic Usage/ItemSetDescription.html",
+      "dependencies": []
+    },
+    "Functions/Items/Generic Usage/ItemSetName.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 603,
+      "exportedPath": "Functions/Items/Generic Usage/ItemSetName.html",
+      "dependencies": []
+    },
+    "Functions/Items/Generic Usage/ItemSetPriceValue.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 571,
+      "exportedPath": "Functions/Items/Generic Usage/ItemSetPriceValue.html",
+      "dependencies": []
+    },
+    "Functions/Items/Generic Usage/ItemSetSpriteIngame.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 918,
+      "exportedPath": "Functions/Items/Generic Usage/ItemSetSpriteIngame.html",
+      "dependencies": []
+    },
+    "Functions/Items/Generic Usage/ItemSetSpriteInventory.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 986,
+      "exportedPath": "Functions/Items/Generic Usage/ItemSetSpriteInventory.html",
+      "dependencies": []
+    },
+    "Functions/Items/Generic Usage/ItemSetStackLimit.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 584,
+      "exportedPath": "Functions/Items/Generic Usage/ItemSetStackLimit.html",
+      "dependencies": []
+    },
+    "Functions/Items/Generic Usage/ItemSetWeight.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 558,
+      "exportedPath": "Functions/Items/Generic Usage/ItemSetWeight.html",
+      "dependencies": []
+    },
+    "Functions/Items/Grenade/ItemGrenadeCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 2734,
+      "exportedPath": "Functions/Items/Grenade/ItemGrenadeCreate.html",
+      "dependencies": []
+    },
+    "Functions/Items/Grenade/ItemGrenadeSetAnimation.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1698,
+      "exportedPath": "Functions/Items/Grenade/ItemGrenadeSetAnimation.html",
+      "dependencies": []
+    },
+    "Functions/Items/Grenade/ItemGrenadeSetDamageMax.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1185,
+      "exportedPath": "Functions/Items/Grenade/ItemGrenadeSetDamageMax.html",
+      "dependencies": []
+    },
+    "Functions/Items/Grenade/ItemGrenadeSetDamageMin.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 942,
+      "exportedPath": "Functions/Items/Grenade/ItemGrenadeSetDamageMin.html",
+      "dependencies": []
+    },
+    "Functions/Items/Grenade/ItemGrenadeSetDetonationDuration.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 897,
+      "exportedPath": "Functions/Items/Grenade/ItemGrenadeSetDetonationDuration.html",
+      "dependencies": []
+    },
+    "Functions/Items/Grenade/ItemGrenadeSetDetonationType.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 963,
+      "exportedPath": "Functions/Items/Grenade/ItemGrenadeSetDetonationType.html",
+      "dependencies": []
+    },
+    "Functions/Items/Grenade/ItemGrenadeSetFuseTime.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1143,
+      "exportedPath": "Functions/Items/Grenade/ItemGrenadeSetFuseTime.html",
+      "dependencies": []
+    },
+    "Functions/Items/Grenade/ItemGrenadeSetRadiusMaxDamage.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1073,
+      "exportedPath": "Functions/Items/Grenade/ItemGrenadeSetRadiusMaxDamage.html",
+      "dependencies": []
+    },
+    "Functions/Items/Grenade/ItemGrenadeSetRadiusMinDamage.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1084,
+      "exportedPath": "Functions/Items/Grenade/ItemGrenadeSetRadiusMinDamage.html",
+      "dependencies": []
+    },
+    "Functions/Items/Grenade/ItemGrenadeSetThrowMax.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 950,
+      "exportedPath": "Functions/Items/Grenade/ItemGrenadeSetThrowMax.html",
+      "dependencies": []
+    },
+    "Functions/Items/Grenade/ItemGrenadeSetThrowMin.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 946,
+      "exportedPath": "Functions/Items/Grenade/ItemGrenadeSetThrowMin.html",
+      "dependencies": []
+    },
+    "Functions/Items/Grenade/ItemGrenadeSetThrowType.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 27,
+      "exportedPath": "Functions/Items/Grenade/ItemGrenadeSetThrowType.html",
+      "dependencies": []
+    },
+    "Functions/Items/Headset/ItemHeadsetCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 3039,
+      "exportedPath": "Functions/Items/Headset/ItemHeadsetCreate.html",
+      "dependencies": []
+    },
+    "Functions/Items/Headset/ItemHeadsetSetLightID.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 756,
+      "exportedPath": "Functions/Items/Headset/ItemHeadsetSetLightID.html",
+      "dependencies": []
+    },
+    "Functions/Items/Headset/ItemHeadsetSetType.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 870,
+      "exportedPath": "Functions/Items/Headset/ItemHeadsetSetType.html",
+      "dependencies": []
+    },
+    "Functions/Items/Headset/ItemHeadsetSetVisionValues.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 2116,
+      "exportedPath": "Functions/Items/Headset/ItemHeadsetSetVisionValues.html",
+      "dependencies": []
+    },
+    "Functions/Items/Headsets/ItemCreateHeadset (UNFINISHED).md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1050,
+      "exportedPath": "Functions/Items/Headsets/ItemCreateHeadset (UNFINISHED).html",
+      "dependencies": []
+    },
+    "Functions/Items/Injectors/ItemInjectorCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1978,
+      "exportedPath": "Functions/Items/Injectors/ItemInjectorCreate.html",
+      "dependencies": []
+    },
+    "Functions/Items/Injectors/ItemInjectorSetBleedImmune.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 521,
+      "exportedPath": "Functions/Items/Injectors/ItemInjectorSetBleedImmune.html",
+      "dependencies": []
+    },
+    "Functions/Items/Injectors/ItemInjectorSetBleedRec.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 549,
+      "exportedPath": "Functions/Items/Injectors/ItemInjectorSetBleedRec.html",
+      "dependencies": []
+    },
+    "Functions/Items/Injectors/ItemInjectorSetDuration.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 550,
+      "exportedPath": "Functions/Items/Injectors/ItemInjectorSetDuration.html",
+      "dependencies": []
+    },
+    "Functions/Items/Injectors/ItemInjectorSetHpRegen.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 894,
+      "exportedPath": "Functions/Items/Injectors/ItemInjectorSetHpRegen.html",
+      "dependencies": []
+    },
+    "Functions/Items/Injectors/ItemInjectorSetHunger.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 605,
+      "exportedPath": "Functions/Items/Injectors/ItemInjectorSetHunger.html",
+      "dependencies": []
+    },
+    "Functions/Items/Injectors/ItemInjectorSetHungerRegen.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1003,
+      "exportedPath": "Functions/Items/Injectors/ItemInjectorSetHungerRegen.html",
+      "dependencies": []
+    },
+    "Functions/Items/Injectors/ItemInjectorSetMaxHp.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 508,
+      "exportedPath": "Functions/Items/Injectors/ItemInjectorSetMaxHp.html",
+      "dependencies": []
+    },
+    "Functions/Items/Injectors/ItemInjectorSetMaxWeight.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 583,
+      "exportedPath": "Functions/Items/Injectors/ItemInjectorSetMaxWeight.html",
+      "dependencies": []
+    },
+    "Functions/Items/Injectors/ItemInjectorSetRadDef.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 933,
+      "exportedPath": "Functions/Items/Injectors/ItemInjectorSetRadDef.html",
+      "dependencies": []
+    },
+    "Functions/Items/Injectors/ItemInjectorSetRadRegen.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1090,
+      "exportedPath": "Functions/Items/Injectors/ItemInjectorSetRadRegen.html",
+      "dependencies": []
+    },
+    "Functions/Items/Injectors/ItemInjectorSetStaminaMax.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 671,
+      "exportedPath": "Functions/Items/Injectors/ItemInjectorSetStaminaMax.html",
+      "dependencies": []
+    },
+    "Functions/Items/Injectors/ItemInjectorSetStaminaRegen.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1047,
+      "exportedPath": "Functions/Items/Injectors/ItemInjectorSetStaminaRegen.html",
+      "dependencies": []
+    },
+    "Functions/Items/Injectors/ItemInjectorSetThirst.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 616,
+      "exportedPath": "Functions/Items/Injectors/ItemInjectorSetThirst.html",
+      "dependencies": []
+    },
+    "Functions/Items/Injectors/ItemInjectorSetThirstRegen.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1007,
+      "exportedPath": "Functions/Items/Injectors/ItemInjectorSetThirstRegen.html",
+      "dependencies": []
+    },
+    "Functions/Items/Key/ItemKeyCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1053,
+      "exportedPath": "Functions/Items/Key/ItemKeyCreate.html",
+      "dependencies": []
+    },
+    "Functions/Items/Medical/ItemMedicalCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 4008,
+      "exportedPath": "Functions/Items/Medical/ItemMedicalCreate.html",
+      "dependencies": []
+    },
+    "Functions/Items/Medical/ItemMedicalSetAnimation.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 827,
+      "exportedPath": "Functions/Items/Medical/ItemMedicalSetAnimation.html",
+      "dependencies": []
+    },
+    "Functions/Items/Medical/ItemMedicalSetBleed.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 822,
+      "exportedPath": "Functions/Items/Medical/ItemMedicalSetBleed.html",
+      "dependencies": []
+    },
+    "Functions/Items/Medical/ItemMedicalSetCanMove.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 801,
+      "exportedPath": "Functions/Items/Medical/ItemMedicalSetCanMove.html",
+      "dependencies": []
+    },
+    "Functions/Items/Medical/ItemMedicalSetDuration.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1023,
+      "exportedPath": "Functions/Items/Medical/ItemMedicalSetDuration.html",
+      "dependencies": []
+    },
+    "Functions/Items/Medical/ItemMedicalSetMoveSpeedMultiplier.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 866,
+      "exportedPath": "Functions/Items/Medical/ItemMedicalSetMoveSpeedMultiplier.html",
+      "dependencies": []
+    },
+    "Functions/Items/Medical/ItemMedicalSetRadiation.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 987,
+      "exportedPath": "Functions/Items/Medical/ItemMedicalSetRadiation.html",
+      "dependencies": []
+    },
+    "Functions/Items/Medical/ItemMedicalSetWound.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 822,
+      "exportedPath": "Functions/Items/Medical/ItemMedicalSetWound.html",
+      "dependencies": []
+    },
+    "Functions/Items/Repair Items/ItemArmorRepairCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 2241,
+      "exportedPath": "Functions/Items/Repair Items/ItemArmorRepairCreate.html",
+      "dependencies": []
+    },
+    "Functions/Items/Repair Items/ItemWeaponRepairCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1660,
+      "exportedPath": "Functions/Items/Repair Items/ItemWeaponRepairCreate.html",
+      "dependencies": []
+    },
+    "Functions/Languages/LanguageCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1871,
+      "exportedPath": "Functions/Languages/LanguageCreate.html",
+      "dependencies": []
+    },
+    "Functions/Languages/LanguageSetFontOffsets.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1500,
+      "exportedPath": "Functions/Languages/LanguageSetFontOffsets.html",
+      "dependencies": []
+    },
+    "Functions/Languages/LanguageSetFontSizes.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1006,
+      "exportedPath": "Functions/Languages/LanguageSetFontSizes.html",
+      "dependencies": []
+    },
+    "Functions/Loadouts/LoadoutAddItem.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1209,
+      "exportedPath": "Functions/Loadouts/LoadoutAddItem.html",
+      "dependencies": []
+    },
+    "Functions/Loadouts/LoadoutClear.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 542,
+      "exportedPath": "Functions/Loadouts/LoadoutClear.html",
+      "dependencies": []
+    },
+    "Functions/Math and Randoms/Math.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 8912,
+      "exportedPath": "Functions/Math and Randoms/Math.html",
+      "dependencies": []
+    },
+    "Functions/Misc/Real.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 565,
+      "exportedPath": "Functions/Misc/Real.html",
+      "dependencies": []
+    },
+    "Functions/Misc/RoomGetCurrent.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 446,
+      "exportedPath": "Functions/Misc/RoomGetCurrent.html",
+      "dependencies": []
+    },
+    "Functions/Misc/ShowMessage.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 653,
+      "exportedPath": "Functions/Misc/ShowMessage.html",
+      "dependencies": []
+    },
+    "Functions/Misc/String.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 552,
+      "exportedPath": "Functions/Misc/String.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcCopy.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 871,
+      "exportedPath": "Functions/NPCs/NpcCopy.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 542,
+      "exportedPath": "Functions/NPCs/NpcCreate.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcObjectDestroy.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 963,
+      "exportedPath": "Functions/NPCs/NpcObjectDestroy.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcObjectSpawnNearPlayer.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1179,
+      "exportedPath": "Functions/NPCs/NpcObjectSpawnNearPlayer.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetArmor.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 680,
+      "exportedPath": "Functions/NPCs/NpcSetArmor.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetChestDropped.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 707,
+      "exportedPath": "Functions/NPCs/NpcSetChestDropped.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetExperience.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 727,
+      "exportedPath": "Functions/NPCs/NpcSetExperience.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetFaction.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 586,
+      "exportedPath": "Functions/NPCs/NpcSetFaction.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetFootstep.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 917,
+      "exportedPath": "Functions/NPCs/NpcSetFootstep.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetHp.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 519,
+      "exportedPath": "Functions/NPCs/NpcSetHp.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetImageSpeed.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 845,
+      "exportedPath": "Functions/NPCs/NpcSetImageSpeed.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetMeleeDamage.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 746,
+      "exportedPath": "Functions/NPCs/NpcSetMeleeDamage.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetName.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 592,
+      "exportedPath": "Functions/NPCs/NpcSetName.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetPreset.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 919,
+      "exportedPath": "Functions/NPCs/NpcSetPreset.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetRecoilAimRadius.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 981,
+      "exportedPath": "Functions/NPCs/NpcSetRecoilAimRadius.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetRecoilCrosshairDelay.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 740,
+      "exportedPath": "Functions/NPCs/NpcSetRecoilCrosshairDelay.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetRotatingAngleRate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 821,
+      "exportedPath": "Functions/NPCs/NpcSetRotatingAngleRate.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetSpeaker.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 629,
+      "exportedPath": "Functions/NPCs/NpcSetSpeaker.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetSpriteDead.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 614,
+      "exportedPath": "Functions/NPCs/NpcSetSpriteDead.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetSpriteIdle.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 812,
+      "exportedPath": "Functions/NPCs/NpcSetSpriteIdle.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetSpriteMoving.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 634,
+      "exportedPath": "Functions/NPCs/NpcSetSpriteMoving.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetSweetAngleChance.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1076,
+      "exportedPath": "Functions/NPCs/NpcSetSweetAngleChance.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetTraderId.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 601,
+      "exportedPath": "Functions/NPCs/NpcSetTraderId.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSetWeapon.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 782,
+      "exportedPath": "Functions/NPCs/NpcSetWeapon.html",
+      "dependencies": []
+    },
+    "Functions/NPCs/NpcSpawn.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 672,
+      "exportedPath": "Functions/NPCs/NpcSpawn.html",
+      "dependencies": []
+    },
+    "Functions/Objects/ObjectCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 708,
+      "exportedPath": "Functions/Objects/ObjectCreate.html",
+      "dependencies": []
+    },
+    "Functions/Objects/ObjectExists.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 476,
+      "exportedPath": "Functions/Objects/ObjectExists.html",
+      "dependencies": []
+    },
+    "Functions/Objects/ObjectGetAllInstances.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 832,
+      "exportedPath": "Functions/Objects/ObjectGetAllInstances.html",
+      "dependencies": []
+    },
+    "Functions/Objects/ObjectSetScript.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1326,
+      "exportedPath": "Functions/Objects/ObjectSetScript.html",
+      "dependencies": []
+    },
+    "Functions/Objects/ObjectSetType.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 949,
+      "exportedPath": "Functions/Objects/ObjectSetType.html",
+      "dependencies": []
+    },
+    "Functions/Objects/ObjectSpawn.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 725,
+      "exportedPath": "Functions/Objects/ObjectSpawn.html",
+      "dependencies": []
+    },
+    "Functions/Particles/Particles.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 9856,
+      "exportedPath": "Functions/Particles/Particles.html",
+      "dependencies": []
+    },
+    "Functions/Quests/Objective Types/QuestObjectiveTypeApproach (IN PROGRESS).md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 2310,
+      "exportedPath": "Functions/Quests/Objective Types/QuestObjectiveTypeApproach (IN PROGRESS).html",
+      "dependencies": []
+    },
+    "Functions/Quests/Objective Types/QuestObjectiveTypeCollect.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1916,
+      "exportedPath": "Functions/Quests/Objective Types/QuestObjectiveTypeCollect.html",
+      "dependencies": []
+    },
+    "Functions/Quests/Objective Types/QuestObjectiveTypeKill.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 2384,
+      "exportedPath": "Functions/Quests/Objective Types/QuestObjectiveTypeKill.html",
+      "dependencies": []
+    },
+    "Functions/Quests/Objective Types/QuestObjectiveTypeSurviveMap.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1933,
+      "exportedPath": "Functions/Quests/Objective Types/QuestObjectiveTypeSurviveMap.html",
+      "dependencies": []
+    },
+    "Functions/Quests/Objective Types/QuestObjectiveTypeSurviveMinimumMoney.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 2227,
+      "exportedPath": "Functions/Quests/Objective Types/QuestObjectiveTypeSurviveMinimumMoney.html",
+      "dependencies": []
+    },
+    "Functions/Quests/QuestAddObjective.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1247,
+      "exportedPath": "Functions/Quests/QuestAddObjective.html",
+      "dependencies": []
+    },
+    "Functions/Quests/QuestAddReward.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 982,
+      "exportedPath": "Functions/Quests/QuestAddReward.html",
+      "dependencies": []
+    },
+    "Functions/Quests/QuestCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 860,
+      "exportedPath": "Functions/Quests/QuestCreate.html",
+      "dependencies": []
+    },
+    "Functions/Quests/QuestIsComplete.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 578,
+      "exportedPath": "Functions/Quests/QuestIsComplete.html",
+      "dependencies": []
+    },
+    "Functions/Quests/QuestSetName.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 620,
+      "exportedPath": "Functions/Quests/QuestSetName.html",
+      "dependencies": []
+    },
+    "Functions/Quests/QuestSetText.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 761,
+      "exportedPath": "Functions/Quests/QuestSetText.html",
+      "dependencies": []
+    },
+    "Functions/Scripts/ScriptExpose.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 699,
+      "exportedPath": "Functions/Scripts/ScriptExpose.html",
+      "dependencies": []
+    },
+    "Functions/Scripts/ScriptGet.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 749,
+      "exportedPath": "Functions/Scripts/ScriptGet.html",
+      "dependencies": []
+    },
+    "Functions/Sound/SoundGet.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 591,
+      "exportedPath": "Functions/Sound/SoundGet.html",
+      "dependencies": []
+    },
+    "Functions/Sound/SoundLoad.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 718,
+      "exportedPath": "Functions/Sound/SoundLoad.html",
+      "dependencies": []
+    },
+    "Functions/Sound/SoundPlay.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1178,
+      "exportedPath": "Functions/Sound/SoundPlay.html",
+      "dependencies": []
+    },
+    "Functions/Sound/SoundPlayAt.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1633,
+      "exportedPath": "Functions/Sound/SoundPlayAt.html",
+      "dependencies": []
+    },
+    "Functions/Speakers/SpeakerAddDialogueChoice.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 849,
+      "exportedPath": "Functions/Speakers/SpeakerAddDialogueChoice.html",
+      "dependencies": []
+    },
+    "Functions/Speakers/SpeakerAddHello.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 658,
+      "exportedPath": "Functions/Speakers/SpeakerAddHello.html",
+      "dependencies": []
+    },
+    "Functions/Speakers/SpeakerAddQuest.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 551,
+      "exportedPath": "Functions/Speakers/SpeakerAddQuest.html",
+      "dependencies": []
+    },
+    "Functions/Speakers/SpeakerAddQuestion.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 805,
+      "exportedPath": "Functions/Speakers/SpeakerAddQuestion.html",
+      "dependencies": []
+    },
+    "Functions/Speakers/SpeakerCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 980,
+      "exportedPath": "Functions/Speakers/SpeakerCreate.html",
+      "dependencies": []
+    },
+    "Functions/Speakers/SpeakerGetIndex.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 499,
+      "exportedPath": "Functions/Speakers/SpeakerGetIndex.html",
+      "dependencies": []
+    },
+    "Functions/Sprites/SpriteGet.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 993,
+      "exportedPath": "Functions/Sprites/SpriteGet.html",
+      "dependencies": []
+    },
+    "Functions/Sprites/SpriteGetHeight.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 609,
+      "exportedPath": "Functions/Sprites/SpriteGetHeight.html",
+      "dependencies": []
+    },
+    "Functions/Sprites/SpriteGetWidth.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 601,
+      "exportedPath": "Functions/Sprites/SpriteGetWidth.html",
+      "dependencies": []
+    },
+    "Functions/Sprites/SpriteLoad.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 2271,
+      "exportedPath": "Functions/Sprites/SpriteLoad.html",
+      "dependencies": []
+    },
+    "Functions/Sprites/SpriteSetOrigin.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 856,
+      "exportedPath": "Functions/Sprites/SpriteSetOrigin.html",
+      "dependencies": []
+    },
+    "Functions/Sprites/SpriteSetSpeed.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 873,
+      "exportedPath": "Functions/Sprites/SpriteSetSpeed.html",
+      "dependencies": []
+    },
+    "Functions/Structs/Structs.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1395,
+      "exportedPath": "Functions/Structs/Structs.html",
+      "dependencies": []
+    },
+    "Functions/Time/TimeGetDay.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 360,
+      "exportedPath": "Functions/Time/TimeGetDay.html",
+      "dependencies": []
+    },
+    "Functions/Time/TimeGetHour.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 457,
+      "exportedPath": "Functions/Time/TimeGetHour.html",
+      "dependencies": []
+    },
+    "Functions/Time/TimeGetMinute.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 336,
+      "exportedPath": "Functions/Time/TimeGetMinute.html",
+      "dependencies": []
+    },
+    "Functions/Time/TimeGetMonth.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 339,
+      "exportedPath": "Functions/Time/TimeGetMonth.html",
+      "dependencies": []
+    },
+    "Functions/Time/TimeGetSecond.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 338,
+      "exportedPath": "Functions/Time/TimeGetSecond.html",
+      "dependencies": []
+    },
+    "Functions/Time/TimeGetYear.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 309,
+      "exportedPath": "Functions/Time/TimeGetYear.html",
+      "dependencies": []
+    },
+    "Functions/Traders/TraderAddItem.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1585,
+      "exportedPath": "Functions/Traders/TraderAddItem.html",
+      "dependencies": []
+    },
+    "Functions/Traders/TraderCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 580,
+      "exportedPath": "Functions/Traders/TraderCreate.html",
+      "dependencies": []
+    },
+    "Functions/Traders/TraderSetFaction.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 677,
+      "exportedPath": "Functions/Traders/TraderSetFaction.html",
+      "dependencies": []
+    },
+    "Functions/Traders/TraderSetFormatPages.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 686,
+      "exportedPath": "Functions/Traders/TraderSetFormatPages.html",
+      "dependencies": []
+    },
+    "Functions/Traders/TraderSetMoney.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 637,
+      "exportedPath": "Functions/Traders/TraderSetMoney.html",
+      "dependencies": []
+    },
+    "Functions/Traders/TraderSetName.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 629,
+      "exportedPath": "Functions/Traders/TraderSetName.html",
+      "dependencies": []
+    },
+    "Functions/Weapons/WeaponCopy.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 999,
+      "exportedPath": "Functions/Weapons/WeaponCopy.html",
+      "dependencies": []
+    },
+    "Functions/Weapons/WeaponCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 2302,
+      "exportedPath": "Functions/Weapons/WeaponCreate.html",
+      "dependencies": []
+    },
+    "Functions/Weapons/WeaponModCreate.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 2850,
+      "exportedPath": "Functions/Weapons/WeaponModCreate.html",
+      "dependencies": []
+    },
+    "Functions/Weapons/WeaponModLaserConfigure.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 893,
+      "exportedPath": "Functions/Weapons/WeaponModLaserConfigure.html",
+      "dependencies": []
+    },
+    "Functions/Weapons/WeaponModScopeConfigure.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1902,
+      "exportedPath": "Functions/Weapons/WeaponModScopeConfigure.html",
+      "dependencies": []
+    },
+    "Functions/Weapons/WeaponSetAmmo.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 670,
+      "exportedPath": "Functions/Weapons/WeaponSetAmmo.html",
+      "dependencies": []
+    },
+    "Functions/Weapons/WeaponSetCaliber.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 831,
+      "exportedPath": "Functions/Weapons/WeaponSetCaliber.html",
+      "dependencies": []
+    },
+    "Functions/Weapons/WeaponSetErgonomics.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 777,
+      "exportedPath": "Functions/Weapons/WeaponSetErgonomics.html",
+      "dependencies": []
+    },
+    "Functions/Weapons/WeaponSetFireMode.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 929,
+      "exportedPath": "Functions/Weapons/WeaponSetFireMode.html",
+      "dependencies": []
+    },
+    "Functions/Weapons/WeaponSetRateOfFire.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 670,
+      "exportedPath": "Functions/Weapons/WeaponSetRateOfFire.html",
+      "dependencies": []
+    },
+    "Functions/Weapons/WeaponSetRecoil.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 789,
+      "exportedPath": "Functions/Weapons/WeaponSetRecoil.html",
+      "dependencies": []
+    },
+    "Functions/Weapons/WeaponSetReloadTime.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 750,
+      "exportedPath": "Functions/Weapons/WeaponSetReloadTime.html",
+      "dependencies": []
+    },
+    "Functions/Weapons/WeaponSetReloadType.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 941,
+      "exportedPath": "Functions/Weapons/WeaponSetReloadType.html",
+      "dependencies": []
+    },
+    "Functions/Weapons/WeaponSetScript.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1631,
+      "exportedPath": "Functions/Weapons/WeaponSetScript.html",
+      "dependencies": []
+    },
+    "Functions/Weapons/WeaponSetWeaponModData.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 2328,
+      "exportedPath": "Functions/Weapons/WeaponSetWeaponModData.html",
+      "dependencies": []
+    },
+    "Functions/Weapons/WeaponSetWeaponType.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 904,
+      "exportedPath": "Functions/Weapons/WeaponSetWeaponType.html",
+      "dependencies": []
+    },
+    "Images For Refernce/mod_eggk47_base-export.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 460,
+      "exportedPath": "Images For Refernce/mod_eggk47_base-export.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20241118122905.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 10936,
+      "exportedPath": "Images For Refernce/Pasted image 20241118122905.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20241118122908.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 10936,
+      "exportedPath": "Images For Refernce/Pasted image 20241118122908.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20241118122929.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 7139,
+      "exportedPath": "Images For Refernce/Pasted image 20241118122929.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20241118123122.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 157,
+      "exportedPath": "Images For Refernce/Pasted image 20241118123122.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20241118123139.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 7732,
+      "exportedPath": "Images For Refernce/Pasted image 20241118123139.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20241118123147.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 60770,
+      "exportedPath": "Images For Refernce/Pasted image 20241118123147.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250130115356.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 262227,
+      "exportedPath": "Images For Refernce/Pasted image 20250130115356.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250325080207.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 24730,
+      "exportedPath": "Images For Refernce/Pasted image 20250325080207.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250326090752.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 5397,
+      "exportedPath": "Images For Refernce/Pasted image 20250326090752.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250326090759.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 10404,
+      "exportedPath": "Images For Refernce/Pasted image 20250326090759.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250326091007.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 6809,
+      "exportedPath": "Images For Refernce/Pasted image 20250326091007.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250326091217.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 8104,
+      "exportedPath": "Images For Refernce/Pasted image 20250326091217.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250327101717.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 594523,
+      "exportedPath": "Images For Refernce/Pasted image 20250327101717.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250327101824.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 650937,
+      "exportedPath": "Images For Refernce/Pasted image 20250327101824.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250327110017.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 594523,
+      "exportedPath": "Images For Refernce/Pasted image 20250327110017.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250327110027.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 536399,
+      "exportedPath": "Images For Refernce/Pasted image 20250327110027.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250327110042.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 540869,
+      "exportedPath": "Images For Refernce/Pasted image 20250327110042.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250327130627.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1072219,
+      "exportedPath": "Images For Refernce/Pasted image 20250327130627.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250327130655.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 821156,
+      "exportedPath": "Images For Refernce/Pasted image 20250327130655.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250327130710.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 890293,
+      "exportedPath": "Images For Refernce/Pasted image 20250327130710.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250327131346.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 4563786,
+      "exportedPath": "Images For Refernce/Pasted image 20250327131346.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250327131420.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 4067723,
+      "exportedPath": "Images For Refernce/Pasted image 20250327131420.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250327131444.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 3118236,
+      "exportedPath": "Images For Refernce/Pasted image 20250327131444.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250327131548.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 264820,
+      "exportedPath": "Images For Refernce/Pasted image 20250327131548.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250327131728.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 433298,
+      "exportedPath": "Images For Refernce/Pasted image 20250327131728.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250327131905.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 438546,
+      "exportedPath": "Images For Refernce/Pasted image 20250327131905.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250327132156.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 881243,
+      "exportedPath": "Images For Refernce/Pasted image 20250327132156.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250327132355.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 649644,
+      "exportedPath": "Images For Refernce/Pasted image 20250327132355.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250327132429.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 905211,
+      "exportedPath": "Images For Refernce/Pasted image 20250327132429.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250401134807.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 315942,
+      "exportedPath": "Images For Refernce/Pasted image 20250401134807.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250424114805.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 20721,
+      "exportedPath": "Images For Refernce/Pasted image 20250424114805.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250424115240.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 85484,
+      "exportedPath": "Images For Refernce/Pasted image 20250424115240.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250424115603.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 84776,
+      "exportedPath": "Images For Refernce/Pasted image 20250424115603.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250424120642.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 30155,
+      "exportedPath": "Images For Refernce/Pasted image 20250424120642.png",
+      "dependencies": []
+    },
+    "Images For Refernce/Pasted image 20250424131203.png": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 29438,
+      "exportedPath": "Images For Refernce/Pasted image 20250424131203.png",
+      "dependencies": []
+    },
+    "Objects/Objects.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 5418,
+      "exportedPath": "Objects/Objects.html",
+      "dependencies": []
+    },
+    "Overview/Getting Started.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1972,
+      "exportedPath": "Overview/Getting Started.html",
+      "dependencies": []
+    },
+    "Overview/Items.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 766,
+      "exportedPath": "Overview/Items.html",
+      "dependencies": []
+    },
+    "Overview/Mod Upload Errors and Requirements.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1043,
+      "exportedPath": "Overview/Mod Upload Errors and Requirements.html",
+      "dependencies": []
+    },
+    "Overview/Modding Crashes.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 359,
+      "exportedPath": "Overview/Modding Crashes.html",
+      "dependencies": []
+    },
+    "Overview/Updating Workshop Mods.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 486,
+      "exportedPath": "Overview/Updating Workshop Mods.html",
+      "dependencies": []
+    },
+    "Overview/Weapons.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1258,
+      "exportedPath": "Overview/Weapons.html",
+      "dependencies": []
+    },
+    "Programming Language (Catspeak)/Expressions.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 1094,
+      "exportedPath": "Programming Language (Catspeak)/Expressions.html",
+      "dependencies": []
+    },
+    "Programming Language (Catspeak)/Interacting With Instances.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 154,
+      "exportedPath": "Programming Language (Catspeak)/Interacting With Instances.html",
+      "dependencies": []
+    },
+    "Programming Language (Catspeak)/Keyword Differences.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 78,
+      "exportedPath": "Programming Language (Catspeak)/Keyword Differences.html",
+      "dependencies": []
+    },
+    "Programming Language (Catspeak)/Lexical Grammar.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 3392,
+      "exportedPath": "Programming Language (Catspeak)/Lexical Grammar.html",
+      "dependencies": []
+    },
+    "Programming Language (Catspeak)/Pitfalls.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 3119,
+      "exportedPath": "Programming Language (Catspeak)/Pitfalls.html",
+      "dependencies": []
+    },
+    "Start.md": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 204,
+      "exportedPath": "Start.html",
+      "dependencies": []
+    },
+    "lib/fonts/94f2f163d4b698242fef.otf": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 66800,
+      "exportedPath": "lib/fonts/94f2f163d4b698242fef.otf",
+      "dependencies": []
+    },
+    "lib/fonts/72505e6a122c6acd5471.woff2": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 104232,
+      "exportedPath": "lib/fonts/72505e6a122c6acd5471.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/2d5198822ab091ce4305.woff2": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 104332,
+      "exportedPath": "lib/fonts/2d5198822ab091ce4305.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/c8ba52b05a9ef10f4758.woff2": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 98868,
+      "exportedPath": "lib/fonts/c8ba52b05a9ef10f4758.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/cb10ffd7684cd9836a05.woff2": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 106876,
+      "exportedPath": "lib/fonts/cb10ffd7684cd9836a05.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/b5f0f109bc88052d4000.woff2": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 105804,
+      "exportedPath": "lib/fonts/b5f0f109bc88052d4000.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/cbe0ae49c52c920fd563.woff2": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 106108,
+      "exportedPath": "lib/fonts/cbe0ae49c52c920fd563.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/535a6cf662596b3bd6a6.woff2": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 111708,
+      "exportedPath": "lib/fonts/535a6cf662596b3bd6a6.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/70cc7ff27245e82ad414.ttf": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 192740,
+      "exportedPath": "lib/fonts/70cc7ff27245e82ad414.ttf",
+      "dependencies": []
+    },
+    "lib/fonts/454577c22304619db035.ttf": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 161376,
+      "exportedPath": "lib/fonts/454577c22304619db035.ttf",
+      "dependencies": []
+    },
+    "lib/fonts/52ac8f3034507f1d9e53.ttf": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 191568,
+      "exportedPath": "lib/fonts/52ac8f3034507f1d9e53.ttf",
+      "dependencies": []
+    },
+    "lib/fonts/05b618077343fbbd92b7.ttf": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 155288,
+      "exportedPath": "lib/fonts/05b618077343fbbd92b7.ttf",
+      "dependencies": []
+    },
+    "lib/fonts/4bb6ac751d1c5478ff3a.woff2": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 7876,
+      "exportedPath": "lib/fonts/4bb6ac751d1c5478ff3a.woff2",
+      "dependencies": []
+    },
+    "lib/media/6155340132a851f6089e.svg": {
+      "modifiedTime": 1747002275186,
+      "sourceSize": 315,
+      "exportedPath": "lib/media/6155340132a851f6089e.svg",
+      "dependencies": []
+    }
+  }
+}
