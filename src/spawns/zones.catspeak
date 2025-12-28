@@ -1,0 +1,255 @@
+-- =============================================================================
+-- DREAD: Zone Registry and Templates
+-- =============================================================================
+-- Central registry for all zone spawn configurations
+-- =============================================================================
+
+-- =============================================================================
+-- ZONE REGISTRY
+-- =============================================================================
+
+let DREAD_ZONES = {
+    forest: {
+        name: "forest",
+        display_name: "Forest",
+        difficulty: 1,
+        native_factions: ["bandits", "hunters"],
+        native_mutants: ["ghoul"],
+        native_fauna: ["boar", "wolf", "rabbit"],
+        chaos_enemies: {
+            uncommon: [obj_enemy_blink, obj_green_army_preset_rookie],
+            rare: [obj_enemy_spider, obj_crimson_preset_rookie],
+            anomalous: [obj_enemy_big, obj_watcher_preset_skilled]
+        }
+    },
+    makeshift_camp: {
+        name: "makeshift_camp",
+        display_name: "Makeshift Camp",
+        difficulty: 2,
+        native_factions: ["bandits", "green_army", "hunters"],
+        native_mutants: ["ghoul", "blink"],
+        native_fauna: ["boar", "wolf"],
+        chaos_enemies: {
+            uncommon: [obj_enemy_spider, obj_crimson_preset_rookie],
+            rare: [obj_enemy_ghoul_2, obj_watcher_preset_rookie],
+            anomalous: [obj_enemy_big, obj_enemy_spine]
+        }
+    },
+    industrial_area: {
+        name: "industrial_area",
+        display_name: "Industrial Area",
+        difficulty: 3,
+        native_factions: ["green_army", "bandits"],
+        native_mutants: ["blink", "ghoul_crystal"],
+        native_fauna: [],
+        chaos_enemies: {
+            uncommon: [obj_crimson_preset_skilled, obj_hunter_preset_expert],
+            rare: [obj_enemy_spider, obj_enemy_spine],
+            anomalous: [obj_enemy_big, obj_watcher_preset_expert]
+        }
+    },
+    swamp: {
+        name: "swamp",
+        display_name: "Swamp",
+        difficulty: 4,
+        native_factions: ["crimson"],
+        native_mutants: ["spider", "ghoul", "blink"],
+        native_fauna: ["boar"],
+        chaos_enemies: {
+            uncommon: [obj_watcher_preset_skilled, obj_green_army_preset_expert],
+            rare: [obj_enemy_big, obj_enemy_spine],
+            anomalous: [obj_watcher_devil, obj_boss_killa]
+        }
+    },
+    mall: {
+        name: "mall",
+        display_name: "Mall",
+        difficulty: 5,
+        native_factions: ["watchers", "crimson"],
+        native_mutants: ["spine", "big"],
+        native_fauna: [],
+        chaos_enemies: {
+            uncommon: [obj_green_army_preset_master, obj_crimson_preset_master],
+            rare: [obj_enemy_infestation],
+            anomalous: [obj_boss_city, obj_watcher_general]
+        }
+    },
+    zaton: {
+        name: "zaton",
+        display_name: "Zakov",
+        difficulty: 5,
+        native_factions: ["watchers"],
+        native_mutants: ["big", "spine"],
+        native_fauna: [],
+        chaos_enemies: {
+            uncommon: [obj_crimson_preset_master],
+            rare: [obj_enemy_infestation],
+            anomalous: [obj_watcher_general]
+        }
+    },
+    city: {
+        name: "city",
+        display_name: "City",
+        difficulty: 6,
+        native_factions: ["watchers"],
+        native_mutants: ["spine", "big", "infestation"],
+        native_fauna: [],
+        chaos_enemies: {
+            uncommon: [],
+            rare: [],
+            anomalous: []
+        }
+    },
+    cnpp: {
+        name: "cnpp",
+        display_name: "CNPP",
+        difficulty: 7,
+        native_factions: ["watchers"],
+        native_mutants: ["infestation", "big"],
+        native_fauna: [],
+        chaos_enemies: {
+            uncommon: [],
+            rare: [],
+            anomalous: []
+        }
+    }
+};
+
+-- =============================================================================
+-- ZONE SPAWN TEMPLATES
+-- =============================================================================
+-- Placeholder spawn points for zones not yet fully configured
+-- Replace with detailed spawn points like forest.catspeak
+
+let DREAD_ZONE_SPAWN_TEMPLATES = {
+    makeshift_camp: [
+        { name: "Camp Entrance", x: 500, y: 400, type: "human", faction: "bandits", min: 2, max: 4, chance: 0.7 },
+        { name: "Guard Post", x: 700, y: 350, type: "human", faction: "green_army", min: 2, max: 3, chance: 0.6 },
+        { name: "Hunter Camp", x: 600, y: 600, type: "human", faction: "hunters", min: 1, max: 3, chance: 0.5 },
+        { name: "Mutant Den", x: 800, y: 500, type: "mutant", mutant_type: "ghoul", min: 2, max: 4, chance: 0.6 }
+    ],
+    industrial_area: [
+        { name: "Factory Floor", x: 600, y: 400, type: "human", faction: "green_army", min: 3, max: 5, chance: 0.7 },
+        { name: "Loading Dock", x: 800, y: 350, type: "human", faction: "bandits", min: 2, max: 4, chance: 0.6 },
+        { name: "Warehouse", x: 500, y: 600, type: "mutant", mutant_type: "blink", min: 1, max: 3, chance: 0.5 },
+        { name: "Office Building", x: 700, y: 700, type: "mutant", mutant_type: "ghoul_crystal", min: 2, max: 3, chance: 0.5 }
+    ],
+    swamp: [
+        { name: "Swamp Edge", x: 400, y: 400, type: "mutant", mutant_type: "spider", min: 2, max: 4, chance: 0.7 },
+        { name: "Crimson Outpost", x: 600, y: 500, type: "human", faction: "crimson", min: 2, max: 4, chance: 0.6 },
+        { name: "Flooded Area", x: 500, y: 700, type: "mutant", mutant_type: "ghoul", min: 3, max: 5, chance: 0.6 },
+        { name: "Old Platform", x: 800, y: 400, type: "human", faction: "crimson", min: 1, max: 3, chance: 0.5 }
+    ],
+    mall: [
+        { name: "Main Entrance", x: 500, y: 400, type: "human", faction: "watchers", min: 3, max: 5, chance: 0.8 },
+        { name: "Food Court", x: 700, y: 500, type: "human", faction: "crimson", min: 2, max: 4, chance: 0.6 },
+        { name: "Parking Garage", x: 600, y: 700, type: "mutant", mutant_type: "spine", min: 1, max: 3, chance: 0.5 },
+        { name: "Back Alley", x: 800, y: 600, type: "mutant", mutant_type: "big", min: 1, max: 2, chance: 0.3 }
+    ],
+    zaton: [
+        { name: "City Entrance", x: 500, y: 400, type: "human", faction: "watchers", min: 3, max: 5, chance: 0.8 },
+        { name: "Checkpoint", x: 700, y: 350, type: "human", faction: "watchers", min: 2, max: 4, chance: 0.7 },
+        { name: "Ruins", x: 600, y: 600, type: "mutant", mutant_type: "big", min: 1, max: 2, chance: 0.4 }
+    ],
+    city: [
+        { name: "Street", x: 500, y: 400, type: "human", faction: "watchers", min: 2, max: 4, chance: 0.7 },
+        { name: "Building", x: 700, y: 500, type: "mutant", mutant_type: "spine", min: 1, max: 3, chance: 0.5 }
+    ],
+    cnpp: [
+        { name: "Entrance", x: 500, y: 400, type: "human", faction: "watchers", min: 3, max: 5, chance: 0.8 },
+        { name: "Reactor", x: 700, y: 500, type: "mutant", mutant_type: "infestation", min: 1, max: 2, chance: 0.4 }
+    ]
+};
+
+-- =============================================================================
+-- ZONE EXECUTION
+-- =============================================================================
+
+-- Get zone data
+let DREAD_GetZone = func(zone_name) {
+    match zone_name {
+        case "forest" { return DREAD_ZONES.forest; }
+        case "makeshift_camp" { return DREAD_ZONES.makeshift_camp; }
+        case "industrial_area" { return DREAD_ZONES.industrial_area; }
+        case "swamp" { return DREAD_ZONES.swamp; }
+        case "mall" { return DREAD_ZONES.mall; }
+        case "zaton" { return DREAD_ZONES.zaton; }
+        case "city" { return DREAD_ZONES.city; }
+        case "cnpp" { return DREAD_ZONES.cnpp; }
+        else { return undefined; }
+    }
+};
+
+-- Execute spawns for a zone using template
+let DREAD_ExecuteZoneSpawnsTemplate = func(zone_name) {
+    if (!DREAD_IsZoneEnabled(zone_name)) {
+        return 0;
+    }
+
+    let spawn_points;
+    match zone_name {
+        case "makeshift_camp" { spawn_points = DREAD_ZONE_SPAWN_TEMPLATES.makeshift_camp; }
+        case "industrial_area" { spawn_points = DREAD_ZONE_SPAWN_TEMPLATES.industrial_area; }
+        case "swamp" { spawn_points = DREAD_ZONE_SPAWN_TEMPLATES.swamp; }
+        case "mall" { spawn_points = DREAD_ZONE_SPAWN_TEMPLATES.mall; }
+        case "zaton" { spawn_points = DREAD_ZONE_SPAWN_TEMPLATES.zaton; }
+        case "city" { spawn_points = DREAD_ZONE_SPAWN_TEMPLATES.city; }
+        case "cnpp" { spawn_points = DREAD_ZONE_SPAWN_TEMPLATES.cnpp; }
+        else { return 0; }
+    }
+
+    let density = DREAD_GetZoneDensity(zone_name);
+    let spawned_count = 0;
+
+    let i = 0;
+    while (i < ArrayLength(spawn_points)) {
+        let point = spawn_points[i];
+        point.chance = point.chance * density;
+
+        let result = DREAD_ProcessSpawnPoint(point);
+        if (result != undefined) {
+            spawned_count += 1;
+        }
+
+        i += 1;
+    }
+
+    DREAD_Log(zone_name + " spawning complete. Total: " + String(spawned_count));
+    return spawned_count;
+};
+
+-- =============================================================================
+-- CHAOS MODE FOR ALL ZONES
+-- =============================================================================
+
+let DREAD_GetChaosEnemyForZone = func(zone_name) {
+    let zone = DREAD_GetZone(zone_name);
+    if (zone == undefined) {
+        -- Fallback to forest
+        return DREAD_GetForestChaosEnemy();
+    }
+
+    let roll = Irandom(100);
+
+    if (roll < 60) {
+        -- Native enemies (handled by zone's native spawns)
+        return undefined;
+    } else if (roll < 85) {
+        -- Uncommon
+        if (ArrayLength(zone.chaos_enemies.uncommon) > 0) {
+            return DREAD_RandomElement(zone.chaos_enemies.uncommon);
+        }
+    } else if (roll < 97) {
+        -- Rare
+        if (ArrayLength(zone.chaos_enemies.rare) > 0) {
+            return DREAD_RandomElement(zone.chaos_enemies.rare);
+        }
+    } else {
+        -- Anomalous
+        if (ArrayLength(zone.chaos_enemies.anomalous) > 0) {
+            return DREAD_RandomElement(zone.chaos_enemies.anomalous);
+        }
+    }
+
+    return undefined;
+};

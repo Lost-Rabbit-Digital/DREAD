@@ -1,0 +1,250 @@
+-- =============================================================================
+-- DREAD: Core Utility Functions
+-- =============================================================================
+-- Shared utilities used across all DREAD modules
+-- =============================================================================
+
+-- =============================================================================
+-- CONFIGURATION
+-- =============================================================================
+
+let DREAD = {
+    version: "0.2.0",
+    debug: true,
+    initialized: false,
+    config: {}
+};
+
+-- =============================================================================
+-- LOGGING SYSTEM
+-- =============================================================================
+
+let DREAD_Log = func(message) {
+    if (DREAD.debug) {
+        ShowMessage("[DREAD] " + String(message));
+    }
+};
+
+let DREAD_LogError = func(message) {
+    ShowMessage("[DREAD ERROR] " + String(message));
+};
+
+let DREAD_LogDebug = func(category, message) {
+    if (DREAD.debug) {
+        ShowMessage("[DREAD:" + category + "] " + String(message));
+    }
+};
+
+-- =============================================================================
+-- RANDOM UTILITIES
+-- =============================================================================
+
+-- Get random integer between min and max (inclusive)
+let DREAD_RandomRange = func(min_val, max_val) {
+    if (min_val >= max_val) {
+        return min_val;
+    }
+    return Irandom(max_val - min_val) + min_val;
+};
+
+-- Get random float between 0 and 1
+let DREAD_RandomFloat = func() {
+    return Irandom(1000) / 1000;
+};
+
+-- Weighted random selection from array of {item, weight} structs
+let DREAD_WeightedRandom = func(weighted_items) {
+    let total_weight = 0;
+    let i = 0;
+
+    -- Calculate total weight
+    while (i < ArrayLength(weighted_items)) {
+        total_weight += weighted_items[i].weight;
+        i += 1;
+    }
+
+    -- Roll and find selection
+    let roll = Irandom(total_weight);
+    let cumulative = 0;
+    i = 0;
+
+    while (i < ArrayLength(weighted_items)) {
+        cumulative += weighted_items[i].weight;
+        if (roll < cumulative) {
+            return weighted_items[i].item;
+        }
+        i += 1;
+    }
+
+    -- Fallback to last item
+    return weighted_items[ArrayLength(weighted_items) - 1].item;
+};
+
+-- Shuffle array in place (Fisher-Yates)
+let DREAD_ShuffleArray = func(arr) {
+    let i = ArrayLength(arr) - 1;
+    while (i > 0) {
+        let j = Irandom(i);
+        let temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+        i -= 1;
+    }
+    return arr;
+};
+
+-- Pick random element from array
+let DREAD_RandomElement = func(arr) {
+    if (ArrayLength(arr) == 0) {
+        return undefined;
+    }
+    return arr[Irandom(ArrayLength(arr) - 1)];
+};
+
+-- =============================================================================
+-- POSITION UTILITIES
+-- =============================================================================
+
+-- Check if position is valid for spawning
+let DREAD_IsValidSpawnPosition = func(x, y) {
+    return CollisionWalkable(x, y);
+};
+
+-- Get random position within radius of point
+let DREAD_RandomPositionInRadius = func(center_x, center_y, radius) {
+    let angle = Irandom(360);
+    let distance = Irandom(radius);
+
+    let x = center_x + LengthDirX(distance, angle);
+    let y = center_y + LengthDirY(distance, angle);
+
+    return { x: x, y: y };
+};
+
+-- Find valid spawn position near point (with retries)
+let DREAD_FindValidSpawnPosition = func(center_x, center_y, radius, max_attempts) {
+    let attempts = 0;
+
+    while (attempts < max_attempts) {
+        let pos = DREAD_RandomPositionInRadius(center_x, center_y, radius);
+
+        if (DREAD_IsValidSpawnPosition(pos.x, pos.y)) {
+            return pos;
+        }
+
+        attempts += 1;
+    }
+
+    -- Failed to find valid position, return center as fallback
+    return { x: center_x, y: center_y, valid: false };
+};
+
+-- Calculate distance between two points
+let DREAD_Distance = func(x1, y1, x2, y2) {
+    let dx = x2 - x1;
+    let dy = y2 - y1;
+    return Sqrt(dx * dx + dy * dy);
+};
+
+-- =============================================================================
+-- ARRAY UTILITIES
+-- =============================================================================
+
+-- Check if array contains element
+let DREAD_ArrayContains = func(arr, element) {
+    let i = 0;
+    while (i < ArrayLength(arr)) {
+        if (arr[i] == element) {
+            return true;
+        }
+        i += 1;
+    }
+    return false;
+};
+
+-- Filter array by predicate function
+let DREAD_ArrayFilter = func(arr, predicate) {
+    let result = [];
+    let i = 0;
+    while (i < ArrayLength(arr)) {
+        if (predicate(arr[i])) {
+            ArrayPush(result, arr[i]);
+        }
+        i += 1;
+    }
+    return result;
+};
+
+-- Map array elements through function
+let DREAD_ArrayMap = func(arr, mapper) {
+    let result = [];
+    let i = 0;
+    while (i < ArrayLength(arr)) {
+        ArrayPush(result, mapper(arr[i]));
+        i += 1;
+    }
+    return result;
+};
+
+-- =============================================================================
+-- ZONE DETECTION
+-- =============================================================================
+
+-- Map room names to zone identifiers
+let DREAD_ZONE_MAP = {
+    r_forest: "forest",
+    r_makeshift_camp: "makeshift_camp",
+    r_industrial: "industrial_area",
+    r_swamp: "swamp",
+    r_mall: "mall",
+    r_zaton: "zaton",
+    r_city: "city",
+    r_cnpp: "cnpp",
+    r_hub: "hub"
+};
+
+-- Get current zone name
+let DREAD_GetCurrentZone = func() {
+    let room = RoomGetCurrent();
+
+    -- Check known zones
+    if (room == "r_forest") { return "forest"; }
+    if (room == "r_makeshift_camp") { return "makeshift_camp"; }
+    if (room == "r_industrial") { return "industrial_area"; }
+    if (room == "r_swamp") { return "swamp"; }
+    if (room == "r_mall") { return "mall"; }
+    if (room == "r_zaton") { return "zaton"; }
+    if (room == "r_city") { return "city"; }
+    if (room == "r_cnpp") { return "cnpp"; }
+    if (room == "r_hub") { return "hub"; }
+
+    -- Unknown zone
+    return "unknown";
+};
+
+-- Check if we're in a raid (not hub)
+let DREAD_IsInRaid = func() {
+    return DREAD_GetCurrentZone() != "hub";
+};
+
+-- =============================================================================
+-- TIME UTILITIES
+-- =============================================================================
+
+-- Get current in-game time as struct
+let DREAD_GetGameTime = func() {
+    return {
+        hour: TimeGetHour(),
+        minute: TimeGetMinute(),
+        second: TimeGetSecond(),
+        day: TimeGetDay(),
+        month: TimeGetMonth(),
+        year: TimeGetYear()
+    };
+};
+
+-- Check if it's night time (for potential stealth bonuses)
+let DREAD_IsNightTime = func() {
+    let hour = TimeGetHour();
+    return (hour >= 22) || (hour <= 5);
+};

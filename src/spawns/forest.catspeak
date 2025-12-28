@@ -1,121 +1,339 @@
 -- =============================================================================
 -- DREAD: Forest Zone Spawn Configuration
 -- =============================================================================
--- This file defines spawn points and enemy configurations for the Forest zone.
+-- Complete spawn point definitions for the Forest zone
+-- Coordinates are estimates - adjust based on in-game testing
 -- =============================================================================
+
+-- =============================================================================
+-- ZONE METADATA
+-- =============================================================================
+
+let FOREST_ZONE = {
+    name: "forest",
+    display_name: "Forest",
+    room_name: "r_forest",
+    difficulty: 1,
+    native_factions: ["bandits", "hunters"],
+    native_mutants: ["ghoul"],
+    native_fauna: ["boar", "wolf", "rabbit"]
+};
 
 -- =============================================================================
 -- SPAWN POINT DEFINITIONS
 -- =============================================================================
--- Coordinates are based on Forest map analysis
--- See: Modding Documentation/Images For Reference/
---
--- TODO: Map out actual spawn coordinates from in-game testing
--- Format: { x, y, type, min_count, max_count, faction }
+-- Each spawn point defines:
+--   x, y: Center coordinates
+--   type: "human", "mutant", or "fauna"
+--   faction/mutant_type/fauna_type: Specific enemy type
+--   min, max: Enemy count range
+--   chance: Probability of spawn (0.0 to 1.0)
+--   name: Description for debugging
 
 let FOREST_SPAWN_POINTS = [
-    -- Northwest Quadrant (currently empty in vanilla)
-    { x: 500, y: 500, type: "bandit", min: 2, max: 4, faction: "bandits" },
-    { x: 650, y: 400, type: "bandit", min: 1, max: 3, faction: "bandits" },
+    -- =========================================================================
+    -- NORTHWEST QUADRANT (Currently empty in vanilla - prime DREAD territory)
+    -- =========================================================================
+    {
+        name: "NW Forest Clearing",
+        x: 400, y: 350,
+        type: "human",
+        faction: "bandits",
+        min: 2, max: 4,
+        chance: 0.8
+    },
+    {
+        name: "NW Hidden Camp",
+        x: 550, y: 280,
+        type: "human",
+        faction: "bandits",
+        min: 1, max: 3,
+        chance: 0.6
+    },
+    {
+        name: "NW Boar Den",
+        x: 300, y: 450,
+        type: "fauna",
+        fauna_type: "boar",
+        min: 2, max: 4,
+        chance: 0.7
+    },
 
-    -- Lakeside Areas
-    { x: 1200, y: 800, type: "fauna", min: 1, max: 2, faction: "neutral" },
-    { x: 1400, y: 750, type: "fauna", min: 2, max: 4, faction: "neutral" },
+    -- =========================================================================
+    -- LAKESIDE AREAS
+    -- =========================================================================
+    {
+        name: "Lake Eastern Shore",
+        x: 1200, y: 700,
+        type: "fauna",
+        fauna_type: "wolf",
+        min: 2, max: 3,
+        chance: 0.5
+    },
+    {
+        name: "Lake Fishing Spot",
+        x: 1350, y: 650,
+        type: "human",
+        faction: "hunters",
+        min: 1, max: 2,
+        chance: 0.4
+    },
+    {
+        name: "Lake Ghoul Nest",
+        x: 1100, y: 850,
+        type: "mutant",
+        mutant_type: "ghoul",
+        min: 1, max: 3,
+        chance: 0.6
+    },
 
-    -- Cabin Areas
-    { x: 800, y: 600, type: "mutant", min: 1, max: 2, faction: "mutant" },
+    -- =========================================================================
+    -- CABIN AREAS
+    -- =========================================================================
+    {
+        name: "Old Cabin Bandits",
+        x: 800, y: 500,
+        type: "human",
+        faction: "bandits",
+        min: 2, max: 4,
+        chance: 0.7
+    },
+    {
+        name: "Cabin Woods Mutants",
+        x: 750, y: 600,
+        type: "mutant",
+        mutant_type: "ghoul",
+        min: 1, max: 2,
+        chance: 0.5
+    },
+    {
+        name: "Hunter Lodge",
+        x: 900, y: 450,
+        type: "human",
+        faction: "hunters",
+        min: 1, max: 3,
+        chance: 0.4
+    },
 
-    -- Forest Edge
-    { x: 300, y: 900, type: "fauna", min: 1, max: 3, faction: "neutral" },
+    -- =========================================================================
+    -- ROAD INTERSECTIONS
+    -- =========================================================================
+    {
+        name: "Main Road Checkpoint",
+        x: 1000, y: 400,
+        type: "human",
+        faction: "bandits",
+        min: 2, max: 5,
+        chance: 0.6
+    },
+    {
+        name: "Road Ambush Point",
+        x: 850, y: 350,
+        type: "human",
+        faction: "bandits",
+        min: 2, max: 3,
+        chance: 0.5
+    },
 
-    -- Road Intersections
-    { x: 1000, y: 500, type: "bandit", min: 2, max: 3, faction: "bandits" }
+    -- =========================================================================
+    -- FOREST EDGE / PERIMETER
+    -- =========================================================================
+    {
+        name: "Southern Treeline",
+        x: 600, y: 950,
+        type: "fauna",
+        fauna_type: "boar",
+        min: 1, max: 3,
+        chance: 0.6
+    },
+    {
+        name: "Eastern Woods",
+        x: 1400, y: 500,
+        type: "mutant",
+        mutant_type: "ghoul",
+        min: 2, max: 3,
+        chance: 0.5
+    },
+    {
+        name: "Western Forest Edge",
+        x: 200, y: 600,
+        type: "fauna",
+        fauna_type: "wolf",
+        min: 1, max: 2,
+        chance: 0.4
+    },
+
+    -- =========================================================================
+    -- SPECIAL / POI AREAS
+    -- =========================================================================
+    {
+        name: "Crashed Vehicle",
+        x: 950, y: 700,
+        type: "human",
+        faction: "bandits",
+        min: 1, max: 2,
+        chance: 0.4
+    },
+    {
+        name: "Old Bunker Entrance",
+        x: 650, y: 800,
+        type: "mutant",
+        mutant_type: "ghoul",
+        min: 2, max: 4,
+        chance: 0.5
+    },
+    {
+        name: "Rabbit Warren",
+        x: 500, y: 700,
+        type: "fauna",
+        fauna_type: "rabbit",
+        min: 3, max: 6,
+        chance: 0.7
+    }
 ];
 
 -- =============================================================================
--- ENEMY TYPE MAPPINGS
+-- BOSS SPAWN POINTS
 -- =============================================================================
 
-let FOREST_ENEMY_TYPES = {
-    bandit: [
-        obj_bandit_preset_rookie,
-        obj_bandit_preset_skilled,
-        obj_bandit_preset_intermediate
-    ],
-    fauna: [
-        obj_enemy_boar,
-        obj_enemy_wolf_brown,
-        obj_enemy_rabbit
-    ],
-    mutant: [
-        obj_enemy_ghoul,
-        obj_enemy_ghoul_2
-    ],
-    boss: [
-        obj_enemy_human_bandit_boss  -- Lazar
-    ]
-};
+let FOREST_BOSS_SPAWNS = [
+    {
+        name: "Lazar's Camp",
+        x: 700, y: 400,
+        boss: "lazar",
+        guards: 2,
+        chance: 0.1  -- Low chance, special encounter
+    }
+];
 
 -- =============================================================================
--- SPAWN WEIGHTS BY ENEMY TIER
+-- SPAWN EXECUTION
 -- =============================================================================
 
-let FOREST_BANDIT_WEIGHTS = {
-    rookie: 40,
-    skilled: 30,
-    intermediate: 20,
-    expert: 8,
-    veteran: 2
-};
+-- Execute all Forest spawns
+let DREAD_ExecuteForestSpawns = func() {
+    if (!DREAD_IsZoneEnabled("forest")) {
+        DREAD_Log("Forest zone disabled in config");
+        return 0;
+    }
 
-let FOREST_FAUNA_WEIGHTS = {
-    boar: 40,
-    wolf: 35,
-    rabbit: 25
-};
+    DREAD_Log("Executing Forest spawn points...");
 
-let FOREST_MUTANT_WEIGHTS = {
-    ghoul: 70,
-    ghoul_crystallized: 30
-};
+    let density = DREAD_GetZoneDensity("forest");
+    let spawned_count = 0;
 
--- =============================================================================
--- FOREST SPAWN FUNCTION
--- =============================================================================
-
-let DREAD_SpawnForestAll = func() {
+    -- Process each spawn point
     let i = 0;
     while (i < ArrayLength(FOREST_SPAWN_POINTS)) {
         let point = FOREST_SPAWN_POINTS[i];
-        DREAD_SpawnAtPoint(point);
+
+        -- Adjust chance by density
+        let adjusted_chance = point.chance * density;
+
+        -- Clone point and update chance
+        let adjusted_point = {
+            name: point.name,
+            x: point.x,
+            y: point.y,
+            type: point.type,
+            min: point.min,
+            max: point.max,
+            chance: adjusted_chance
+        };
+
+        -- Copy type-specific fields
+        if (point.faction != undefined) {
+            adjusted_point.faction = point.faction;
+        }
+        if (point.mutant_type != undefined) {
+            adjusted_point.mutant_type = point.mutant_type;
+        }
+        if (point.fauna_type != undefined) {
+            adjusted_point.fauna_type = point.fauna_type;
+        }
+
+        -- Process the spawn point
+        let result = DREAD_ProcessSpawnPoint(adjusted_point);
+
+        if (result != undefined) {
+            if (result.members != undefined) {
+                spawned_count += ArrayLength(result.members);
+            } else if (ArrayLength(result) > 0) {
+                spawned_count += ArrayLength(result);
+            } else {
+                spawned_count += 1;
+            }
+            DREAD_LogDebug("Forest", "Spawned at: " + point.name);
+        }
+
+        i += 1;
+    }
+
+    DREAD_Log("Forest spawning complete. Total: " + String(spawned_count));
+    return spawned_count;
+};
+
+-- Execute Forest boss spawns (special encounters)
+let DREAD_ExecuteForestBossSpawns = func() {
+    let i = 0;
+    while (i < ArrayLength(FOREST_BOSS_SPAWNS)) {
+        let boss_point = FOREST_BOSS_SPAWNS[i];
+
+        if (DREAD_RandomFloat() < boss_point.chance) {
+            DREAD_Log("BOSS SPAWN: " + boss_point.name);
+
+            -- Spawn boss
+            InstanceCreate(boss_point.x, boss_point.y, DREAD_BOSS_OBJECTS[boss_point.boss]);
+
+            -- Spawn guards
+            if (boss_point.guards > 0) {
+                let g = 0;
+                while (g < boss_point.guards) {
+                    let guard_x = boss_point.x + Irandom(60) - 30;
+                    let guard_y = boss_point.y + Irandom(60) - 30;
+                    InstanceCreate(guard_x, guard_y, DREAD_BOSS_OBJECTS.lazar_guard);
+                    g += 1;
+                }
+            }
+        }
+
         i += 1;
     }
 };
 
-let DREAD_SpawnAtPoint = func(point) {
-    -- Determine enemy count
-    let count = Irandom(point.max - point.min) + point.min;
+-- =============================================================================
+-- FOREST CHAOS MODE ADDITIONS
+-- =============================================================================
 
-    -- Get enemy type list
-    let enemies = FOREST_ENEMY_TYPES[point.type];
-    if (enemies == undefined) {
-        return;
-    }
+let FOREST_CHAOS_SPAWNS = [
+    -- Uncommon: Enemies from adjacent zones
+    { type: obj_enemy_blink, weight: 30, rarity: "uncommon" },
+    { type: obj_green_army_preset_rookie, weight: 20, rarity: "uncommon" },
 
-    -- Spawn enemies
-    let j = 0;
-    while (j < count) {
-        let spawn_x = point.x + Irandom(40) - 20;
-        let spawn_y = point.y + Irandom(40) - 20;
+    -- Rare: Enemies from distant zones
+    { type: obj_enemy_spider, weight: 15, rarity: "rare" },
+    { type: obj_crimson_preset_rookie, weight: 10, rarity: "rare" },
 
-        if (CollisionWalkable(spawn_x, spawn_y)) {
-            -- Select random enemy from type list
-            let enemy_index = Irandom(ArrayLength(enemies) - 1);
-            let enemy = enemies[enemy_index];
+    -- Anomalous: Late-game enemies
+    { type: obj_enemy_big, weight: 3, rarity: "anomalous" },
+    { type: obj_watcher_preset_skilled, weight: 2, rarity: "anomalous" }
+];
 
-            InstanceCreate(spawn_x, spawn_y, enemy);
-        }
+let DREAD_GetForestChaosEnemy = func() {
+    let roll = Irandom(100);
 
-        j += 1;
+    if (roll < 60) {
+        -- Native enemies
+        let natives = [obj_enemy_ghoul, obj_enemy_boar, obj_bandit_preset_skilled];
+        return DREAD_RandomElement(natives);
+    } else if (roll < 85) {
+        -- Uncommon
+        return DREAD_RandomElement([obj_enemy_blink, obj_green_army_preset_rookie]);
+    } else if (roll < 97) {
+        -- Rare
+        return DREAD_RandomElement([obj_enemy_spider, obj_crimson_preset_rookie]);
+    } else {
+        -- Anomalous
+        return DREAD_RandomElement([obj_enemy_big, obj_watcher_preset_skilled]);
     }
 };

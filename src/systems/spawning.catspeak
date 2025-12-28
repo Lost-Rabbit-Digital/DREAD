@@ -1,0 +1,339 @@
+-- =============================================================================
+-- DREAD: Core Spawning System
+-- =============================================================================
+-- Handles all enemy spawning with archetype and squad support
+-- =============================================================================
+
+-- =============================================================================
+-- ENEMY OBJECT MAPPINGS
+-- =============================================================================
+
+-- Human faction objects (use with presets)
+let DREAD_HUMAN_OBJECTS = {
+    bandits: obj_enemy_human_bandit_novice,
+    green_army: obj_green_army_soldier1,
+    hunters: obj_hunter_preset_rookie,
+    watchers: obj_watcher_preset_rookie,
+    crimson: obj_crimson_soldier
+};
+
+-- Mutant objects (direct spawn)
+let DREAD_MUTANT_OBJECTS = {
+    ghoul: obj_enemy_ghoul,
+    ghoul_crystal: obj_enemy_ghoul_2,
+    blink: obj_enemy_blink,
+    big: obj_enemy_big,
+    spider: obj_enemy_spider,
+    spine: obj_enemy_spine,
+    zombie: obj_enemy_zombie,
+    infestation: obj_enemy_infestation
+};
+
+-- Fauna objects
+let DREAD_FAUNA_OBJECTS = {
+    boar: obj_enemy_boar,
+    boar_zombie: obj_enemy_boar_zombie,
+    wolf: obj_enemy_wolf_brown,
+    rabbit: obj_enemy_rabbit,
+    rat: obj_enemy_rat,
+    crow: obj_enemy_crow
+};
+
+-- Boss objects
+let DREAD_BOSS_OBJECTS = {
+    lazar: obj_enemy_human_bandit_boss,
+    lazar_guard: obj_enemy_human_bandit_boss_guard,
+    orel: obj_enemy_human_bandit_boss_outpost,
+    arman: obj_boss_arman,
+    valentine: obj_boss_city,
+    devil: obj_watcher_devil,
+    killa: obj_boss_killa
+};
+
+-- =============================================================================
+-- SPAWN TRACKING
+-- =============================================================================
+
+let DREAD_SpawnStats = {
+    total_spawned: 0,
+    squads_spawned: 0,
+    humans_spawned: 0,
+    mutants_spawned: 0,
+    fauna_spawned: 0
+};
+
+-- =============================================================================
+-- BASIC SPAWNING
+-- =============================================================================
+
+-- Spawn a single enemy at position
+let DREAD_SpawnEnemy = func(enemy_type, x, y) {
+    if (!DREAD_IsValidSpawnPosition(x, y)) {
+        DREAD_LogDebug("Spawn", "Invalid position: " + String(x) + "," + String(y));
+        return undefined;
+    }
+
+    InstanceCreate(x, y, enemy_type);
+    DREAD_SpawnStats.total_spawned += 1;
+
+    DREAD_LogDebug("Spawn", "Spawned enemy at " + String(x) + "," + String(y));
+    return true;
+};
+
+-- Spawn enemy near player
+let DREAD_SpawnNearPlayer = func(enemy_type, count, chase) {
+    NpcObjectSpawnNearPlayer(enemy_type, count, chase);
+    DREAD_SpawnStats.total_spawned += count;
+
+    DREAD_LogDebug("Spawn", "Spawned " + String(count) + " near player");
+    return true;
+};
+
+-- =============================================================================
+-- HUMAN ENEMY SPAWNING (with archetypes)
+-- =============================================================================
+
+-- Spawn a human enemy with archetype
+let DREAD_SpawnHuman = func(faction, x, y, archetype_override) {
+    -- Validate position
+    let pos = DREAD_FindValidSpawnPosition(x, y, 30, 5);
+    if (pos.valid == false) {
+        DREAD_LogDebug("Spawn", "Could not find valid position near " + String(x) + "," + String(y));
+        return undefined;
+    }
+
+    -- Select archetype
+    let archetype;
+    if (archetype_override != undefined) {
+        archetype = archetype_override;
+    } else {
+        archetype = DREAD_SelectArchetype();
+    }
+
+    -- Create unique NPC ID
+    let npc_id = "dread_" + faction + "_" + String(DREAD_SpawnStats.humans_spawned);
+
+    -- Create and configure NPC
+    NpcCreate(npc_id);
+    DREAD_ApplyArchetypeToNpc(npc_id, archetype, faction);
+    NpcSetFaction(npc_id, faction);
+
+    -- Spawn the NPC
+    NpcSpawn(npc_id, pos.x, pos.y);
+
+    DREAD_SpawnStats.humans_spawned += 1;
+    DREAD_SpawnStats.total_spawned += 1;
+
+    DREAD_LogDebug("Spawn", "Spawned " + archetype + " " + faction + " at " + String(pos.x) + "," + String(pos.y));
+
+    return {
+        npc_id: npc_id,
+        archetype: archetype,
+        x: pos.x,
+        y: pos.y
+    };
+};
+
+-- =============================================================================
+-- MUTANT SPAWNING
+-- =============================================================================
+
+-- Spawn a mutant
+let DREAD_SpawnMutant = func(mutant_type, x, y) {
+    let pos = DREAD_FindValidSpawnPosition(x, y, 30, 5);
+
+    let obj;
+    match mutant_type {
+        case "ghoul" { obj = DREAD_MUTANT_OBJECTS.ghoul; }
+        case "ghoul_crystal" { obj = DREAD_MUTANT_OBJECTS.ghoul_crystal; }
+        case "blink" { obj = DREAD_MUTANT_OBJECTS.blink; }
+        case "big" { obj = DREAD_MUTANT_OBJECTS.big; }
+        case "spider" { obj = DREAD_MUTANT_OBJECTS.spider; }
+        case "spine" { obj = DREAD_MUTANT_OBJECTS.spine; }
+        case "zombie" { obj = DREAD_MUTANT_OBJECTS.zombie; }
+        else { obj = DREAD_MUTANT_OBJECTS.ghoul; }
+    }
+
+    InstanceCreate(pos.x, pos.y, obj);
+    DREAD_SpawnStats.mutants_spawned += 1;
+    DREAD_SpawnStats.total_spawned += 1;
+
+    DREAD_LogDebug("Spawn", "Spawned " + mutant_type + " at " + String(pos.x) + "," + String(pos.y));
+
+    return { type: mutant_type, x: pos.x, y: pos.y };
+};
+
+-- =============================================================================
+-- FAUNA SPAWNING
+-- =============================================================================
+
+-- Spawn fauna
+let DREAD_SpawnFauna = func(fauna_type, x, y) {
+    let pos = DREAD_FindValidSpawnPosition(x, y, 50, 5);
+
+    let obj;
+    match fauna_type {
+        case "boar" { obj = DREAD_FAUNA_OBJECTS.boar; }
+        case "wolf" { obj = DREAD_FAUNA_OBJECTS.wolf; }
+        case "rabbit" { obj = DREAD_FAUNA_OBJECTS.rabbit; }
+        case "rat" { obj = DREAD_FAUNA_OBJECTS.rat; }
+        else { obj = DREAD_FAUNA_OBJECTS.boar; }
+    }
+
+    InstanceCreate(pos.x, pos.y, obj);
+    DREAD_SpawnStats.fauna_spawned += 1;
+    DREAD_SpawnStats.total_spawned += 1;
+
+    return { type: fauna_type, x: pos.x, y: pos.y };
+};
+
+-- =============================================================================
+-- SQUAD SPAWNING
+-- =============================================================================
+
+-- Spawn a squad of humans
+let DREAD_SpawnSquad = func(faction, center_x, center_y, size, with_leader) {
+    let squad_members = [];
+    let spawn_radius = 40;
+
+    -- Determine if squad has a leader
+    let has_leader = with_leader && (DREAD_RandomFloat() < DREAD_ConfigGet("squad_spawning.leader_chance", 0.3));
+
+    let i = 0;
+    while (i < size) {
+        -- First member might be leader
+        let archetype;
+        if (i == 0 && has_leader) {
+            archetype = DREAD_SelectLeaderArchetype();
+        } else {
+            archetype = DREAD_SelectArchetype();
+        }
+
+        -- Find position near center
+        let offset_x = center_x + Irandom(spawn_radius * 2) - spawn_radius;
+        let offset_y = center_y + Irandom(spawn_radius * 2) - spawn_radius;
+
+        let member = DREAD_SpawnHuman(faction, offset_x, offset_y, archetype);
+        if (member != undefined) {
+            member.is_leader = (i == 0 && has_leader);
+            ArrayPush(squad_members, member);
+        }
+
+        i += 1;
+    }
+
+    DREAD_SpawnStats.squads_spawned += 1;
+
+    DREAD_LogDebug("Squad", "Spawned squad of " + String(ArrayLength(squad_members)) + " " + faction);
+
+    return {
+        faction: faction,
+        members: squad_members,
+        has_leader: has_leader,
+        center_x: center_x,
+        center_y: center_y
+    };
+};
+
+-- Spawn squad with random size from config
+let DREAD_SpawnRandomSquad = func(faction, center_x, center_y) {
+    let min_size = DREAD_ConfigGet("squad_spawning.min_squad_size", 2);
+    let max_size = DREAD_ConfigGet("squad_spawning.max_squad_size", 5);
+    let size = DREAD_RandomRange(min_size, max_size);
+
+    return DREAD_SpawnSquad(faction, center_x, center_y, size, true);
+};
+
+-- =============================================================================
+-- SPAWN POINT PROCESSING
+-- =============================================================================
+
+-- Process a spawn point definition
+let DREAD_ProcessSpawnPoint = func(spawn_point) {
+    -- Check spawn chance
+    let spawn_chance = spawn_point.chance;
+    if (spawn_chance == undefined) {
+        spawn_chance = 1.0;
+    }
+
+    if (DREAD_RandomFloat() > spawn_chance) {
+        return undefined;
+    }
+
+    -- Determine count
+    let count;
+    if (spawn_point.count != undefined) {
+        count = spawn_point.count;
+    } else if (spawn_point.min != undefined && spawn_point.max != undefined) {
+        count = DREAD_RandomRange(spawn_point.min, spawn_point.max);
+    } else {
+        count = 1;
+    }
+
+    -- Apply spawn multiplier
+    count = Round(count * DREAD_GetSpawnMultiplier());
+    if (count < 1) {
+        count = 1;
+    }
+
+    -- Handle by type
+    match spawn_point.type {
+        case "human" {
+            if (count >= 2 && DREAD_IsFeatureEnabled("squads")) {
+                return DREAD_SpawnSquad(spawn_point.faction, spawn_point.x, spawn_point.y, count, true);
+            } else {
+                let spawned = [];
+                let i = 0;
+                while (i < count) {
+                    let offset_x = spawn_point.x + Irandom(40) - 20;
+                    let offset_y = spawn_point.y + Irandom(40) - 20;
+                    ArrayPush(spawned, DREAD_SpawnHuman(spawn_point.faction, offset_x, offset_y, undefined));
+                    i += 1;
+                }
+                return spawned;
+            }
+        }
+        case "mutant" {
+            let spawned = [];
+            let i = 0;
+            while (i < count) {
+                let offset_x = spawn_point.x + Irandom(60) - 30;
+                let offset_y = spawn_point.y + Irandom(60) - 30;
+                ArrayPush(spawned, DREAD_SpawnMutant(spawn_point.mutant_type, offset_x, offset_y));
+                i += 1;
+            }
+            return spawned;
+        }
+        case "fauna" {
+            let spawned = [];
+            let i = 0;
+            while (i < count) {
+                let offset_x = spawn_point.x + Irandom(80) - 40;
+                let offset_y = spawn_point.y + Irandom(80) - 40;
+                ArrayPush(spawned, DREAD_SpawnFauna(spawn_point.fauna_type, offset_x, offset_y));
+                i += 1;
+            }
+            return spawned;
+        }
+        else {
+            DREAD_LogError("Unknown spawn point type: " + spawn_point.type);
+            return undefined;
+        }
+    }
+};
+
+-- =============================================================================
+-- SPAWN STATISTICS
+-- =============================================================================
+
+let DREAD_GetSpawnStats = func() {
+    return DREAD_SpawnStats;
+};
+
+let DREAD_ResetSpawnStats = func() {
+    DREAD_SpawnStats.total_spawned = 0;
+    DREAD_SpawnStats.squads_spawned = 0;
+    DREAD_SpawnStats.humans_spawned = 0;
+    DREAD_SpawnStats.mutants_spawned = 0;
+    DREAD_SpawnStats.fauna_spawned = 0;
+};

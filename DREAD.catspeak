@@ -1,0 +1,1532 @@
+-- =============================================================================
+-- DREAD: Dynamic Randomized Enemy Area Distribution
+-- =============================================================================
+-- Zero Sievert Spawn Overhaul Mod
+-- Author: Lost Rabbit Digital
+-- License: MIT
+-- Version: 0.2.0
+-- =============================================================================
+--
+-- DREAD enhances Zero Sievert's spawn system with:
+--   - New spawn points in previously empty areas
+--   - SAIN-inspired enemy archetypes (GigaChad, Chad, Rat, Timmy, etc.)
+--   - Squad spawning with leaders
+--   - Invasion waves during raids
+--   - Chaos Mode for cross-zone enemy variety
+--   - Full JSON configuration support
+--
+-- =============================================================================
+
+-- #############################################################################
+-- SECTION 1: CORE UTILITIES
+-- #############################################################################
+
+let DREAD = {
+    version: "0.2.0",
+    debug: true,
+    initialized: false,
+    config: {}
+};
+
+-- =============================================================================
+-- LOGGING SYSTEM
+-- =============================================================================
+
+let DREAD_Log = func(message) {
+    if (DREAD.debug) {
+        ShowMessage("[DREAD] " + String(message));
+    }
+};
+
+let DREAD_LogError = func(message) {
+    ShowMessage("[DREAD ERROR] " + String(message));
+};
+
+let DREAD_LogDebug = func(category, message) {
+    if (DREAD.debug) {
+        ShowMessage("[DREAD:" + category + "] " + String(message));
+    }
+};
+
+-- =============================================================================
+-- RANDOM UTILITIES
+-- =============================================================================
+
+let DREAD_RandomRange = func(min_val, max_val) {
+    if (min_val >= max_val) {
+        return min_val;
+    }
+    return Irandom(max_val - min_val) + min_val;
+};
+
+let DREAD_RandomFloat = func() {
+    return Irandom(1000) / 1000;
+};
+
+let DREAD_WeightedRandom = func(weighted_items) {
+    let total_weight = 0;
+    let i = 0;
+
+    while (i < ArrayLength(weighted_items)) {
+        total_weight += weighted_items[i].weight;
+        i += 1;
+    }
+
+    let roll = Irandom(total_weight);
+    let cumulative = 0;
+    i = 0;
+
+    while (i < ArrayLength(weighted_items)) {
+        cumulative += weighted_items[i].weight;
+        if (roll < cumulative) {
+            return weighted_items[i].item;
+        }
+        i += 1;
+    }
+
+    return weighted_items[ArrayLength(weighted_items) - 1].item;
+};
+
+let DREAD_ShuffleArray = func(arr) {
+    let i = ArrayLength(arr) - 1;
+    while (i > 0) {
+        let j = Irandom(i);
+        let temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+        i -= 1;
+    }
+    return arr;
+};
+
+let DREAD_RandomElement = func(arr) {
+    if (ArrayLength(arr) == 0) {
+        return undefined;
+    }
+    return arr[Irandom(ArrayLength(arr) - 1)];
+};
+
+-- =============================================================================
+-- POSITION UTILITIES
+-- =============================================================================
+
+let DREAD_IsValidSpawnPosition = func(x, y) {
+    return CollisionWalkable(x, y);
+};
+
+let DREAD_RandomPositionInRadius = func(center_x, center_y, radius) {
+    let angle = Irandom(360);
+    let distance = Irandom(radius);
+
+    let x = center_x + LengthDirX(distance, angle);
+    let y = center_y + LengthDirY(distance, angle);
+
+    return { x: x, y: y };
+};
+
+let DREAD_FindValidSpawnPosition = func(center_x, center_y, radius, max_attempts) {
+    let attempts = 0;
+
+    while (attempts < max_attempts) {
+        let pos = DREAD_RandomPositionInRadius(center_x, center_y, radius);
+
+        if (DREAD_IsValidSpawnPosition(pos.x, pos.y)) {
+            return pos;
+        }
+
+        attempts += 1;
+    }
+
+    return { x: center_x, y: center_y, valid: false };
+};
+
+let DREAD_Distance = func(x1, y1, x2, y2) {
+    let dx = x2 - x1;
+    let dy = y2 - y1;
+    return Sqrt(dx * dx + dy * dy);
+};
+
+-- =============================================================================
+-- ARRAY UTILITIES
+-- =============================================================================
+
+let DREAD_ArrayContains = func(arr, element) {
+    let i = 0;
+    while (i < ArrayLength(arr)) {
+        if (arr[i] == element) {
+            return true;
+        }
+        i += 1;
+    }
+    return false;
+};
+
+let DREAD_ArrayFilter = func(arr, predicate) {
+    let result = [];
+    let i = 0;
+    while (i < ArrayLength(arr)) {
+        if (predicate(arr[i])) {
+            ArrayPush(result, arr[i]);
+        }
+        i += 1;
+    }
+    return result;
+};
+
+let DREAD_ArrayMap = func(arr, mapper) {
+    let result = [];
+    let i = 0;
+    while (i < ArrayLength(arr)) {
+        ArrayPush(result, mapper(arr[i]));
+        i += 1;
+    }
+    return result;
+};
+
+-- =============================================================================
+-- ZONE DETECTION
+-- =============================================================================
+
+let DREAD_ZONE_MAP = {
+    r_forest: "forest",
+    r_makeshift_camp: "makeshift_camp",
+    r_industrial: "industrial_area",
+    r_swamp: "swamp",
+    r_mall: "mall",
+    r_zaton: "zaton",
+    r_city: "city",
+    r_cnpp: "cnpp",
+    r_hub: "hub"
+};
+
+let DREAD_GetCurrentZone = func() {
+    let room = RoomGetCurrent();
+
+    if (room == "r_forest") { return "forest"; }
+    if (room == "r_makeshift_camp") { return "makeshift_camp"; }
+    if (room == "r_industrial") { return "industrial_area"; }
+    if (room == "r_swamp") { return "swamp"; }
+    if (room == "r_mall") { return "mall"; }
+    if (room == "r_zaton") { return "zaton"; }
+    if (room == "r_city") { return "city"; }
+    if (room == "r_cnpp") { return "cnpp"; }
+    if (room == "r_hub") { return "hub"; }
+
+    return "unknown";
+};
+
+let DREAD_IsInRaid = func() {
+    return DREAD_GetCurrentZone() != "hub";
+};
+
+-- =============================================================================
+-- TIME UTILITIES
+-- =============================================================================
+
+let DREAD_GetGameTime = func() {
+    return {
+        hour: TimeGetHour(),
+        minute: TimeGetMinute(),
+        second: TimeGetSecond(),
+        day: TimeGetDay(),
+        month: TimeGetMonth(),
+        year: TimeGetYear()
+    };
+};
+
+let DREAD_IsNightTime = func() {
+    let hour = TimeGetHour();
+    return (hour >= 22) || (hour <= 5);
+};
+
+-- #############################################################################
+-- SECTION 2: CONFIGURATION SYSTEM
+-- #############################################################################
+
+let DREAD_DEFAULT_CONFIG = {
+    general: {
+        enabled: true,
+        debug_mode: true,
+        spawn_multiplier: 1.0
+    },
+    chaos_mode: {
+        enabled: false,
+        rarity_weights: {
+            native: 60,
+            uncommon: 25,
+            rare: 12,
+            anomalous: 3
+        }
+    },
+    enemy_archetypes: {
+        gigachad: { spawn_weight: 5, hp_multiplier: 1.5, accuracy_bonus: 0.3 },
+        chad: { spawn_weight: 15, hp_multiplier: 1.2, accuracy_bonus: 0.15 },
+        normal: { spawn_weight: 40, hp_multiplier: 1.0, accuracy_bonus: 0.0 },
+        rat: { spawn_weight: 25, hp_multiplier: 0.8, accuracy_bonus: -0.1 },
+        timmy: { spawn_weight: 15, hp_multiplier: 0.6, accuracy_bonus: -0.2 }
+    },
+    squad_spawning: {
+        enabled: true,
+        min_squad_size: 2,
+        max_squad_size: 5,
+        leader_chance: 0.3
+    },
+    invasion_events: {
+        enabled: true,
+        first_wave_delay_seconds: 120,
+        wave_interval_seconds: 180,
+        max_waves: 3,
+        enemies_per_wave: { min: 2, max: 5 }
+    }
+};
+
+let DREAD_LoadConfig = func() {
+    DREAD_LogDebug("Config", "Loading configuration...");
+
+    let loaded_config = FileDataRead("dread_config.json");
+
+    if (loaded_config != undefined) {
+        DREAD_Log("Configuration loaded from file");
+        DREAD.config = loaded_config;
+    } else {
+        DREAD_Log("Using default configuration");
+        DREAD.config = DREAD_DEFAULT_CONFIG;
+    }
+
+    DREAD.debug = DREAD_ConfigGet("general.debug_mode", true);
+
+    return DREAD.config;
+};
+
+let DREAD_ConfigGet = func(path, default_value) {
+    let parts = StringSplit(path, ".");
+    let current = DREAD.config;
+
+    let i = 0;
+    while (i < ArrayLength(parts)) {
+        if (current == undefined) {
+            return default_value;
+        }
+        current = current[parts[i]];
+        i += 1;
+    }
+
+    if (current == undefined) {
+        return default_value;
+    }
+
+    return current;
+};
+
+let DREAD_IsFeatureEnabled = func(feature) {
+    match feature {
+        case "mod" { return DREAD_ConfigGet("general.enabled", true); }
+        case "chaos" { return DREAD_ConfigGet("chaos_mode.enabled", false); }
+        case "squads" { return DREAD_ConfigGet("squad_spawning.enabled", true); }
+        case "invasions" { return DREAD_ConfigGet("invasion_events.enabled", true); }
+        else { return false; }
+    }
+};
+
+let DREAD_GetSpawnMultiplier = func() {
+    return DREAD_ConfigGet("general.spawn_multiplier", 1.0);
+};
+
+let DREAD_IsZoneEnabled = func(zone_name) {
+    let path = "zones." + zone_name + ".enabled";
+    return DREAD_ConfigGet(path, false);
+};
+
+let DREAD_GetZoneDensity = func(zone_name) {
+    let path = "zones." + zone_name + ".spawn_density";
+    let density = DREAD_ConfigGet(path, "normal");
+
+    match density {
+        case "sparse" { return 0.5; }
+        case "normal" { return 1.0; }
+        case "dense" { return 1.5; }
+        case "extreme" { return 2.0; }
+        else { return 1.0; }
+    }
+};
+
+let DREAD_ApplyDifficultyPreset = func(preset_name) {
+    let preset = DREAD_ConfigGet("difficulty_presets." + preset_name, undefined);
+
+    if (preset == undefined) {
+        DREAD_LogError("Unknown difficulty preset: " + preset_name);
+        return false;
+    }
+
+    if (preset.spawn_multiplier != undefined) {
+        DREAD.config.general.spawn_multiplier = preset.spawn_multiplier;
+    }
+
+    if (preset.chaos_mode != undefined) {
+        DREAD.config.chaos_mode.enabled = preset.chaos_mode;
+    }
+
+    DREAD_Log("Applied difficulty preset: " + preset_name);
+    return true;
+};
+
+let DREAD_SaveConfig = func() {
+    FileDataWrite("dread_config.json", DREAD.config);
+    DREAD_Log("Configuration saved");
+};
+
+-- #############################################################################
+-- SECTION 3: ARCHETYPE SYSTEM
+-- #############################################################################
+
+let DREAD_ARCHETYPES = {
+    gigachad: {
+        name: "GigaChad",
+        description: "Elite enemies with top-tier gear",
+        hp_multiplier: 1.5,
+        recoil_modifier: 0.7,
+        preset_tier: "master",
+        spawn_weight: 5
+    },
+    chad: {
+        name: "Chad",
+        description: "Well-equipped veteran fighters",
+        hp_multiplier: 1.2,
+        recoil_modifier: 0.85,
+        preset_tier: "expert",
+        spawn_weight: 15
+    },
+    normal: {
+        name: "Normal",
+        description: "Standard enemies",
+        hp_multiplier: 1.0,
+        recoil_modifier: 1.0,
+        preset_tier: "intermediate",
+        spawn_weight: 40
+    },
+    rat: {
+        name: "Rat",
+        description: "Sneaky but poorly equipped",
+        hp_multiplier: 0.8,
+        recoil_modifier: 1.15,
+        preset_tier: "skilled",
+        spawn_weight: 25
+    },
+    timmy: {
+        name: "Timmy",
+        description: "Inexperienced with minimal gear",
+        hp_multiplier: 0.6,
+        recoil_modifier: 1.3,
+        preset_tier: "rookie",
+        spawn_weight: 15
+    }
+};
+
+let DREAD_FACTION_PRESETS = {
+    bandits: {
+        master: "bandit_master",
+        expert: "bandit_expert",
+        veteran: "bandit_veteran",
+        intermediate: "bandit_intermediate",
+        skilled: "bandit_skilled",
+        rookie: "bandit_rookie"
+    },
+    green_army: {
+        master: "green_army_master",
+        expert: "green_army_expert",
+        veteran: "green_army_veteran",
+        intermediate: "green_army_intermediate",
+        skilled: "green_army_skilled",
+        rookie: "green_army_rookie"
+    },
+    hunters: {
+        master: "hunter_master",
+        expert: "hunter_expert",
+        veteran: "hunter_veteran",
+        intermediate: "hunter_intermediate",
+        skilled: "hunter_skilled",
+        rookie: "hunter_rookie"
+    },
+    watchers: {
+        master: "watcher_master",
+        expert: "watcher_expert",
+        veteran: "watcher_veteran",
+        intermediate: "watcher_intermediate",
+        skilled: "watcher_skilled",
+        rookie: "watcher_rookie"
+    },
+    crimson: {
+        master: "crimson_master",
+        expert: "crimson_expert",
+        veteran: "crimson_veteran",
+        intermediate: "crimson_intermediate",
+        skilled: "crimson_skilled",
+        rookie: "crimson_rookie"
+    }
+};
+
+let DREAD_SelectArchetype = func() {
+    let weighted_archetypes = [
+        { item: "gigachad", weight: DREAD_ARCHETYPES.gigachad.spawn_weight },
+        { item: "chad", weight: DREAD_ARCHETYPES.chad.spawn_weight },
+        { item: "normal", weight: DREAD_ARCHETYPES.normal.spawn_weight },
+        { item: "rat", weight: DREAD_ARCHETYPES.rat.spawn_weight },
+        { item: "timmy", weight: DREAD_ARCHETYPES.timmy.spawn_weight }
+    ];
+
+    return DREAD_WeightedRandom(weighted_archetypes);
+};
+
+let DREAD_GetArchetype = func(archetype_name) {
+    match archetype_name {
+        case "gigachad" { return DREAD_ARCHETYPES.gigachad; }
+        case "chad" { return DREAD_ARCHETYPES.chad; }
+        case "normal" { return DREAD_ARCHETYPES.normal; }
+        case "rat" { return DREAD_ARCHETYPES.rat; }
+        case "timmy" { return DREAD_ARCHETYPES.timmy; }
+        else { return DREAD_ARCHETYPES.normal; }
+    }
+};
+
+let DREAD_GetPresetForArchetype = func(faction, archetype_name) {
+    let archetype = DREAD_GetArchetype(archetype_name);
+    let tier = archetype.preset_tier;
+
+    let faction_presets;
+    match faction {
+        case "bandits" { faction_presets = DREAD_FACTION_PRESETS.bandits; }
+        case "green_army" { faction_presets = DREAD_FACTION_PRESETS.green_army; }
+        case "hunters" { faction_presets = DREAD_FACTION_PRESETS.hunters; }
+        case "watchers" { faction_presets = DREAD_FACTION_PRESETS.watchers; }
+        case "crimson" { faction_presets = DREAD_FACTION_PRESETS.crimson; }
+        else { faction_presets = DREAD_FACTION_PRESETS.bandits; }
+    }
+
+    match tier {
+        case "master" { return faction_presets.master; }
+        case "expert" { return faction_presets.expert; }
+        case "veteran" { return faction_presets.veteran; }
+        case "intermediate" { return faction_presets.intermediate; }
+        case "skilled" { return faction_presets.skilled; }
+        case "rookie" { return faction_presets.rookie; }
+        else { return faction_presets.intermediate; }
+    }
+};
+
+let DREAD_ApplyArchetypeToNpc = func(npc_id, archetype_name, faction) {
+    let archetype = DREAD_GetArchetype(archetype_name);
+    let preset = DREAD_GetPresetForArchetype(faction, archetype_name);
+
+    NpcSetPreset(npc_id, preset);
+
+    let base_hp = 100;
+    let modified_hp = base_hp * archetype.hp_multiplier;
+    NpcSetHp(npc_id, modified_hp);
+
+    let base_recoil = 10;
+    let modified_recoil = base_recoil * archetype.recoil_modifier;
+    NpcSetRecoilAimRadius(npc_id, modified_recoil);
+
+    DREAD_LogDebug("Archetype", "Applied " + archetype.name + " to " + npc_id);
+
+    return archetype;
+};
+
+let DREAD_SelectLeaderArchetype = func() {
+    let leader_archetypes = [
+        { item: "gigachad", weight: 30 },
+        { item: "chad", weight: 70 }
+    ];
+
+    return DREAD_WeightedRandom(leader_archetypes);
+};
+
+let DREAD_IsLeaderArchetype = func(archetype_name) {
+    return (archetype_name == "gigachad") || (archetype_name == "chad");
+};
+
+-- #############################################################################
+-- SECTION 4: SPAWNING SYSTEM
+-- #############################################################################
+
+let DREAD_HUMAN_OBJECTS = {
+    bandits: obj_enemy_human_bandit_novice,
+    green_army: obj_green_army_soldier1,
+    hunters: obj_hunter_preset_rookie,
+    watchers: obj_watcher_preset_rookie,
+    crimson: obj_crimson_soldier
+};
+
+let DREAD_MUTANT_OBJECTS = {
+    ghoul: obj_enemy_ghoul,
+    ghoul_crystal: obj_enemy_ghoul_2,
+    blink: obj_enemy_blink,
+    big: obj_enemy_big,
+    spider: obj_enemy_spider,
+    spine: obj_enemy_spine,
+    zombie: obj_enemy_zombie,
+    infestation: obj_enemy_infestation
+};
+
+let DREAD_FAUNA_OBJECTS = {
+    boar: obj_enemy_boar,
+    boar_zombie: obj_enemy_boar_zombie,
+    wolf: obj_enemy_wolf_brown,
+    rabbit: obj_enemy_rabbit,
+    rat: obj_enemy_rat,
+    crow: obj_enemy_crow
+};
+
+let DREAD_BOSS_OBJECTS = {
+    lazar: obj_enemy_human_bandit_boss,
+    lazar_guard: obj_enemy_human_bandit_boss_guard,
+    orel: obj_enemy_human_bandit_boss_outpost,
+    arman: obj_boss_arman,
+    valentine: obj_boss_city,
+    devil: obj_watcher_devil,
+    killa: obj_boss_killa
+};
+
+let DREAD_SpawnStats = {
+    total_spawned: 0,
+    squads_spawned: 0,
+    humans_spawned: 0,
+    mutants_spawned: 0,
+    fauna_spawned: 0
+};
+
+let DREAD_SpawnEnemy = func(enemy_type, x, y) {
+    if (!DREAD_IsValidSpawnPosition(x, y)) {
+        DREAD_LogDebug("Spawn", "Invalid position: " + String(x) + "," + String(y));
+        return undefined;
+    }
+
+    InstanceCreate(x, y, enemy_type);
+    DREAD_SpawnStats.total_spawned += 1;
+
+    DREAD_LogDebug("Spawn", "Spawned enemy at " + String(x) + "," + String(y));
+    return true;
+};
+
+let DREAD_SpawnNearPlayer = func(enemy_type, count, chase) {
+    NpcObjectSpawnNearPlayer(enemy_type, count, chase);
+    DREAD_SpawnStats.total_spawned += count;
+
+    DREAD_LogDebug("Spawn", "Spawned " + String(count) + " near player");
+    return true;
+};
+
+let DREAD_SpawnHuman = func(faction, x, y, archetype_override) {
+    let pos = DREAD_FindValidSpawnPosition(x, y, 30, 5);
+    if (pos.valid == false) {
+        DREAD_LogDebug("Spawn", "Could not find valid position near " + String(x) + "," + String(y));
+        return undefined;
+    }
+
+    let archetype;
+    if (archetype_override != undefined) {
+        archetype = archetype_override;
+    } else {
+        archetype = DREAD_SelectArchetype();
+    }
+
+    let npc_id = "dread_" + faction + "_" + String(DREAD_SpawnStats.humans_spawned);
+
+    NpcCreate(npc_id);
+    DREAD_ApplyArchetypeToNpc(npc_id, archetype, faction);
+    NpcSetFaction(npc_id, faction);
+
+    NpcSpawn(npc_id, pos.x, pos.y);
+
+    DREAD_SpawnStats.humans_spawned += 1;
+    DREAD_SpawnStats.total_spawned += 1;
+
+    DREAD_LogDebug("Spawn", "Spawned " + archetype + " " + faction + " at " + String(pos.x) + "," + String(pos.y));
+
+    return {
+        npc_id: npc_id,
+        archetype: archetype,
+        x: pos.x,
+        y: pos.y
+    };
+};
+
+let DREAD_SpawnMutant = func(mutant_type, x, y) {
+    let pos = DREAD_FindValidSpawnPosition(x, y, 30, 5);
+
+    let obj;
+    match mutant_type {
+        case "ghoul" { obj = DREAD_MUTANT_OBJECTS.ghoul; }
+        case "ghoul_crystal" { obj = DREAD_MUTANT_OBJECTS.ghoul_crystal; }
+        case "blink" { obj = DREAD_MUTANT_OBJECTS.blink; }
+        case "big" { obj = DREAD_MUTANT_OBJECTS.big; }
+        case "spider" { obj = DREAD_MUTANT_OBJECTS.spider; }
+        case "spine" { obj = DREAD_MUTANT_OBJECTS.spine; }
+        case "zombie" { obj = DREAD_MUTANT_OBJECTS.zombie; }
+        else { obj = DREAD_MUTANT_OBJECTS.ghoul; }
+    }
+
+    InstanceCreate(pos.x, pos.y, obj);
+    DREAD_SpawnStats.mutants_spawned += 1;
+    DREAD_SpawnStats.total_spawned += 1;
+
+    DREAD_LogDebug("Spawn", "Spawned " + mutant_type + " at " + String(pos.x) + "," + String(pos.y));
+
+    return { type: mutant_type, x: pos.x, y: pos.y };
+};
+
+let DREAD_SpawnFauna = func(fauna_type, x, y) {
+    let pos = DREAD_FindValidSpawnPosition(x, y, 50, 5);
+
+    let obj;
+    match fauna_type {
+        case "boar" { obj = DREAD_FAUNA_OBJECTS.boar; }
+        case "wolf" { obj = DREAD_FAUNA_OBJECTS.wolf; }
+        case "rabbit" { obj = DREAD_FAUNA_OBJECTS.rabbit; }
+        case "rat" { obj = DREAD_FAUNA_OBJECTS.rat; }
+        else { obj = DREAD_FAUNA_OBJECTS.boar; }
+    }
+
+    InstanceCreate(pos.x, pos.y, obj);
+    DREAD_SpawnStats.fauna_spawned += 1;
+    DREAD_SpawnStats.total_spawned += 1;
+
+    return { type: fauna_type, x: pos.x, y: pos.y };
+};
+
+let DREAD_SpawnSquad = func(faction, center_x, center_y, size, with_leader) {
+    let squad_members = [];
+    let spawn_radius = 40;
+
+    let has_leader = with_leader && (DREAD_RandomFloat() < DREAD_ConfigGet("squad_spawning.leader_chance", 0.3));
+
+    let i = 0;
+    while (i < size) {
+        let archetype;
+        if (i == 0 && has_leader) {
+            archetype = DREAD_SelectLeaderArchetype();
+        } else {
+            archetype = DREAD_SelectArchetype();
+        }
+
+        let offset_x = center_x + Irandom(spawn_radius * 2) - spawn_radius;
+        let offset_y = center_y + Irandom(spawn_radius * 2) - spawn_radius;
+
+        let member = DREAD_SpawnHuman(faction, offset_x, offset_y, archetype);
+        if (member != undefined) {
+            member.is_leader = (i == 0 && has_leader);
+            ArrayPush(squad_members, member);
+        }
+
+        i += 1;
+    }
+
+    DREAD_SpawnStats.squads_spawned += 1;
+
+    DREAD_LogDebug("Squad", "Spawned squad of " + String(ArrayLength(squad_members)) + " " + faction);
+
+    return {
+        faction: faction,
+        members: squad_members,
+        has_leader: has_leader,
+        center_x: center_x,
+        center_y: center_y
+    };
+};
+
+let DREAD_SpawnRandomSquad = func(faction, center_x, center_y) {
+    let min_size = DREAD_ConfigGet("squad_spawning.min_squad_size", 2);
+    let max_size = DREAD_ConfigGet("squad_spawning.max_squad_size", 5);
+    let size = DREAD_RandomRange(min_size, max_size);
+
+    return DREAD_SpawnSquad(faction, center_x, center_y, size, true);
+};
+
+let DREAD_ProcessSpawnPoint = func(spawn_point) {
+    let spawn_chance = spawn_point.chance;
+    if (spawn_chance == undefined) {
+        spawn_chance = 1.0;
+    }
+
+    if (DREAD_RandomFloat() > spawn_chance) {
+        return undefined;
+    }
+
+    let count;
+    if (spawn_point.count != undefined) {
+        count = spawn_point.count;
+    } else if (spawn_point.min != undefined && spawn_point.max != undefined) {
+        count = DREAD_RandomRange(spawn_point.min, spawn_point.max);
+    } else {
+        count = 1;
+    }
+
+    count = Round(count * DREAD_GetSpawnMultiplier());
+    if (count < 1) {
+        count = 1;
+    }
+
+    match spawn_point.type {
+        case "human" {
+            if (count >= 2 && DREAD_IsFeatureEnabled("squads")) {
+                return DREAD_SpawnSquad(spawn_point.faction, spawn_point.x, spawn_point.y, count, true);
+            } else {
+                let spawned = [];
+                let i = 0;
+                while (i < count) {
+                    let offset_x = spawn_point.x + Irandom(40) - 20;
+                    let offset_y = spawn_point.y + Irandom(40) - 20;
+                    ArrayPush(spawned, DREAD_SpawnHuman(spawn_point.faction, offset_x, offset_y, undefined));
+                    i += 1;
+                }
+                return spawned;
+            }
+        }
+        case "mutant" {
+            let spawned = [];
+            let i = 0;
+            while (i < count) {
+                let offset_x = spawn_point.x + Irandom(60) - 30;
+                let offset_y = spawn_point.y + Irandom(60) - 30;
+                ArrayPush(spawned, DREAD_SpawnMutant(spawn_point.mutant_type, offset_x, offset_y));
+                i += 1;
+            }
+            return spawned;
+        }
+        case "fauna" {
+            let spawned = [];
+            let i = 0;
+            while (i < count) {
+                let offset_x = spawn_point.x + Irandom(80) - 40;
+                let offset_y = spawn_point.y + Irandom(80) - 40;
+                ArrayPush(spawned, DREAD_SpawnFauna(spawn_point.fauna_type, offset_x, offset_y));
+                i += 1;
+            }
+            return spawned;
+        }
+        else {
+            DREAD_LogError("Unknown spawn point type: " + spawn_point.type);
+            return undefined;
+        }
+    }
+};
+
+let DREAD_GetSpawnStats = func() {
+    return DREAD_SpawnStats;
+};
+
+let DREAD_ResetSpawnStats = func() {
+    DREAD_SpawnStats.total_spawned = 0;
+    DREAD_SpawnStats.squads_spawned = 0;
+    DREAD_SpawnStats.humans_spawned = 0;
+    DREAD_SpawnStats.mutants_spawned = 0;
+    DREAD_SpawnStats.fauna_spawned = 0;
+};
+
+-- #############################################################################
+-- SECTION 5: INVASION SYSTEM
+-- #############################################################################
+
+let DREAD_Invasion = {
+    active: false,
+    wave_count: 0,
+    timer: 0,
+    next_wave_time: 0,
+    enemies_this_raid: 0
+};
+
+let DREAD_GetWaveEnemies = func(zone) {
+    match zone {
+        case "forest" {
+            return [
+                { type: obj_bandit_preset_rookie, weight: 40 },
+                { type: obj_bandit_preset_skilled, weight: 30 },
+                { type: obj_enemy_ghoul, weight: 20 },
+                { type: obj_enemy_boar, weight: 10 }
+            ];
+        }
+        case "makeshift_camp" {
+            return [
+                { type: obj_bandit_preset_skilled, weight: 30 },
+                { type: obj_green_army_preset_rookie, weight: 30 },
+                { type: obj_hunter_preset_rookie, weight: 25 },
+                { type: obj_enemy_ghoul, weight: 15 }
+            ];
+        }
+        case "industrial_area" {
+            return [
+                { type: obj_green_army_preset_skilled, weight: 35 },
+                { type: obj_bandit_preset_expert, weight: 25 },
+                { type: obj_enemy_blink, weight: 25 },
+                { type: obj_enemy_ghoul_2, weight: 15 }
+            ];
+        }
+        case "swamp" {
+            return [
+                { type: obj_enemy_spider, weight: 30 },
+                { type: obj_enemy_ghoul, weight: 25 },
+                { type: obj_crimson_preset_rookie, weight: 25 },
+                { type: obj_enemy_blink, weight: 20 }
+            ];
+        }
+        case "mall" {
+            return [
+                { type: obj_watcher_preset_skilled, weight: 35 },
+                { type: obj_crimson_preset_skilled, weight: 30 },
+                { type: obj_enemy_spine, weight: 20 },
+                { type: obj_enemy_big, weight: 15 }
+            ];
+        }
+        else {
+            return [
+                { type: obj_bandit_preset_skilled, weight: 50 },
+                { type: obj_enemy_ghoul, weight: 50 }
+            ];
+        }
+    }
+};
+
+let DREAD_SelectWaveEnemy = func(zone) {
+    let enemies = DREAD_GetWaveEnemies(zone);
+
+    let total_weight = 0;
+    let i = 0;
+    while (i < ArrayLength(enemies)) {
+        total_weight += enemies[i].weight;
+        i += 1;
+    }
+
+    let roll = Irandom(total_weight);
+    let cumulative = 0;
+    i = 0;
+
+    while (i < ArrayLength(enemies)) {
+        cumulative += enemies[i].weight;
+        if (roll < cumulative) {
+            return enemies[i].type;
+        }
+        i += 1;
+    }
+
+    return enemies[0].type;
+};
+
+let DREAD_SpawnWave = func(zone) {
+    let min_enemies = DREAD_ConfigGet("invasion_events.enemies_per_wave.min", 2);
+    let max_enemies = DREAD_ConfigGet("invasion_events.enemies_per_wave.max", 5);
+
+    let count = DREAD_RandomRange(min_enemies, max_enemies);
+
+    count = Round(count * DREAD_GetSpawnMultiplier());
+    if (count < 1) {
+        count = 1;
+    }
+
+    DREAD_Log("Invasion wave " + String(DREAD_Invasion.wave_count + 1) + ": Spawning " + String(count) + " enemies");
+
+    let i = 0;
+    while (i < count) {
+        let enemy = DREAD_SelectWaveEnemy(zone);
+        NpcObjectSpawnNearPlayer(enemy, 1, true);
+        DREAD_Invasion.enemies_this_raid += 1;
+        i += 1;
+    }
+
+    DREAD_Invasion.wave_count += 1;
+
+    return count;
+};
+
+let DREAD_SpawnChaosWave = func() {
+    if (!DREAD_IsFeatureEnabled("chaos")) {
+        return 0;
+    }
+
+    let count = DREAD_RandomRange(1, 3);
+
+    DREAD_Log("Chaos wave: Spawning " + String(count) + " anomalous enemies");
+
+    let i = 0;
+    while (i < count) {
+        let enemy = DREAD_GetChaosEnemyForZone(DREAD_GetCurrentZone());
+        NpcObjectSpawnNearPlayer(enemy, 1, true);
+        DREAD_Invasion.enemies_this_raid += 1;
+        i += 1;
+    }
+
+    return count;
+};
+
+let DREAD_InitInvasion = func() {
+    if (!DREAD_IsFeatureEnabled("invasions")) {
+        DREAD_Invasion.active = false;
+        return;
+    }
+
+    DREAD_Invasion.active = true;
+    DREAD_Invasion.wave_count = 0;
+    DREAD_Invasion.timer = 0;
+    DREAD_Invasion.enemies_this_raid = 0;
+
+    let first_delay = DREAD_ConfigGet("invasion_events.first_wave_delay_seconds", 120);
+    DREAD_Invasion.next_wave_time = first_delay * 60;
+
+    DREAD_Log("Invasion system initialized. First wave in " + String(first_delay) + " seconds");
+};
+
+let DREAD_UpdateInvasion = func() {
+    if (!DREAD_Invasion.active) {
+        return;
+    }
+
+    let max_waves = DREAD_ConfigGet("invasion_events.max_waves", 3);
+    if (DREAD_Invasion.wave_count >= max_waves) {
+        DREAD_Invasion.active = false;
+        DREAD_Log("Invasion complete. Spawned " + String(DREAD_Invasion.enemies_this_raid) + " enemies across " + String(DREAD_Invasion.wave_count) + " waves");
+        return;
+    }
+
+    DREAD_Invasion.timer += 1;
+
+    if (DREAD_Invasion.timer >= DREAD_Invasion.next_wave_time) {
+        let zone = DREAD_GetCurrentZone();
+        DREAD_SpawnWave(zone);
+
+        if (DREAD_IsFeatureEnabled("chaos") && DREAD_RandomFloat() < 0.2) {
+            DREAD_SpawnChaosWave();
+        }
+
+        let interval = DREAD_ConfigGet("invasion_events.wave_interval_seconds", 180);
+        DREAD_Invasion.next_wave_time = DREAD_Invasion.timer + (interval * 60);
+    }
+};
+
+let DREAD_StopInvasion = func() {
+    DREAD_Invasion.active = false;
+    DREAD_Log("Invasion stopped");
+};
+
+let DREAD_GetInvasionStatus = func() {
+    return {
+        active: DREAD_Invasion.active,
+        wave_count: DREAD_Invasion.wave_count,
+        enemies_spawned: DREAD_Invasion.enemies_this_raid,
+        time_to_next_wave: (DREAD_Invasion.next_wave_time - DREAD_Invasion.timer) / 60
+    };
+};
+
+-- #############################################################################
+-- SECTION 6: ZONE CONFIGURATIONS
+-- #############################################################################
+
+let DREAD_ZONES = {
+    forest: {
+        name: "forest",
+        display_name: "Forest",
+        difficulty: 1,
+        native_factions: ["bandits", "hunters"],
+        native_mutants: ["ghoul"],
+        native_fauna: ["boar", "wolf", "rabbit"],
+        chaos_enemies: {
+            uncommon: [obj_enemy_blink, obj_green_army_preset_rookie],
+            rare: [obj_enemy_spider, obj_crimson_preset_rookie],
+            anomalous: [obj_enemy_big, obj_watcher_preset_skilled]
+        }
+    },
+    makeshift_camp: {
+        name: "makeshift_camp",
+        display_name: "Makeshift Camp",
+        difficulty: 2,
+        native_factions: ["bandits", "green_army", "hunters"],
+        native_mutants: ["ghoul", "blink"],
+        native_fauna: ["boar", "wolf"],
+        chaos_enemies: {
+            uncommon: [obj_enemy_spider, obj_crimson_preset_rookie],
+            rare: [obj_enemy_ghoul_2, obj_watcher_preset_rookie],
+            anomalous: [obj_enemy_big, obj_enemy_spine]
+        }
+    },
+    industrial_area: {
+        name: "industrial_area",
+        display_name: "Industrial Area",
+        difficulty: 3,
+        native_factions: ["green_army", "bandits"],
+        native_mutants: ["blink", "ghoul_crystal"],
+        native_fauna: [],
+        chaos_enemies: {
+            uncommon: [obj_crimson_preset_skilled, obj_hunter_preset_expert],
+            rare: [obj_enemy_spider, obj_enemy_spine],
+            anomalous: [obj_enemy_big, obj_watcher_preset_expert]
+        }
+    },
+    swamp: {
+        name: "swamp",
+        display_name: "Swamp",
+        difficulty: 4,
+        native_factions: ["crimson"],
+        native_mutants: ["spider", "ghoul", "blink"],
+        native_fauna: ["boar"],
+        chaos_enemies: {
+            uncommon: [obj_watcher_preset_skilled, obj_green_army_preset_expert],
+            rare: [obj_enemy_big, obj_enemy_spine],
+            anomalous: [obj_watcher_devil, obj_boss_killa]
+        }
+    },
+    mall: {
+        name: "mall",
+        display_name: "Mall",
+        difficulty: 5,
+        native_factions: ["watchers", "crimson"],
+        native_mutants: ["spine", "big"],
+        native_fauna: [],
+        chaos_enemies: {
+            uncommon: [obj_green_army_preset_master, obj_crimson_preset_master],
+            rare: [obj_enemy_infestation],
+            anomalous: [obj_boss_city, obj_watcher_general]
+        }
+    },
+    zaton: {
+        name: "zaton",
+        display_name: "Zakov",
+        difficulty: 5,
+        native_factions: ["watchers"],
+        native_mutants: ["big", "spine"],
+        native_fauna: [],
+        chaos_enemies: {
+            uncommon: [obj_crimson_preset_master],
+            rare: [obj_enemy_infestation],
+            anomalous: [obj_watcher_general]
+        }
+    },
+    city: {
+        name: "city",
+        display_name: "City",
+        difficulty: 6,
+        native_factions: ["watchers"],
+        native_mutants: ["spine", "big", "infestation"],
+        native_fauna: [],
+        chaos_enemies: {
+            uncommon: [],
+            rare: [],
+            anomalous: []
+        }
+    },
+    cnpp: {
+        name: "cnpp",
+        display_name: "CNPP",
+        difficulty: 7,
+        native_factions: ["watchers"],
+        native_mutants: ["infestation", "big"],
+        native_fauna: [],
+        chaos_enemies: {
+            uncommon: [],
+            rare: [],
+            anomalous: []
+        }
+    }
+};
+
+let DREAD_ZONE_SPAWN_TEMPLATES = {
+    makeshift_camp: [
+        { name: "Camp Entrance", x: 500, y: 400, type: "human", faction: "bandits", min: 2, max: 4, chance: 0.7 },
+        { name: "Guard Post", x: 700, y: 350, type: "human", faction: "green_army", min: 2, max: 3, chance: 0.6 },
+        { name: "Hunter Camp", x: 600, y: 600, type: "human", faction: "hunters", min: 1, max: 3, chance: 0.5 },
+        { name: "Mutant Den", x: 800, y: 500, type: "mutant", mutant_type: "ghoul", min: 2, max: 4, chance: 0.6 }
+    ],
+    industrial_area: [
+        { name: "Factory Floor", x: 600, y: 400, type: "human", faction: "green_army", min: 3, max: 5, chance: 0.7 },
+        { name: "Loading Dock", x: 800, y: 350, type: "human", faction: "bandits", min: 2, max: 4, chance: 0.6 },
+        { name: "Warehouse", x: 500, y: 600, type: "mutant", mutant_type: "blink", min: 1, max: 3, chance: 0.5 },
+        { name: "Office Building", x: 700, y: 700, type: "mutant", mutant_type: "ghoul_crystal", min: 2, max: 3, chance: 0.5 }
+    ],
+    swamp: [
+        { name: "Swamp Edge", x: 400, y: 400, type: "mutant", mutant_type: "spider", min: 2, max: 4, chance: 0.7 },
+        { name: "Crimson Outpost", x: 600, y: 500, type: "human", faction: "crimson", min: 2, max: 4, chance: 0.6 },
+        { name: "Flooded Area", x: 500, y: 700, type: "mutant", mutant_type: "ghoul", min: 3, max: 5, chance: 0.6 },
+        { name: "Old Platform", x: 800, y: 400, type: "human", faction: "crimson", min: 1, max: 3, chance: 0.5 }
+    ],
+    mall: [
+        { name: "Main Entrance", x: 500, y: 400, type: "human", faction: "watchers", min: 3, max: 5, chance: 0.8 },
+        { name: "Food Court", x: 700, y: 500, type: "human", faction: "crimson", min: 2, max: 4, chance: 0.6 },
+        { name: "Parking Garage", x: 600, y: 700, type: "mutant", mutant_type: "spine", min: 1, max: 3, chance: 0.5 },
+        { name: "Back Alley", x: 800, y: 600, type: "mutant", mutant_type: "big", min: 1, max: 2, chance: 0.3 }
+    ],
+    zaton: [
+        { name: "City Entrance", x: 500, y: 400, type: "human", faction: "watchers", min: 3, max: 5, chance: 0.8 },
+        { name: "Checkpoint", x: 700, y: 350, type: "human", faction: "watchers", min: 2, max: 4, chance: 0.7 },
+        { name: "Ruins", x: 600, y: 600, type: "mutant", mutant_type: "big", min: 1, max: 2, chance: 0.4 }
+    ],
+    city: [
+        { name: "Street", x: 500, y: 400, type: "human", faction: "watchers", min: 2, max: 4, chance: 0.7 },
+        { name: "Building", x: 700, y: 500, type: "mutant", mutant_type: "spine", min: 1, max: 3, chance: 0.5 }
+    ],
+    cnpp: [
+        { name: "Entrance", x: 500, y: 400, type: "human", faction: "watchers", min: 3, max: 5, chance: 0.8 },
+        { name: "Reactor", x: 700, y: 500, type: "mutant", mutant_type: "infestation", min: 1, max: 2, chance: 0.4 }
+    ]
+};
+
+let DREAD_GetZone = func(zone_name) {
+    match zone_name {
+        case "forest" { return DREAD_ZONES.forest; }
+        case "makeshift_camp" { return DREAD_ZONES.makeshift_camp; }
+        case "industrial_area" { return DREAD_ZONES.industrial_area; }
+        case "swamp" { return DREAD_ZONES.swamp; }
+        case "mall" { return DREAD_ZONES.mall; }
+        case "zaton" { return DREAD_ZONES.zaton; }
+        case "city" { return DREAD_ZONES.city; }
+        case "cnpp" { return DREAD_ZONES.cnpp; }
+        else { return undefined; }
+    }
+};
+
+let DREAD_ExecuteZoneSpawnsTemplate = func(zone_name) {
+    if (!DREAD_IsZoneEnabled(zone_name)) {
+        return 0;
+    }
+
+    let spawn_points;
+    match zone_name {
+        case "makeshift_camp" { spawn_points = DREAD_ZONE_SPAWN_TEMPLATES.makeshift_camp; }
+        case "industrial_area" { spawn_points = DREAD_ZONE_SPAWN_TEMPLATES.industrial_area; }
+        case "swamp" { spawn_points = DREAD_ZONE_SPAWN_TEMPLATES.swamp; }
+        case "mall" { spawn_points = DREAD_ZONE_SPAWN_TEMPLATES.mall; }
+        case "zaton" { spawn_points = DREAD_ZONE_SPAWN_TEMPLATES.zaton; }
+        case "city" { spawn_points = DREAD_ZONE_SPAWN_TEMPLATES.city; }
+        case "cnpp" { spawn_points = DREAD_ZONE_SPAWN_TEMPLATES.cnpp; }
+        else { return 0; }
+    }
+
+    let density = DREAD_GetZoneDensity(zone_name);
+    let spawned_count = 0;
+
+    let i = 0;
+    while (i < ArrayLength(spawn_points)) {
+        let point = spawn_points[i];
+        point.chance = point.chance * density;
+
+        let result = DREAD_ProcessSpawnPoint(point);
+        if (result != undefined) {
+            spawned_count += 1;
+        }
+
+        i += 1;
+    }
+
+    DREAD_Log(zone_name + " spawning complete. Total: " + String(spawned_count));
+    return spawned_count;
+};
+
+let DREAD_GetChaosEnemyForZone = func(zone_name) {
+    let zone = DREAD_GetZone(zone_name);
+    if (zone == undefined) {
+        return DREAD_GetForestChaosEnemy();
+    }
+
+    let roll = Irandom(100);
+
+    if (roll < 60) {
+        return undefined;
+    } else if (roll < 85) {
+        if (ArrayLength(zone.chaos_enemies.uncommon) > 0) {
+            return DREAD_RandomElement(zone.chaos_enemies.uncommon);
+        }
+    } else if (roll < 97) {
+        if (ArrayLength(zone.chaos_enemies.rare) > 0) {
+            return DREAD_RandomElement(zone.chaos_enemies.rare);
+        }
+    } else {
+        if (ArrayLength(zone.chaos_enemies.anomalous) > 0) {
+            return DREAD_RandomElement(zone.chaos_enemies.anomalous);
+        }
+    }
+
+    return undefined;
+};
+
+-- #############################################################################
+-- SECTION 7: FOREST ZONE (DETAILED)
+-- #############################################################################
+
+let FOREST_ZONE = {
+    name: "forest",
+    display_name: "Forest",
+    room_name: "r_forest",
+    difficulty: 1,
+    native_factions: ["bandits", "hunters"],
+    native_mutants: ["ghoul"],
+    native_fauna: ["boar", "wolf", "rabbit"]
+};
+
+let FOREST_SPAWN_POINTS = [
+    { name: "NW Forest Clearing", x: 400, y: 350, type: "human", faction: "bandits", min: 2, max: 4, chance: 0.8 },
+    { name: "NW Hidden Camp", x: 550, y: 280, type: "human", faction: "bandits", min: 1, max: 3, chance: 0.6 },
+    { name: "NW Boar Den", x: 300, y: 450, type: "fauna", fauna_type: "boar", min: 2, max: 4, chance: 0.7 },
+    { name: "Lake Eastern Shore", x: 1200, y: 700, type: "fauna", fauna_type: "wolf", min: 2, max: 3, chance: 0.5 },
+    { name: "Lake Fishing Spot", x: 1350, y: 650, type: "human", faction: "hunters", min: 1, max: 2, chance: 0.4 },
+    { name: "Lake Ghoul Nest", x: 1100, y: 850, type: "mutant", mutant_type: "ghoul", min: 1, max: 3, chance: 0.6 },
+    { name: "Old Cabin Bandits", x: 800, y: 500, type: "human", faction: "bandits", min: 2, max: 4, chance: 0.7 },
+    { name: "Cabin Woods Mutants", x: 750, y: 600, type: "mutant", mutant_type: "ghoul", min: 1, max: 2, chance: 0.5 },
+    { name: "Hunter Lodge", x: 900, y: 450, type: "human", faction: "hunters", min: 1, max: 3, chance: 0.4 },
+    { name: "Main Road Checkpoint", x: 1000, y: 400, type: "human", faction: "bandits", min: 2, max: 5, chance: 0.6 },
+    { name: "Road Ambush Point", x: 850, y: 350, type: "human", faction: "bandits", min: 2, max: 3, chance: 0.5 },
+    { name: "Southern Treeline", x: 600, y: 950, type: "fauna", fauna_type: "boar", min: 1, max: 3, chance: 0.6 },
+    { name: "Eastern Woods", x: 1400, y: 500, type: "mutant", mutant_type: "ghoul", min: 2, max: 3, chance: 0.5 },
+    { name: "Western Forest Edge", x: 200, y: 600, type: "fauna", fauna_type: "wolf", min: 1, max: 2, chance: 0.4 },
+    { name: "Crashed Vehicle", x: 950, y: 700, type: "human", faction: "bandits", min: 1, max: 2, chance: 0.4 },
+    { name: "Old Bunker Entrance", x: 650, y: 800, type: "mutant", mutant_type: "ghoul", min: 2, max: 4, chance: 0.5 },
+    { name: "Rabbit Warren", x: 500, y: 700, type: "fauna", fauna_type: "rabbit", min: 3, max: 6, chance: 0.7 }
+];
+
+let FOREST_BOSS_SPAWNS = [
+    { name: "Lazar's Camp", x: 700, y: 400, boss: "lazar", guards: 2, chance: 0.1 }
+];
+
+let DREAD_ExecuteForestSpawns = func() {
+    if (!DREAD_IsZoneEnabled("forest")) {
+        DREAD_Log("Forest zone disabled in config");
+        return 0;
+    }
+
+    DREAD_Log("Executing Forest spawn points...");
+
+    let density = DREAD_GetZoneDensity("forest");
+    let spawned_count = 0;
+
+    let i = 0;
+    while (i < ArrayLength(FOREST_SPAWN_POINTS)) {
+        let point = FOREST_SPAWN_POINTS[i];
+
+        let adjusted_chance = point.chance * density;
+
+        let adjusted_point = {
+            name: point.name,
+            x: point.x,
+            y: point.y,
+            type: point.type,
+            min: point.min,
+            max: point.max,
+            chance: adjusted_chance
+        };
+
+        if (point.faction != undefined) {
+            adjusted_point.faction = point.faction;
+        }
+        if (point.mutant_type != undefined) {
+            adjusted_point.mutant_type = point.mutant_type;
+        }
+        if (point.fauna_type != undefined) {
+            adjusted_point.fauna_type = point.fauna_type;
+        }
+
+        let result = DREAD_ProcessSpawnPoint(adjusted_point);
+
+        if (result != undefined) {
+            if (result.members != undefined) {
+                spawned_count += ArrayLength(result.members);
+            } else if (ArrayLength(result) > 0) {
+                spawned_count += ArrayLength(result);
+            } else {
+                spawned_count += 1;
+            }
+            DREAD_LogDebug("Forest", "Spawned at: " + point.name);
+        }
+
+        i += 1;
+    }
+
+    DREAD_Log("Forest spawning complete. Total: " + String(spawned_count));
+    return spawned_count;
+};
+
+let DREAD_ExecuteForestBossSpawns = func() {
+    let i = 0;
+    while (i < ArrayLength(FOREST_BOSS_SPAWNS)) {
+        let boss_point = FOREST_BOSS_SPAWNS[i];
+
+        if (DREAD_RandomFloat() < boss_point.chance) {
+            DREAD_Log("BOSS SPAWN: " + boss_point.name);
+
+            InstanceCreate(boss_point.x, boss_point.y, DREAD_BOSS_OBJECTS[boss_point.boss]);
+
+            if (boss_point.guards > 0) {
+                let g = 0;
+                while (g < boss_point.guards) {
+                    let guard_x = boss_point.x + Irandom(60) - 30;
+                    let guard_y = boss_point.y + Irandom(60) - 30;
+                    InstanceCreate(guard_x, guard_y, DREAD_BOSS_OBJECTS.lazar_guard);
+                    g += 1;
+                }
+            }
+        }
+
+        i += 1;
+    }
+};
+
+let DREAD_GetForestChaosEnemy = func() {
+    let roll = Irandom(100);
+
+    if (roll < 60) {
+        let natives = [obj_enemy_ghoul, obj_enemy_boar, obj_bandit_preset_skilled];
+        return DREAD_RandomElement(natives);
+    } else if (roll < 85) {
+        return DREAD_RandomElement([obj_enemy_blink, obj_green_army_preset_rookie]);
+    } else if (roll < 97) {
+        return DREAD_RandomElement([obj_enemy_spider, obj_crimson_preset_rookie]);
+    } else {
+        return DREAD_RandomElement([obj_enemy_big, obj_watcher_preset_skilled]);
+    }
+};
+
+-- #############################################################################
+-- SECTION 8: MAIN ENTRY POINT
+-- #############################################################################
+
+let DREAD_Initialize = func() {
+    DREAD_Log("===========================================");
+    DREAD_Log("DREAD v" + DREAD.version + " Initializing...");
+    DREAD_Log("===========================================");
+
+    DREAD_LoadConfig();
+
+    if (!DREAD_IsFeatureEnabled("mod")) {
+        DREAD_Log("DREAD is disabled in configuration");
+        return false;
+    }
+
+    DREAD_ResetSpawnStats();
+
+    DREAD.initialized = true;
+    DREAD_Log("DREAD initialized successfully");
+
+    return true;
+};
+
+let DREAD_OnRaidStart = func() {
+    if (!DREAD.initialized) {
+        if (!DREAD_Initialize()) {
+            return;
+        }
+    }
+
+    let zone = DREAD_GetCurrentZone();
+
+    DREAD_Log("===========================================");
+    DREAD_Log("Raid started in zone: " + zone);
+    DREAD_Log("===========================================");
+
+    DREAD_ExecuteZoneSpawns(zone);
+
+    if (DREAD_IsFeatureEnabled("invasions")) {
+        DREAD_InitInvasion();
+    }
+
+    let stats = DREAD_GetSpawnStats();
+    DREAD_Log("Spawn complete. Total: " + String(stats.total_spawned));
+    DREAD_Log("  Humans: " + String(stats.humans_spawned));
+    DREAD_Log("  Mutants: " + String(stats.mutants_spawned));
+    DREAD_Log("  Fauna: " + String(stats.fauna_spawned));
+    DREAD_Log("  Squads: " + String(stats.squads_spawned));
+};
+
+let DREAD_ExecuteZoneSpawns = func(zone) {
+    match zone {
+        case "forest" {
+            DREAD_ExecuteForestSpawns();
+            DREAD_ExecuteForestBossSpawns();
+        }
+        case "makeshift_camp" {
+            DREAD_ExecuteZoneSpawnsTemplate("makeshift_camp");
+        }
+        case "industrial_area" {
+            DREAD_ExecuteZoneSpawnsTemplate("industrial_area");
+        }
+        case "swamp" {
+            DREAD_ExecuteZoneSpawnsTemplate("swamp");
+        }
+        case "mall" {
+            DREAD_ExecuteZoneSpawnsTemplate("mall");
+        }
+        case "zaton" {
+            DREAD_ExecuteZoneSpawnsTemplate("zaton");
+        }
+        case "city" {
+            DREAD_ExecuteZoneSpawnsTemplate("city");
+        }
+        case "cnpp" {
+            DREAD_ExecuteZoneSpawnsTemplate("cnpp");
+        }
+        case "hub" {
+            DREAD_LogDebug("Zone", "In hub - no spawns");
+        }
+        else {
+            DREAD_LogDebug("Zone", "Unknown zone: " + zone);
+        }
+    }
+
+    if (DREAD_IsFeatureEnabled("chaos")) {
+        DREAD_ExecuteChaosSpawns(zone);
+    }
+};
+
+let DREAD_ExecuteChaosSpawns = func(zone) {
+    DREAD_Log("Chaos Mode active - spawning cross-zone enemies");
+
+    let chaos_count = DREAD_RandomRange(1, 3);
+
+    let i = 0;
+    while (i < chaos_count) {
+        let enemy = DREAD_GetChaosEnemyForZone(zone);
+        if (enemy != undefined) {
+            NpcObjectSpawnNearPlayer(enemy, 1, false);
+            DREAD_LogDebug("Chaos", "Spawned chaos enemy");
+        }
+        i += 1;
+    }
+};
+
+let DREAD_OnStep = func() {
+    if (!DREAD.initialized) {
+        return;
+    }
+
+    if (!DREAD_IsInRaid()) {
+        return;
+    }
+
+    DREAD_UpdateInvasion();
+};
+
+-- =============================================================================
+-- EVENT HOOKS
+-- =============================================================================
+
+EventAssignFunction("enter_raid", func() {
+    DREAD_OnRaidStart();
+});
+
+ObjectSetScript("obj_player", "step_normal_event", func(_inst) {
+    DREAD_OnStep();
+});
+
+EventAssignFunction("enter_hub", func() {
+    if (DREAD.initialized) {
+        DREAD_StopInvasion();
+
+        let stats = DREAD_GetSpawnStats();
+        DREAD_Log("Returned to hub. Session stats:");
+        DREAD_Log("  Total spawned: " + String(stats.total_spawned));
+    }
+});
+
+-- =============================================================================
+-- STARTUP
+-- =============================================================================
+
+DREAD_Initialize();
+
+DREAD_Log("===========================================");
+DREAD_Log("DREAD v" + DREAD.version + " loaded");
+DREAD_Log("Ready for raids!");
+DREAD_Log("===========================================");

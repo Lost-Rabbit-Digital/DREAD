@@ -1,0 +1,178 @@
+-- =============================================================================
+-- DREAD: Configuration System
+-- =============================================================================
+-- Handles loading, validating, and accessing mod configuration
+-- =============================================================================
+
+-- =============================================================================
+-- DEFAULT CONFIGURATION
+-- =============================================================================
+-- Fallback values if config file fails to load
+
+let DREAD_DEFAULT_CONFIG = {
+    general: {
+        enabled: true,
+        debug_mode: true,
+        spawn_multiplier: 1.0
+    },
+    chaos_mode: {
+        enabled: false,
+        rarity_weights: {
+            native: 60,
+            uncommon: 25,
+            rare: 12,
+            anomalous: 3
+        }
+    },
+    enemy_archetypes: {
+        gigachad: { spawn_weight: 5, hp_multiplier: 1.5, accuracy_bonus: 0.3 },
+        chad: { spawn_weight: 15, hp_multiplier: 1.2, accuracy_bonus: 0.15 },
+        normal: { spawn_weight: 40, hp_multiplier: 1.0, accuracy_bonus: 0.0 },
+        rat: { spawn_weight: 25, hp_multiplier: 0.8, accuracy_bonus: -0.1 },
+        timmy: { spawn_weight: 15, hp_multiplier: 0.6, accuracy_bonus: -0.2 }
+    },
+    squad_spawning: {
+        enabled: true,
+        min_squad_size: 2,
+        max_squad_size: 5,
+        leader_chance: 0.3
+    },
+    invasion_events: {
+        enabled: true,
+        first_wave_delay_seconds: 120,
+        wave_interval_seconds: 180,
+        max_waves: 3,
+        enemies_per_wave_min: 2,
+        enemies_per_wave_max: 5
+    }
+};
+
+-- =============================================================================
+-- CONFIGURATION LOADING
+-- =============================================================================
+
+let DREAD_LoadConfig = func() {
+    DREAD_LogDebug("Config", "Loading configuration...");
+
+    -- Try to load from file
+    let loaded_config = FileDataRead("dread_config.json");
+
+    if (loaded_config != undefined) {
+        DREAD_Log("Configuration loaded from file");
+        DREAD.config = loaded_config;
+    } else {
+        DREAD_Log("Using default configuration");
+        DREAD.config = DREAD_DEFAULT_CONFIG;
+    }
+
+    -- Apply debug setting
+    DREAD.debug = DREAD_ConfigGet("general.debug_mode", true);
+
+    return DREAD.config;
+};
+
+-- =============================================================================
+-- CONFIGURATION ACCESS
+-- =============================================================================
+
+-- Get config value with dot notation path (e.g., "general.enabled")
+let DREAD_ConfigGet = func(path, default_value) {
+    let parts = StringSplit(path, ".");
+    let current = DREAD.config;
+
+    let i = 0;
+    while (i < ArrayLength(parts)) {
+        if (current == undefined) {
+            return default_value;
+        }
+        current = current[parts[i]];
+        i += 1;
+    }
+
+    if (current == undefined) {
+        return default_value;
+    }
+
+    return current;
+};
+
+-- Check if a feature is enabled
+let DREAD_IsFeatureEnabled = func(feature) {
+    match feature {
+        case "mod" { return DREAD_ConfigGet("general.enabled", true); }
+        case "chaos" { return DREAD_ConfigGet("chaos_mode.enabled", false); }
+        case "squads" { return DREAD_ConfigGet("squad_spawning.enabled", true); }
+        case "invasions" { return DREAD_ConfigGet("invasion_events.enabled", true); }
+        else { return false; }
+    }
+};
+
+-- Get spawn multiplier
+let DREAD_GetSpawnMultiplier = func() {
+    return DREAD_ConfigGet("general.spawn_multiplier", 1.0);
+};
+
+-- =============================================================================
+-- ZONE CONFIGURATION
+-- =============================================================================
+
+-- Check if zone is enabled
+let DREAD_IsZoneEnabled = func(zone_name) {
+    let path = "zones." + zone_name + ".enabled";
+    return DREAD_ConfigGet(path, false);
+};
+
+-- Get zone spawn density
+let DREAD_GetZoneDensity = func(zone_name) {
+    let path = "zones." + zone_name + ".spawn_density";
+    let density = DREAD_ConfigGet(path, "normal");
+
+    match density {
+        case "sparse" { return 0.5; }
+        case "normal" { return 1.0; }
+        case "dense" { return 1.5; }
+        case "extreme" { return 2.0; }
+        else { return 1.0; }
+    }
+};
+
+-- =============================================================================
+-- DIFFICULTY PRESETS
+-- =============================================================================
+
+let DREAD_ApplyDifficultyPreset = func(preset_name) {
+    let preset = DREAD_ConfigGet("difficulty_presets." + preset_name, undefined);
+
+    if (preset == undefined) {
+        DREAD_LogError("Unknown difficulty preset: " + preset_name);
+        return false;
+    }
+
+    -- Apply spawn multiplier
+    if (preset.spawn_multiplier != undefined) {
+        DREAD.config.general.spawn_multiplier = preset.spawn_multiplier;
+    }
+
+    -- Apply chaos mode
+    if (preset.chaos_mode != undefined) {
+        DREAD.config.chaos_mode.enabled = preset.chaos_mode;
+    }
+
+    -- Apply archetype weights
+    if (preset.archetype_weights != undefined) {
+        -- Would need to recalculate archetype spawn weights
+        DREAD_LogDebug("Config", "Applying archetype weights from preset");
+    }
+
+    DREAD_Log("Applied difficulty preset: " + preset_name);
+    return true;
+};
+
+-- =============================================================================
+-- CONFIGURATION SAVING
+-- =============================================================================
+
+let DREAD_SaveConfig = func() {
+    FileDataWrite("dread_config.json", DREAD.config);
+    DREAD_Log("Configuration saved");
+};

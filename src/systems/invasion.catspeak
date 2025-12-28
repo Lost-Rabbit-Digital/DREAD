@@ -1,0 +1,233 @@
+-- =============================================================================
+-- DREAD: Invasion Wave System
+-- =============================================================================
+-- Spawns enemy waves during raid for continuous pressure
+-- =============================================================================
+
+-- =============================================================================
+-- INVASION STATE
+-- =============================================================================
+
+let DREAD_Invasion = {
+    active: false,
+    wave_count: 0,
+    timer: 0,
+    next_wave_time: 0,
+    enemies_this_raid: 0
+};
+
+-- =============================================================================
+-- WAVE CONFIGURATION
+-- =============================================================================
+
+-- Get wave enemies based on zone
+let DREAD_GetWaveEnemies = func(zone) {
+    match zone {
+        case "forest" {
+            return [
+                { type: obj_bandit_preset_rookie, weight: 40 },
+                { type: obj_bandit_preset_skilled, weight: 30 },
+                { type: obj_enemy_ghoul, weight: 20 },
+                { type: obj_enemy_boar, weight: 10 }
+            ];
+        }
+        case "makeshift_camp" {
+            return [
+                { type: obj_bandit_preset_skilled, weight: 30 },
+                { type: obj_green_army_preset_rookie, weight: 30 },
+                { type: obj_hunter_preset_rookie, weight: 25 },
+                { type: obj_enemy_ghoul, weight: 15 }
+            ];
+        }
+        case "industrial_area" {
+            return [
+                { type: obj_green_army_preset_skilled, weight: 35 },
+                { type: obj_bandit_preset_expert, weight: 25 },
+                { type: obj_enemy_blink, weight: 25 },
+                { type: obj_enemy_ghoul_2, weight: 15 }
+            ];
+        }
+        case "swamp" {
+            return [
+                { type: obj_enemy_spider, weight: 30 },
+                { type: obj_enemy_ghoul, weight: 25 },
+                { type: obj_crimson_preset_rookie, weight: 25 },
+                { type: obj_enemy_blink, weight: 20 }
+            ];
+        }
+        case "mall" {
+            return [
+                { type: obj_watcher_preset_skilled, weight: 35 },
+                { type: obj_crimson_preset_skilled, weight: 30 },
+                { type: obj_enemy_spine, weight: 20 },
+                { type: obj_enemy_big, weight: 15 }
+            ];
+        }
+        else {
+            return [
+                { type: obj_bandit_preset_skilled, weight: 50 },
+                { type: obj_enemy_ghoul, weight: 50 }
+            ];
+        }
+    }
+};
+
+-- =============================================================================
+-- WAVE SPAWNING
+-- =============================================================================
+
+-- Select random enemy for wave
+let DREAD_SelectWaveEnemy = func(zone) {
+    let enemies = DREAD_GetWaveEnemies(zone);
+
+    -- Calculate total weight
+    let total_weight = 0;
+    let i = 0;
+    while (i < ArrayLength(enemies)) {
+        total_weight += enemies[i].weight;
+        i += 1;
+    }
+
+    -- Roll and select
+    let roll = Irandom(total_weight);
+    let cumulative = 0;
+    i = 0;
+
+    while (i < ArrayLength(enemies)) {
+        cumulative += enemies[i].weight;
+        if (roll < cumulative) {
+            return enemies[i].type;
+        }
+        i += 1;
+    }
+
+    return enemies[0].type;
+};
+
+-- Spawn a wave of enemies near the player
+let DREAD_SpawnWave = func(zone) {
+    let min_enemies = DREAD_ConfigGet("invasion_events.enemies_per_wave.min", 2);
+    let max_enemies = DREAD_ConfigGet("invasion_events.enemies_per_wave.max", 5);
+
+    let count = DREAD_RandomRange(min_enemies, max_enemies);
+
+    -- Apply spawn multiplier
+    count = Round(count * DREAD_GetSpawnMultiplier());
+    if (count < 1) {
+        count = 1;
+    }
+
+    DREAD_Log("Invasion wave " + String(DREAD_Invasion.wave_count + 1) + ": Spawning " + String(count) + " enemies");
+
+    let i = 0;
+    while (i < count) {
+        let enemy = DREAD_SelectWaveEnemy(zone);
+        NpcObjectSpawnNearPlayer(enemy, 1, true);
+        DREAD_Invasion.enemies_this_raid += 1;
+        i += 1;
+    }
+
+    DREAD_Invasion.wave_count += 1;
+
+    return count;
+};
+
+-- =============================================================================
+-- CHAOS MODE WAVE
+-- =============================================================================
+
+-- Spawn chaos mode wave with cross-zone enemies
+let DREAD_SpawnChaosWave = func() {
+    if (!DREAD_IsFeatureEnabled("chaos")) {
+        return 0;
+    }
+
+    let count = DREAD_RandomRange(1, 3);
+
+    DREAD_Log("Chaos wave: Spawning " + String(count) + " anomalous enemies");
+
+    let i = 0;
+    while (i < count) {
+        -- Use chaos rarity system
+        let enemy = DREAD_GetChaosEnemyForZone(DREAD_GetCurrentZone());
+        NpcObjectSpawnNearPlayer(enemy, 1, true);
+        DREAD_Invasion.enemies_this_raid += 1;
+        i += 1;
+    }
+
+    return count;
+};
+
+-- =============================================================================
+-- INVASION CONTROLLER
+-- =============================================================================
+
+-- Initialize invasion system for raid
+let DREAD_InitInvasion = func() {
+    if (!DREAD_IsFeatureEnabled("invasions")) {
+        DREAD_Invasion.active = false;
+        return;
+    }
+
+    DREAD_Invasion.active = true;
+    DREAD_Invasion.wave_count = 0;
+    DREAD_Invasion.timer = 0;
+    DREAD_Invasion.enemies_this_raid = 0;
+
+    -- Set first wave time
+    let first_delay = DREAD_ConfigGet("invasion_events.first_wave_delay_seconds", 120);
+    DREAD_Invasion.next_wave_time = first_delay * 60;  -- Convert to frames (60 fps)
+
+    DREAD_Log("Invasion system initialized. First wave in " + String(first_delay) + " seconds");
+};
+
+-- Update invasion system (call every frame)
+let DREAD_UpdateInvasion = func() {
+    if (!DREAD_Invasion.active) {
+        return;
+    }
+
+    let max_waves = DREAD_ConfigGet("invasion_events.max_waves", 3);
+    if (DREAD_Invasion.wave_count >= max_waves) {
+        DREAD_Invasion.active = false;
+        DREAD_Log("Invasion complete. Spawned " + String(DREAD_Invasion.enemies_this_raid) + " enemies across " + String(DREAD_Invasion.wave_count) + " waves");
+        return;
+    }
+
+    -- Increment timer
+    DREAD_Invasion.timer += 1;
+
+    -- Check if it's time for next wave
+    if (DREAD_Invasion.timer >= DREAD_Invasion.next_wave_time) {
+        let zone = DREAD_GetCurrentZone();
+        DREAD_SpawnWave(zone);
+
+        -- Chance for bonus chaos wave
+        if (DREAD_IsFeatureEnabled("chaos") && DREAD_RandomFloat() < 0.2) {
+            DREAD_SpawnChaosWave();
+        }
+
+        -- Set next wave time
+        let interval = DREAD_ConfigGet("invasion_events.wave_interval_seconds", 180);
+        DREAD_Invasion.next_wave_time = DREAD_Invasion.timer + (interval * 60);
+    }
+};
+
+-- Stop invasion
+let DREAD_StopInvasion = func() {
+    DREAD_Invasion.active = false;
+    DREAD_Log("Invasion stopped");
+};
+
+-- =============================================================================
+-- INVASION STATUS
+-- =============================================================================
+
+let DREAD_GetInvasionStatus = func() {
+    return {
+        active: DREAD_Invasion.active,
+        wave_count: DREAD_Invasion.wave_count,
+        enemies_spawned: DREAD_Invasion.enemies_this_raid,
+        time_to_next_wave: (DREAD_Invasion.next_wave_time - DREAD_Invasion.timer) / 60
+    };
+};
