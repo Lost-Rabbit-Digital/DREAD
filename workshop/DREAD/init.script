@@ -25,27 +25,28 @@ let DREAD = {
     version: "0.2.1",
     debug: false,
     initialized: false,
-    config: {}
-};
+    config: {},
 
--- =============================================================================
--- LOGGING SYSTEM
--- =============================================================================
--- Note: Functions are attached to DREAD object for proper scope access
+    -- =============================================================================
+    -- LOGGING SYSTEM
+    -- =============================================================================
+    -- Note: Functions defined inline to ensure they are available in all scopes
+    -- Catspeak closures may not properly capture object properties assigned later
 
-DREAD.Log = func(message) {
-    if (DREAD.debug) {
-        ShowMessage("[DREAD] " + String(message));
-    }
-};
+    Log: func(message) {
+        if (self.debug) {
+            ShowMessage("[DREAD] " + String(message));
+        }
+    },
 
-DREAD.LogError = func(message) {
-    ShowMessage("[DREAD ERROR] " + String(message));
-};
+    LogError: func(message) {
+        ShowMessage("[DREAD ERROR] " + String(message));
+    },
 
-DREAD.LogDebug = func(category, message) {
-    if (DREAD.debug) {
-        ShowMessage("[DREAD:" + category + "] " + String(message));
+    LogDebug: func(category, message) {
+        if (self.debug) {
+            ShowMessage("[DREAD:" + category + "] " + String(message));
+        }
     }
 };
 
