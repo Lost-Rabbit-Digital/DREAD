@@ -246,5 +246,5 @@ let DREAD_GetGameTime = func() {
 -- Check if it's night time (for potential stealth bonuses)
 let DREAD_IsNightTime = func() {
     let hour = TimeGetHour();
-    return (hour >= 22) || (hour <= 5);
+    return (hour >= 22) or (hour <= 5);
 };
