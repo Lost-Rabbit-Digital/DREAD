@@ -200,5 +200,5 @@ let DREAD_SelectLeaderArchetype = func() {
 
 -- Check if archetype should be a squad leader
 let DREAD_IsLeaderArchetype = func(archetype_name) {
-    return (archetype_name == "gigachad") || (archetype_name == "chad");
+    return (archetype_name == "gigachad") or (archetype_name == "chad");
 };
