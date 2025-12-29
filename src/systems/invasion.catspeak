@@ -203,7 +203,7 @@ let DREAD_UpdateInvasion = func() {
         DREAD_SpawnWave(zone);
 
         -- Chance for bonus chaos wave
-        if (DREAD_IsFeatureEnabled("chaos") && DREAD_RandomFloat() < 0.2) {
+        if (DREAD_IsFeatureEnabled("chaos") and DREAD_RandomFloat() < 0.2) {
             DREAD_SpawnChaosWave();
         }
 

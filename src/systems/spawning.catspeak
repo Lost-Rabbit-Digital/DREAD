@@ -197,13 +197,13 @@ let DREAD_SpawnSquad = func(faction, center_x, center_y, size, with_leader) {
     let spawn_radius = 40;
 
     -- Determine if squad has a leader
-    let has_leader = with_leader && (DREAD_RandomFloat() < DREAD_ConfigGet("squad_spawning.leader_chance", 0.3));
+    let has_leader = with_leader and (DREAD_RandomFloat() < DREAD_ConfigGet("squad_spawning.leader_chance", 0.3));
 
     let i = 0;
     while (i < size) {
         -- First member might be leader
         let archetype;
-        if (i == 0 && has_leader) {
+        if (i == 0 and has_leader) {
             archetype = DREAD_SelectLeaderArchetype();
         } else {
             archetype = DREAD_SelectArchetype();
@@ -215,7 +215,7 @@ let DREAD_SpawnSquad = func(faction, center_x, center_y, size, with_leader) {
 
         let member = DREAD_SpawnHuman(faction, offset_x, offset_y, archetype);
         if (member != undefined) {
-            member.is_leader = (i == 0 && has_leader);
+            member.is_leader = (i == 0 and has_leader);
             ArrayPush(squad_members, member);
         }
 
@@ -264,7 +264,7 @@ let DREAD_ProcessSpawnPoint = func(spawn_point) {
     let count;
     if (spawn_point.count != undefined) {
         count = spawn_point.count;
-    } else if (spawn_point.min != undefined && spawn_point.max != undefined) {
+    } else if (spawn_point.min != undefined and spawn_point.max != undefined) {
         count = DREAD_RandomRange(spawn_point.min, spawn_point.max);
     } else {
         count = 1;
@@ -279,7 +279,7 @@ let DREAD_ProcessSpawnPoint = func(spawn_point) {
     -- Handle by type
     match spawn_point.type {
         case "human" {
-            if (count >= 2 && DREAD_IsFeatureEnabled("squads")) {
+            if (count >= 2 and DREAD_IsFeatureEnabled("squads")) {
                 return DREAD_SpawnSquad(spawn_point.faction, spawn_point.x, spawn_point.y, count, true);
             } else {
                 let spawned = [];

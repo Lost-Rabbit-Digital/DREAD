@@ -706,12 +706,12 @@ let DREAD_SpawnSquad = func(faction, center_x, center_y, size, with_leader) {
 
     let squad_cfg = DREAD_SafeGet(DREAD.config, "squad_spawning", {});
     let leader_chance = DREAD_SafeGet(squad_cfg, "leader_chance", 0.3);
-    let has_leader = with_leader && (DREAD_RandomFloat() < leader_chance);
+    let has_leader = with_leader and (DREAD_RandomFloat() < leader_chance);
 
     let i = 0;
     while (i < size) {
         let archetype;
-        if (i == 0 && has_leader) {
+        if (i == 0 and has_leader) {
             archetype = DREAD_SelectLeaderArchetype();
         } else {
             archetype = DREAD_SelectArchetype();
@@ -722,7 +722,7 @@ let DREAD_SpawnSquad = func(faction, center_x, center_y, size, with_leader) {
 
         let member = DREAD_SpawnHuman(faction, offset_x, offset_y, archetype);
         if (member != undefined) {
-            member.is_leader = (i == 0 && has_leader);
+            member.is_leader = (i == 0 and has_leader);
             ArrayPush(squad_members, member);
         }
 
@@ -764,7 +764,7 @@ let DREAD_ProcessSpawnPoint = func(spawn_point) {
     let count;
     if (spawn_point.count != undefined) {
         count = spawn_point.count;
-    } else if (spawn_point.min != undefined && spawn_point.max != undefined) {
+    } else if (spawn_point.min != undefined and spawn_point.max != undefined) {
         count = DREAD_RandomRange(spawn_point.min, spawn_point.max);
     } else {
         count = 1;
@@ -777,7 +777,7 @@ let DREAD_ProcessSpawnPoint = func(spawn_point) {
 
     match spawn_point.type {
         case "human" {
-            if (count >= 2 && DREAD_IsFeatureEnabled("squads")) {
+            if (count >= 2 and DREAD_IsFeatureEnabled("squads")) {
                 return DREAD_SpawnSquad(spawn_point.faction, spawn_point.x, spawn_point.y, count, true);
             } else {
                 let spawned = [];
@@ -1005,7 +1005,7 @@ let DREAD_UpdateInvasion = func() {
         let zone = DREAD_GetCurrentZone();
         DREAD_SpawnWave(zone);
 
-        if (DREAD_IsFeatureEnabled("chaos") && DREAD_RandomFloat() < 0.2) {
+        if (DREAD_IsFeatureEnabled("chaos") and DREAD_RandomFloat() < 0.2) {
             DREAD_SpawnChaosWave();
         }
 
