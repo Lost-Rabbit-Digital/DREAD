@@ -179,7 +179,7 @@ let DREAD_ApplyArchetypeToNpc = func(npc_id, archetype_name, faction) {
     let modified_recoil = base_recoil * archetype.recoil_modifier;
     NpcSetRecoilAimRadius(npc_id, modified_recoil);
 
-    DREAD_LogDebug("Archetype", "Applied " + archetype.name + " to " + npc_id);
+    DREAD.LogDebug("Archetype", "Applied " + archetype.name + " to " + npc_id);
 
     return archetype;
 };

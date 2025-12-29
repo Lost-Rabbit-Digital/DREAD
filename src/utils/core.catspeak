@@ -18,18 +18,19 @@ let DREAD = {
 -- =============================================================================
 -- LOGGING SYSTEM
 -- =============================================================================
+-- Note: Functions are attached to DREAD object for proper scope access
 
-let DREAD_Log = func(message) {
+DREAD.Log = func(message) {
     if (DREAD.debug) {
         ShowMessage("[DREAD] " + String(message));
     }
 };
 
-let DREAD_LogError = func(message) {
+DREAD.LogError = func(message) {
     ShowMessage("[DREAD ERROR] " + String(message));
 };
 
-let DREAD_LogDebug = func(category, message) {
+DREAD.LogDebug = func(category, message) {
     if (DREAD.debug) {
         ShowMessage("[DREAD:" + category + "] " + String(message));
     }

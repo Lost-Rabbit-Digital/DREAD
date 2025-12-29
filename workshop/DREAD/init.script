@@ -31,18 +31,19 @@ let DREAD = {
 -- =============================================================================
 -- LOGGING SYSTEM
 -- =============================================================================
+-- Note: Functions are attached to DREAD object for proper scope access
 
-let DREAD_Log = func(message) {
+DREAD.Log = func(message) {
     if (DREAD.debug) {
         ShowMessage("[DREAD] " + String(message));
     }
 };
 
-let DREAD_LogError = func(message) {
+DREAD.LogError = func(message) {
     ShowMessage("[DREAD ERROR] " + String(message));
 };
 
-let DREAD_LogDebug = func(category, message) {
+DREAD.LogDebug = func(category, message) {
     if (DREAD.debug) {
         ShowMessage("[DREAD:" + category + "] " + String(message));
     }
@@ -293,15 +294,15 @@ let DREAD_SafeGet = func(obj, key, default_val) {
 };
 
 let DREAD_LoadConfig = func() {
-    DREAD_LogDebug("Config", "Loading configuration...");
+    DREAD.LogDebug("Config", "Loading configuration...");
 
     let loaded_config = FileDataRead("dread_config.json");
 
     if (loaded_config != undefined) {
-        DREAD_Log("Configuration loaded from file");
+        DREAD.Log("Configuration loaded from file");
         DREAD.config = loaded_config;
     } else {
-        DREAD_Log("Using default configuration");
+        DREAD.Log("Using default configuration");
         DREAD.config = DREAD_DEFAULT_CONFIG;
     }
 
@@ -360,7 +361,7 @@ let DREAD_ApplyDifficultyPreset = func(preset_name) {
     let preset = DREAD_SafeGet(presets, preset_name, undefined);
 
     if (preset == undefined) {
-        DREAD_LogError("Unknown difficulty preset: " + preset_name);
+        DREAD.LogError("Unknown difficulty preset: " + preset_name);
         return false;
     }
 
@@ -372,13 +373,13 @@ let DREAD_ApplyDifficultyPreset = func(preset_name) {
         DREAD.config.chaos_mode.enabled = preset.chaos_mode;
     }
 
-    DREAD_Log("Applied difficulty preset: " + preset_name);
+    DREAD.Log("Applied difficulty preset: " + preset_name);
     return true;
 };
 
 let DREAD_SaveConfig = func() {
     FileDataWrite("dread_config.json", DREAD.config);
-    DREAD_Log("Configuration saved");
+    DREAD.Log("Configuration saved");
 };
 
 -- #############################################################################
@@ -533,7 +534,7 @@ let DREAD_ApplyArchetypeToNpc = func(npc_id, archetype_name, faction) {
     let modified_recoil = base_recoil * archetype.recoil_modifier;
     NpcSetRecoilAimRadius(npc_id, modified_recoil);
 
-    DREAD_LogDebug("Archetype", "Applied " + archetype.name + " to " + npc_id);
+    DREAD.LogDebug("Archetype", "Applied " + archetype.name + " to " + npc_id);
 
     return archetype;
 };
@@ -603,14 +604,14 @@ let DREAD_SpawnStats = {
 
 let DREAD_SpawnEnemy = func(enemy_type, x, y) {
     if (!DREAD_IsValidSpawnPosition(x, y)) {
-        DREAD_LogDebug("Spawn", "Invalid position: " + String(x) + "," + String(y));
+        DREAD.LogDebug("Spawn", "Invalid position: " + String(x) + "," + String(y));
         return undefined;
     }
 
     InstanceCreate(x, y, enemy_type);
     DREAD_SpawnStats.total_spawned += 1;
 
-    DREAD_LogDebug("Spawn", "Spawned enemy at " + String(x) + "," + String(y));
+    DREAD.LogDebug("Spawn", "Spawned enemy at " + String(x) + "," + String(y));
     return true;
 };
 
@@ -618,14 +619,14 @@ let DREAD_SpawnNearPlayer = func(enemy_type, count, chase) {
     NpcObjectSpawnNearPlayer(enemy_type, count, chase);
     DREAD_SpawnStats.total_spawned += count;
 
-    DREAD_LogDebug("Spawn", "Spawned " + String(count) + " near player");
+    DREAD.LogDebug("Spawn", "Spawned " + String(count) + " near player");
     return true;
 };
 
 let DREAD_SpawnHuman = func(faction, x, y, archetype_override) {
     let pos = DREAD_FindValidSpawnPosition(x, y, 30, 5);
     if (pos.valid == false) {
-        DREAD_LogDebug("Spawn", "Could not find valid position near " + String(x) + "," + String(y));
+        DREAD.LogDebug("Spawn", "Could not find valid position near " + String(x) + "," + String(y));
         return undefined;
     }
 
@@ -647,7 +648,7 @@ let DREAD_SpawnHuman = func(faction, x, y, archetype_override) {
     DREAD_SpawnStats.humans_spawned += 1;
     DREAD_SpawnStats.total_spawned += 1;
 
-    DREAD_LogDebug("Spawn", "Spawned " + archetype + " " + faction + " at " + String(pos.x) + "," + String(pos.y));
+    DREAD.LogDebug("Spawn", "Spawned " + archetype + " " + faction + " at " + String(pos.x) + "," + String(pos.y));
 
     return {
         npc_id: npc_id,
@@ -676,7 +677,7 @@ let DREAD_SpawnMutant = func(mutant_type, x, y) {
     DREAD_SpawnStats.mutants_spawned += 1;
     DREAD_SpawnStats.total_spawned += 1;
 
-    DREAD_LogDebug("Spawn", "Spawned " + mutant_type + " at " + String(pos.x) + "," + String(pos.y));
+    DREAD.LogDebug("Spawn", "Spawned " + mutant_type + " at " + String(pos.x) + "," + String(pos.y));
 
     return { type: mutant_type, x: pos.x, y: pos.y };
 };
@@ -731,7 +732,7 @@ let DREAD_SpawnSquad = func(faction, center_x, center_y, size, with_leader) {
 
     DREAD_SpawnStats.squads_spawned += 1;
 
-    DREAD_LogDebug("Squad", "Spawned squad of " + String(ArrayLength(squad_members)) + " " + faction);
+    DREAD.LogDebug("Squad", "Spawned squad of " + String(ArrayLength(squad_members)) + " " + faction);
 
     return {
         faction: faction,
@@ -814,7 +815,7 @@ let DREAD_ProcessSpawnPoint = func(spawn_point) {
             return spawned;
         }
         else {
-            DREAD_LogError("Unknown spawn point type: " + spawn_point.type);
+            DREAD.LogError("Unknown spawn point type: " + spawn_point.type);
             return undefined;
         }
     }
@@ -933,7 +934,7 @@ let DREAD_SpawnWave = func(zone) {
         count = 1;
     }
 
-    DREAD_Log("Invasion wave " + String(DREAD_Invasion.wave_count + 1) + ": Spawning " + String(count) + " enemies");
+    DREAD.Log("Invasion wave " + String(DREAD_Invasion.wave_count + 1) + ": Spawning " + String(count) + " enemies");
 
     let i = 0;
     while (i < count) {
@@ -955,7 +956,7 @@ let DREAD_SpawnChaosWave = func() {
 
     let count = DREAD_RandomRange(1, 3);
 
-    DREAD_Log("Chaos wave: Spawning " + String(count) + " anomalous enemies");
+    DREAD.Log("Chaos wave: Spawning " + String(count) + " anomalous enemies");
 
     let i = 0;
     while (i < count) {
@@ -983,7 +984,7 @@ let DREAD_InitInvasion = func() {
     let first_delay = DREAD_SafeGet(inv_cfg, "first_wave_delay_seconds", 120);
     DREAD_Invasion.next_wave_time = first_delay * 60;
 
-    DREAD_Log("Invasion system initialized. First wave in " + String(first_delay) + " seconds");
+    DREAD.Log("Invasion system initialized. First wave in " + String(first_delay) + " seconds");
 };
 
 let DREAD_UpdateInvasion = func() {
@@ -995,7 +996,7 @@ let DREAD_UpdateInvasion = func() {
     let max_waves = DREAD_SafeGet(inv_cfg, "max_waves", 3);
     if (DREAD_Invasion.wave_count >= max_waves) {
         DREAD_Invasion.active = false;
-        DREAD_Log("Invasion complete. Spawned " + String(DREAD_Invasion.enemies_this_raid) + " enemies across " + String(DREAD_Invasion.wave_count) + " waves");
+        DREAD.Log("Invasion complete. Spawned " + String(DREAD_Invasion.enemies_this_raid) + " enemies across " + String(DREAD_Invasion.wave_count) + " waves");
         return;
     }
 
@@ -1016,7 +1017,7 @@ let DREAD_UpdateInvasion = func() {
 
 let DREAD_StopInvasion = func() {
     DREAD_Invasion.active = false;
-    DREAD_Log("Invasion stopped");
+    DREAD.Log("Invasion stopped");
 };
 
 let DREAD_GetInvasionStatus = func() {
@@ -1226,7 +1227,7 @@ let DREAD_ExecuteZoneSpawnsTemplate = func(zone_name) {
         i += 1;
     }
 
-    DREAD_Log(zone_name + " spawning complete. Total: " + String(spawned_count));
+    DREAD.Log(zone_name + " spawning complete. Total: " + String(spawned_count));
     return spawned_count;
 };
 
@@ -1297,11 +1298,11 @@ let FOREST_BOSS_SPAWNS = [
 
 let DREAD_ExecuteForestSpawns = func() {
     if (!DREAD_IsZoneEnabled("forest")) {
-        DREAD_Log("Forest zone disabled in config");
+        DREAD.Log("Forest zone disabled in config");
         return 0;
     }
 
-    DREAD_Log("Executing Forest spawn points...");
+    DREAD.Log("Executing Forest spawn points...");
 
     let density = DREAD_GetZoneDensity("forest");
     let spawned_count = 0;
@@ -1342,13 +1343,13 @@ let DREAD_ExecuteForestSpawns = func() {
             } else {
                 spawned_count += 1;
             }
-            DREAD_LogDebug("Forest", "Spawned at: " + point.name);
+            DREAD.LogDebug("Forest", "Spawned at: " + point.name);
         }
 
         i += 1;
     }
 
-    DREAD_Log("Forest spawning complete. Total: " + String(spawned_count));
+    DREAD.Log("Forest spawning complete. Total: " + String(spawned_count));
     return spawned_count;
 };
 
@@ -1358,7 +1359,7 @@ let DREAD_ExecuteForestBossSpawns = func() {
         let boss_point = FOREST_BOSS_SPAWNS[i];
 
         if (DREAD_RandomFloat() < boss_point.chance) {
-            DREAD_Log("BOSS SPAWN: " + boss_point.name);
+            DREAD.Log("BOSS SPAWN: " + boss_point.name);
 
             InstanceCreate(boss_point.x, boss_point.y, DREAD_BOSS_OBJECTS[boss_point.boss]);
 
@@ -1397,21 +1398,21 @@ let DREAD_GetForestChaosEnemy = func() {
 -- #############################################################################
 
 let DREAD_Initialize = func() {
-    DREAD_Log("===========================================");
-    DREAD_Log("DREAD v" + DREAD.version + " Initializing...");
-    DREAD_Log("===========================================");
+    DREAD.Log("===========================================");
+    DREAD.Log("DREAD v" + DREAD.version + " Initializing...");
+    DREAD.Log("===========================================");
 
     DREAD_LoadConfig();
 
     if (!DREAD_IsFeatureEnabled("mod")) {
-        DREAD_Log("DREAD is disabled in configuration");
+        DREAD.Log("DREAD is disabled in configuration");
         return false;
     }
 
     DREAD_ResetSpawnStats();
 
     DREAD.initialized = true;
-    DREAD_Log("DREAD initialized successfully");
+    DREAD.Log("DREAD initialized successfully");
 
     return true;
 };
@@ -1425,9 +1426,9 @@ let DREAD_OnRaidStart = func() {
 
     let zone = DREAD_GetCurrentZone();
 
-    DREAD_Log("===========================================");
-    DREAD_Log("Raid started in zone: " + zone);
-    DREAD_Log("===========================================");
+    DREAD.Log("===========================================");
+    DREAD.Log("Raid started in zone: " + zone);
+    DREAD.Log("===========================================");
 
     DREAD_ExecuteZoneSpawns(zone);
 
@@ -1436,11 +1437,11 @@ let DREAD_OnRaidStart = func() {
     }
 
     let stats = DREAD_GetSpawnStats();
-    DREAD_Log("Spawn complete. Total: " + String(stats.total_spawned));
-    DREAD_Log("  Humans: " + String(stats.humans_spawned));
-    DREAD_Log("  Mutants: " + String(stats.mutants_spawned));
-    DREAD_Log("  Fauna: " + String(stats.fauna_spawned));
-    DREAD_Log("  Squads: " + String(stats.squads_spawned));
+    DREAD.Log("Spawn complete. Total: " + String(stats.total_spawned));
+    DREAD.Log("  Humans: " + String(stats.humans_spawned));
+    DREAD.Log("  Mutants: " + String(stats.mutants_spawned));
+    DREAD.Log("  Fauna: " + String(stats.fauna_spawned));
+    DREAD.Log("  Squads: " + String(stats.squads_spawned));
 };
 
 let DREAD_ExecuteZoneSpawns = func(zone) {
@@ -1471,10 +1472,10 @@ let DREAD_ExecuteZoneSpawns = func(zone) {
             DREAD_ExecuteZoneSpawnsTemplate("cnpp");
         }
         case "hub" {
-            DREAD_LogDebug("Zone", "In hub - no spawns");
+            DREAD.LogDebug("Zone", "In hub - no spawns");
         }
         else {
-            DREAD_LogDebug("Zone", "Unknown zone: " + zone);
+            DREAD.LogDebug("Zone", "Unknown zone: " + zone);
         }
     }
 
@@ -1484,7 +1485,7 @@ let DREAD_ExecuteZoneSpawns = func(zone) {
 };
 
 let DREAD_ExecuteChaosSpawns = func(zone) {
-    DREAD_Log("Chaos Mode active - spawning cross-zone enemies");
+    DREAD.Log("Chaos Mode active - spawning cross-zone enemies");
 
     let chaos_count = DREAD_RandomRange(1, 3);
 
@@ -1493,7 +1494,7 @@ let DREAD_ExecuteChaosSpawns = func(zone) {
         let enemy = DREAD_GetChaosEnemyForZone(zone);
         if (enemy != undefined) {
             NpcObjectSpawnNearPlayer(enemy, 1, false);
-            DREAD_LogDebug("Chaos", "Spawned chaos enemy");
+            DREAD.LogDebug("Chaos", "Spawned chaos enemy");
         }
         i += 1;
     }
@@ -1528,8 +1529,8 @@ EventAssignFunction("enter_hub", func() {
         DREAD_StopInvasion();
 
         let stats = DREAD_GetSpawnStats();
-        DREAD_Log("Returned to hub. Session stats:");
-        DREAD_Log("  Total spawned: " + String(stats.total_spawned));
+        DREAD.Log("Returned to hub. Session stats:");
+        DREAD.Log("  Total spawned: " + String(stats.total_spawned));
     }
 });
 
@@ -1539,7 +1540,7 @@ EventAssignFunction("enter_hub", func() {
 
 DREAD_Initialize();
 
-DREAD_Log("===========================================");
-DREAD_Log("DREAD v" + DREAD.version + " loaded");
-DREAD_Log("Ready for raids!");
-DREAD_Log("===========================================");
+DREAD.Log("===========================================");
+DREAD.Log("DREAD v" + DREAD.version + " loaded");
+DREAD.Log("Ready for raids!");
+DREAD.Log("===========================================");

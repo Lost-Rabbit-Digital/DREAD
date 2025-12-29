@@ -213,11 +213,11 @@ let FOREST_BOSS_SPAWNS = [
 -- Execute all Forest spawns
 let DREAD_ExecuteForestSpawns = func() {
     if (!DREAD_IsZoneEnabled("forest")) {
-        DREAD_Log("Forest zone disabled in config");
+        DREAD.Log("Forest zone disabled in config");
         return 0;
     }
 
-    DREAD_Log("Executing Forest spawn points...");
+    DREAD.Log("Executing Forest spawn points...");
 
     let density = DREAD_GetZoneDensity("forest");
     let spawned_count = 0;
@@ -263,13 +263,13 @@ let DREAD_ExecuteForestSpawns = func() {
             } else {
                 spawned_count += 1;
             }
-            DREAD_LogDebug("Forest", "Spawned at: " + point.name);
+            DREAD.LogDebug("Forest", "Spawned at: " + point.name);
         }
 
         i += 1;
     }
 
-    DREAD_Log("Forest spawning complete. Total: " + String(spawned_count));
+    DREAD.Log("Forest spawning complete. Total: " + String(spawned_count));
     return spawned_count;
 };
 
@@ -280,7 +280,7 @@ let DREAD_ExecuteForestBossSpawns = func() {
         let boss_point = FOREST_BOSS_SPAWNS[i];
 
         if (DREAD_RandomFloat() < boss_point.chance) {
-            DREAD_Log("BOSS SPAWN: " + boss_point.name);
+            DREAD.Log("BOSS SPAWN: " + boss_point.name);
 
             -- Spawn boss
             InstanceCreate(boss_point.x, boss_point.y, DREAD_BOSS_OBJECTS[boss_point.boss]);
