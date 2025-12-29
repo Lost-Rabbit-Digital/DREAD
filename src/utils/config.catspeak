@@ -52,16 +52,16 @@ let DREAD_DEFAULT_CONFIG = {
 -- =============================================================================
 
 let DREAD_LoadConfig = func() {
-    DREAD_LogDebug("Config", "Loading configuration...");
+    DREAD.LogDebug("Config", "Loading configuration...");
 
     -- Try to load from file
     let loaded_config = FileDataRead("dread_config.json");
 
     if (loaded_config != undefined) {
-        DREAD_Log("Configuration loaded from file");
+        DREAD.Log("Configuration loaded from file");
         DREAD.config = loaded_config;
     } else {
-        DREAD_Log("Using default configuration");
+        DREAD.Log("Using default configuration");
         DREAD.config = DREAD_DEFAULT_CONFIG;
     }
 
@@ -144,7 +144,7 @@ let DREAD_ApplyDifficultyPreset = func(preset_name) {
     let preset = DREAD_ConfigGet("difficulty_presets." + preset_name, undefined);
 
     if (preset == undefined) {
-        DREAD_LogError("Unknown difficulty preset: " + preset_name);
+        DREAD.LogError("Unknown difficulty preset: " + preset_name);
         return false;
     }
 
@@ -161,10 +161,10 @@ let DREAD_ApplyDifficultyPreset = func(preset_name) {
     -- Apply archetype weights
     if (preset.archetype_weights != undefined) {
         -- Would need to recalculate archetype spawn weights
-        DREAD_LogDebug("Config", "Applying archetype weights from preset");
+        DREAD.LogDebug("Config", "Applying archetype weights from preset");
     }
 
-    DREAD_Log("Applied difficulty preset: " + preset_name);
+    DREAD.Log("Applied difficulty preset: " + preset_name);
     return true;
 };
 
@@ -174,5 +174,5 @@ let DREAD_ApplyDifficultyPreset = func(preset_name) {
 
 let DREAD_SaveConfig = func() {
     FileDataWrite("dread_config.json", DREAD.config);
-    DREAD_Log("Configuration saved");
+    DREAD.Log("Configuration saved");
 };

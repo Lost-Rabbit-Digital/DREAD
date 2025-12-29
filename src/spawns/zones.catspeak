@@ -214,7 +214,7 @@ let DREAD_ExecuteZoneSpawnsTemplate = func(zone_name) {
         i += 1;
     }
 
-    DREAD_Log(zone_name + " spawning complete. Total: " + String(spawned_count));
+    DREAD.Log(zone_name + " spawning complete. Total: " + String(spawned_count));
     return spawned_count;
 };
 

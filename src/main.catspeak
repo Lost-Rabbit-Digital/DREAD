@@ -35,16 +35,16 @@
 -- =============================================================================
 
 let DREAD_Initialize = func() {
-    DREAD_Log("===========================================");
-    DREAD_Log("DREAD v" + DREAD.version + " Initializing...");
-    DREAD_Log("===========================================");
+    DREAD.Log("===========================================");
+    DREAD.Log("DREAD v" + DREAD.version + " Initializing...");
+    DREAD.Log("===========================================");
 
     -- Load configuration
     DREAD_LoadConfig();
 
     -- Check if mod is enabled
     if (!DREAD_IsFeatureEnabled("mod")) {
-        DREAD_Log("DREAD is disabled in configuration");
+        DREAD.Log("DREAD is disabled in configuration");
         return false;
     }
 
@@ -52,7 +52,7 @@ let DREAD_Initialize = func() {
     DREAD_ResetSpawnStats();
 
     DREAD.initialized = true;
-    DREAD_Log("DREAD initialized successfully");
+    DREAD.Log("DREAD initialized successfully");
 
     return true;
 };
@@ -70,9 +70,9 @@ let DREAD_OnRaidStart = func() {
 
     let zone = DREAD_GetCurrentZone();
 
-    DREAD_Log("===========================================");
-    DREAD_Log("Raid started in zone: " + zone);
-    DREAD_Log("===========================================");
+    DREAD.Log("===========================================");
+    DREAD.Log("Raid started in zone: " + zone);
+    DREAD.Log("===========================================");
 
     -- Execute zone-specific spawns
     DREAD_ExecuteZoneSpawns(zone);
@@ -84,11 +84,11 @@ let DREAD_OnRaidStart = func() {
 
     -- Log final statistics
     let stats = DREAD_GetSpawnStats();
-    DREAD_Log("Spawn complete. Total: " + String(stats.total_spawned));
-    DREAD_Log("  Humans: " + String(stats.humans_spawned));
-    DREAD_Log("  Mutants: " + String(stats.mutants_spawned));
-    DREAD_Log("  Fauna: " + String(stats.fauna_spawned));
-    DREAD_Log("  Squads: " + String(stats.squads_spawned));
+    DREAD.Log("Spawn complete. Total: " + String(stats.total_spawned));
+    DREAD.Log("  Humans: " + String(stats.humans_spawned));
+    DREAD.Log("  Mutants: " + String(stats.mutants_spawned));
+    DREAD.Log("  Fauna: " + String(stats.fauna_spawned));
+    DREAD.Log("  Squads: " + String(stats.squads_spawned));
 };
 
 -- =============================================================================
@@ -124,10 +124,10 @@ let DREAD_ExecuteZoneSpawns = func(zone) {
         }
         case "hub" {
             -- Don't spawn in hub
-            DREAD_LogDebug("Zone", "In hub - no spawns");
+            DREAD.LogDebug("Zone", "In hub - no spawns");
         }
         else {
-            DREAD_LogDebug("Zone", "Unknown zone: " + zone);
+            DREAD.LogDebug("Zone", "Unknown zone: " + zone);
         }
     }
 
@@ -142,7 +142,7 @@ let DREAD_ExecuteZoneSpawns = func(zone) {
 -- =============================================================================
 
 let DREAD_ExecuteChaosSpawns = func(zone) {
-    DREAD_Log("Chaos Mode active - spawning cross-zone enemies");
+    DREAD.Log("Chaos Mode active - spawning cross-zone enemies");
 
     -- Spawn 1-3 chaos enemies at raid start
     let chaos_count = DREAD_RandomRange(1, 3);
@@ -152,7 +152,7 @@ let DREAD_ExecuteChaosSpawns = func(zone) {
         let enemy = DREAD_GetChaosEnemyForZone(zone);
         if (enemy != undefined) {
             NpcObjectSpawnNearPlayer(enemy, 1, false);
-            DREAD_LogDebug("Chaos", "Spawned chaos enemy");
+            DREAD.LogDebug("Chaos", "Spawned chaos enemy");
         }
         i += 1;
     }
@@ -201,8 +201,8 @@ EventAssignFunction("enter_hub", func() {
 
         -- Log session stats
         let stats = DREAD_GetSpawnStats();
-        DREAD_Log("Returned to hub. Session stats:");
-        DREAD_Log("  Total spawned: " + String(stats.total_spawned));
+        DREAD.Log("Returned to hub. Session stats:");
+        DREAD.Log("  Total spawned: " + String(stats.total_spawned));
     }
 });
 
@@ -213,7 +213,7 @@ EventAssignFunction("enter_hub", func() {
 -- Initialize on mod load
 DREAD_Initialize();
 
-DREAD_Log("===========================================");
-DREAD_Log("DREAD v" + DREAD.version + " loaded");
-DREAD_Log("Ready for raids!");
-DREAD_Log("===========================================");
+DREAD.Log("===========================================");
+DREAD.Log("DREAD v" + DREAD.version + " loaded");
+DREAD.Log("Ready for raids!");
+DREAD.Log("===========================================");
