@@ -236,7 +236,7 @@ let DREAD_GetGameTime = func() {
 
 let DREAD_IsNightTime = func() {
     let hour = TimeGetHour();
-    return (hour >= 22) || (hour <= 5);
+    return (hour >= 22) or (hour <= 5);
 };
 
 -- #############################################################################
@@ -548,7 +548,7 @@ let DREAD_SelectLeaderArchetype = func() {
 };
 
 let DREAD_IsLeaderArchetype = func(archetype_name) {
-    return (archetype_name == "gigachad") || (archetype_name == "chad");
+    return (archetype_name == "gigachad") or (archetype_name == "chad");
 };
 
 -- #############################################################################
