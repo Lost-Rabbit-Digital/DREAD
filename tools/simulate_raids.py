@@ -282,9 +282,9 @@ def scenario_faction_ids_unknown(seed):
     s = new_session(seed, factions=FACTIONS_UNKNOWN_IDS)
     s.load()
     assert not s.world.popups, f"popups on load: {s.world.popups[:2]}"
+    raid(s, frames=60)
     dread = {d["faction"] for n, d in s.world.npc_defs.items() if n.startswith("dread_")}
     assert dread and all(f.startswith("dread_") for f in dread), f"factions: {sorted(dread)}"
-    raid(s, frames=60)
     hostile = {a for (a, b), v in s.world.faction_relations.items() if b == "player" and v == 250}
     assert dread <= hostile, f"not hostile to player: {sorted(dread - hostile)}"
 
@@ -294,9 +294,28 @@ def scenario_faction_ids_documented(seed):
     # (hunters have no documented faction, so they get their own).
     s = new_session(seed)
     s.load()
+    ids = dict(s.rt.globals["DREAD_FACTION_IDS"])
+    expected = {"bandits": "Bandits", "green_army": "Green Army", "hunters": "dread_hunters",
+                "watchers": "Watcher", "crimson": "Crimson Corporation"}
+    assert ids == expected, f"faction ids: {ids}"
+    raid(s)
     used = {d["faction"] for n, d in s.world.npc_defs.items() if n.startswith("dread_")}
-    expected = {"Bandits", "Green Army", "Watcher", "Crimson Corporation", "dread_hunters"}
-    assert used == expected, f"factions: {sorted(used)}"
+    assert used and used <= set(expected.values()), f"factions: {sorted(used)}"
+
+
+def scenario_lazy_npc_definitions(seed):
+    # NPC definitions are made on first spawn, not at load (defining all 150 at
+    # load risked Katspeak's 1000 ms limit), and each one only once.
+    s = new_session(seed)
+    s.load()
+    assert not s.world.npc_defs, f"{len(s.world.npc_defs)} NPCs defined at load"
+    for _ in range(3):
+        raid(s)
+    spawned = {sp["id"] for sp in s.world.spawns if sp["kind"] == "npc"}
+    assert spawned, "no DREAD NPCs spawned"
+    assert spawned <= set(s.world.npc_defs), f"spawned undefined NPCs: {sorted(spawned - set(s.world.npc_defs))[:3]}"
+    assert s.world.npc_create_calls == len(s.world.npc_defs), \
+        f"{s.world.npc_create_calls} NpcCreate calls for {len(s.world.npc_defs)} NPCs"
 
 
 def scenario_debug_mode_popups(seed):
@@ -366,6 +385,7 @@ def stability(seeds=range(5)):
         run_scenario("mod reloaded twice from the mod menu", scenario_reload_mods_twice, seeds[:2]),
         run_scenario("game has none of the documented faction ids", scenario_faction_ids_unknown, seeds[:2]),
         run_scenario("documented faction ids use vanilla factions", scenario_faction_ids_documented, seeds[:2]),
+        run_scenario("NPCs defined lazily, once each", scenario_lazy_npc_definitions, seeds[:2]),
         run_scenario("no factions exist until after load (0.3.1 in game)", scenario_factions_load_late, seeds[:2]),
         run_scenario("no factions and FactionCreate fails", scenario_faction_create_fails, seeds[:2]),
         run_scenario("enemy object missing from the game", scenario_missing_objects, seeds[:2]),

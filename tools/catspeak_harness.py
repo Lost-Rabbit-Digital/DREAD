@@ -829,6 +829,7 @@ class World:
         self.faction_relations = {}
         self.faction_create_works = faction_create_works
         self.debug_log = []
+        self.npc_create_calls = 0
 
 
 def build_api(world, exposed, gamedata_dir=None, filedata_missing="empty", lenient=False):
@@ -854,6 +855,7 @@ def build_api(world, exposed, gamedata_dir=None, filedata_missing="empty", lenie
 
     def NpcCreate(npc_id):
         need(isinstance(npc_id, str), "NpcCreate: id must be a string")
+        world.npc_create_calls += 1
         world.npc_defs[npc_id] = {"preset": "hunter_intermediate", "faction": "Loners", "hp": 60,
                                   "chest": "loner_armor_2", "armor": "no_item", "xp": 22,
                                   "recoil": None}

@@ -187,6 +187,8 @@ python -I tools/simulate_raids.py all
 - `enabled` kill switch in `DREAD_CONFIG`
 - Fixed "Katspeak: process exceeded allowed time of 1000 ms" on load: a popup blocks while Katspeak's
   wall-clock budget runs, so popups are now queued and shown on the next player step, never mid-script
+- NPC definitions are created on first spawn instead of all 150 at load, keeping `init.script` far
+  inside Katspeak's 1000 ms budget (a first Forest raid defines about 0-7)
 - Vanilla factions (even "Player") don't exist yet while `init.script` runs, so DREAD's own factions
   are made hostile to the player at raid start instead of at load
 - `debug_mode` is ON for playtesting: one popup once you're in game with the load summary, the faction

@@ -596,8 +596,10 @@ DREAD_NpcId = func(faction, tier, archetype_name) {
     return "dread_" + faction + "_" + String(tier) + "_" + archetype_name;
 };
 
--- NPC definitions are created once at load time (like vanilla data) and reused
--- for every spawn, instead of creating a new definition per enemy.
+-- NPC definitions are created lazily, the first time a spawn needs one, and
+-- reused for every later spawn. Defining all 150 at load risked Katspeak's
+-- 1000 ms limit for the init.script run; a raid start only defines the
+-- handful it actually spawns.
 DREAD_DefineNpc = func(faction, tier, archetype_name) {
     let fdata = DREAD_FACTIONS[faction];
     let archetype = DREAD_GetArchetype(archetype_name);
@@ -617,23 +619,19 @@ DREAD_DefineNpc = func(faction, tier, archetype_name) {
         fdata.recoil_max[tier] * archetype.recoil_modifier);
 };
 
-DREAD_DefineAllNpcs = func() {
-    let f = 0;
-    while (f < ArrayLength(DREAD_FACTION_ORDER)) {
-        -- No usable faction: never define these NPCs (that would abort the load).
-        if (DREAD_FACTION_IDS[DREAD_FACTION_ORDER[f]] != undefined) {
-            let tier = 0;
-            while (tier < 6) {
-                let a = 0;
-                while (a < ArrayLength(DREAD_ARCHETYPE_ORDER)) {
-                    DREAD_DefineNpc(DREAD_FACTION_ORDER[f], tier, DREAD_ARCHETYPE_ORDER[a]);
-                    a += 1;
-                }
-                tier += 1;
-            }
-        }
-        f += 1;
+-- npc_id -> true once DREAD_DefineNpc has run for it this session.
+DREAD_DEFINED_NPCS = {};
+
+-- Returns the NPC id for this faction/tier/archetype, defining it on first use.
+-- Only called for factions in DREAD_FACTION_IDS (see DREAD_SpawnHuman).
+DREAD_EnsureNpc = func(faction, tier, archetype_name) {
+    let npc_id = DREAD_NpcId(faction, tier, archetype_name);
+    if (DREAD_DEFINED_NPCS[npc_id] == undefined) {
+        DREAD_DefineNpc(faction, tier, archetype_name);
+        DREAD_DEFINED_NPCS[npc_id] = true;
+        DREAD_LogDebug("Npc", "Defined " + npc_id);
     }
+    return npc_id;
 };
 
 -- #############################################################################
@@ -722,7 +720,7 @@ DREAD_SpawnHuman = func(faction, x, y, archetype_name, zone_name) {
         }
         InstanceCreate(pos.x, pos.y, obj);
     } else {
-        NpcSpawn(DREAD_NpcId(faction, tier, archetype), pos.x, pos.y);
+        NpcSpawn(DREAD_EnsureNpc(faction, tier, archetype), pos.x, pos.y);
     }
 
     DREAD.raid_enemies += 1;
@@ -1229,7 +1227,6 @@ DREAD_Initialize = func() {
         return;
     }
     let factions = DREAD_ResolveFactions();
-    DREAD_DefineAllNpcs();
     DREAD.initialized = true;
     DREAD_Log("DREAD v" + DREAD.version + " loaded (" + DREAD.preset_name + ")\nFactions: " + factions);
 };
