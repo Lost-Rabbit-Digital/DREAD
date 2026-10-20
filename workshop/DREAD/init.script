@@ -4,7 +4,7 @@
 -- Zero Sievert Spawn Overhaul Mod
 -- Author: Lost Rabbit Digital
 -- License: MIT
--- Version: 0.3.0
+-- Version: 0.3.1
 -- =============================================================================
 --
 -- DREAD enhances Zero Sievert's spawn system with:
@@ -115,7 +115,7 @@ DREAD_PRESETS = {
 -- #############################################################################
 
 DREAD = {
-    version: "0.3.0",
+    version: "0.3.1",
     debug: false,
     initialized: false,
     preset: undefined,
@@ -336,12 +336,15 @@ DREAD_ARCHETYPES = {
 
 DREAD_FACTION_ORDER = ["bandits", "green_army", "hunters", "watchers", "crimson"];
 
--- preset: npc_preset.json prefix. faction: the faction name the game expects.
+-- preset: npc_preset.json prefix. factions: candidate faction ids, tried in
+-- order with FactionExists (see DREAD_ResolveFactions). The API docs list display
+-- names like "Bandits", but 0.3.0 crashed at load because the game had no faction
+-- with that id, so internal-style ids are tried as well.
 -- Per-tier arrays (rookie..master) copy the vanilla preset values; loot chests
 -- use the "normal" roll of the preset's chest tier ("human_<tier>_normal").
 DREAD_FACTIONS = {
     bandits: {
-        preset: "bandit", faction: "Bandits",
+        preset: "bandit", factions: ["Bandits", "bandits", "bandit", "Bandit"],
         hp: [45, 45, 55, 55, 65, 65],
         recoil_min: [18, 18, 15, 12, 9, 7],
         recoil_max: [28, 28, 25, 22, 19, 16],
@@ -350,7 +353,7 @@ DREAD_FACTIONS = {
         xp: [10, 10, 15, 15, 20, 27]
     },
     green_army: {
-        preset: "green_army", faction: "Green Army",
+        preset: "green_army", factions: ["Green Army", "green_army", "army", "Army"],
         hp: [55, 55, 65, 65, 75, 100],
         recoil_min: [18, 15, 12, 9, 7, 5],
         recoil_max: [28, 25, 22, 19, 16, 13],
@@ -359,7 +362,7 @@ DREAD_FACTIONS = {
         xp: [10, 15, 20, 20, 27, 35]
     },
     hunters: {
-        preset: "hunter", faction: "All Enemy",
+        preset: "hunter", factions: ["Hunters", "hunters", "hunter", "Hunter"],
         hp: [55, 55, 65, 65, 75, 100],
         recoil_min: [18, 15, 12, 9, 7, 5],
         recoil_max: [28, 25, 22, 19, 16, 13],
@@ -368,7 +371,7 @@ DREAD_FACTIONS = {
         xp: [10, 15, 20, 20, 27, 35]
     },
     watchers: {
-        preset: "watcher", faction: "Watcher",
+        preset: "watcher", factions: ["Watcher", "Watchers", "watcher", "watchers"],
         hp: [65, 65, 65, 75, 75, 100],
         recoil_min: [15, 12, 9, 7, 5, 5],
         recoil_max: [25, 22, 19, 16, 13, 13],
@@ -377,13 +380,57 @@ DREAD_FACTIONS = {
         xp: [15, 20, 20, 27, 35, 35]
     },
     crimson: {
-        preset: "crimson", faction: "Crimson Corporation",
+        preset: "crimson", factions: ["Crimson Corporation", "crimson", "Crimson", "crimson_corporation"],
         hp: [55, 55, 65, 65, 75, 100],
         recoil_min: [18, 15, 12, 9, 7, 5],
         recoil_max: [28, 25, 22, 19, 16, 13],
         armor: ["armor_faction2_standard_0", "armor_faction2_0", "armor_faction2_1", "armor_faction2_1", "armor_faction2_2", "armor_faction2_2"],
         chest: ["rookie", "intermediate", "skilled", "expert", "veteran", "master"],
         xp: [10, 15, 20, 20, 27, 35]
+    }
+};
+
+DREAD_PLAYER_FACTIONS = ["Player", "player"];
+
+-- DREAD faction key -> faction id the game accepts. Filled by DREAD_ResolveFactions.
+DREAD_FACTION_IDS = {};
+
+DREAD_FirstExistingFaction = func(candidates) {
+    let i = 0;
+    while (i < ArrayLength(candidates)) {
+        if (FactionExists(candidates[i])) {
+            return candidates[i];
+        }
+        i += 1;
+    }
+    return undefined;
+};
+
+-- NpcSetFaction aborts the whole mod load on an unknown faction, so every id is
+-- checked first. If no candidate exists, DREAD creates its own faction that is
+-- hostile to the player instead of crashing.
+DREAD_ResolveFactions = func() {
+    let player_faction = DREAD_FirstExistingFaction(DREAD_PLAYER_FACTIONS);
+    let f = 0;
+    while (f < ArrayLength(DREAD_FACTION_ORDER)) {
+        let key = DREAD_FACTION_ORDER[f];
+        let faction_id = DREAD_FirstExistingFaction(DREAD_FACTIONS[key].factions);
+        if (faction_id == undefined) {
+            faction_id = "dread_" + key;
+            if (FactionExists(faction_id) == false) {
+                FactionCreate(faction_id);
+            }
+            if (player_faction != undefined) {
+                FactionSetRelationship(faction_id, player_faction, FACTION_REP_enemy);
+            } else {
+                DREAD_LogError("No player faction found; " + faction_id + " may not be hostile");
+            }
+            DREAD_LogDebug("Faction", key + " -> created " + faction_id);
+        } else {
+            DREAD_LogDebug("Faction", key + " -> " + faction_id);
+        }
+        DREAD_FACTION_IDS[key] = faction_id;
+        f += 1;
     }
 };
 
@@ -440,7 +487,7 @@ DREAD_DefineNpc = func(faction, tier, archetype_name) {
     -- faction, a fixed loot chest, no armor and fixed XP. Override all of them.
     NpcCreate(npc_id);
     NpcSetPreset(npc_id, fdata.preset + "_" + DREAD_TIER_NAMES[tier]);
-    NpcSetFaction(npc_id, fdata.faction);
+    NpcSetFaction(npc_id, DREAD_FACTION_IDS[faction]);
     NpcSetArmor(npc_id, fdata.armor[tier]);
     NpcSetChestDropped(npc_id, "human_" + fdata.chest[tier] + "_normal");
     NpcSetExperience(npc_id, fdata.xp[tier]);
@@ -451,6 +498,7 @@ DREAD_DefineNpc = func(faction, tier, archetype_name) {
 };
 
 DREAD_DefineAllNpcs = func() {
+    DREAD_ResolveFactions();
     let f = 0;
     while (f < ArrayLength(DREAD_FACTION_ORDER)) {
         let tier = 0;

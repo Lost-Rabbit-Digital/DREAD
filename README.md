@@ -10,7 +10,7 @@
 
 DREAD is a comprehensive spawn overhaul mod for Zero Sievert that enhances the game's enemy spawning with new spawn points, SAIN-inspired enemy archetypes, squad mechanics, and invasion waves.
 
-**Version:** 0.3.0
+**Version:** 0.3.1
 **Author:** Lost Rabbit Digital
 **License:** MIT
 
@@ -176,6 +176,13 @@ python -I tools/simulate_raids.py all
 ---
 
 ## Changelog
+
+### v0.3.1
+- Fixed crash on load: "assigning the NPC ... to a non-existent faction, "Bandits"". Faction ids are
+  now checked with `FactionExists` against several candidates; if none exist DREAD creates its own
+  faction hostile to the player instead of aborting the mod load
+- Harness models the game's faction table (`FactionExists`/`FactionCreate`/`FactionSetRelationship`)
+  instead of trusting the documented names
 
 ### v0.3.0
 - Fixed crash on load (top-level `let` used from functions; Catspeak has no closures)

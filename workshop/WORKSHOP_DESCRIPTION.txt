@@ -99,5 +99,5 @@ Subscribe to install automatically. The mod activates on raid start.
 [h2]Feedback & Bug Reports[/h2]
 Please leave comments with any issues, suggestions, or zone coordinate contributions!
 
-[b]Version:[/b] 0.3.0
+[b]Version:[/b] 0.3.1
 [b]License:[/b] MIT

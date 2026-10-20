@@ -26,7 +26,7 @@ from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from catspeak_harness import CatError, CatSyntaxError, ModSession  # noqa: E402
+from catspeak_harness import FACTIONS_UNKNOWN_IDS, CatError, CatSyntaxError, ModSession  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "DREAD.catspeak"
@@ -251,6 +251,30 @@ def scenario_reload_mods_twice(seed):
     raid(s, frames=60)
 
 
+def scenario_faction_ids_unknown(seed):
+    # 0.3.0 crashed at load: the game had no faction "Bandits". Model a faction
+    # table with none of the documented names; DREAD must fall back to its own
+    # player-hostile factions instead of calling NpcSetFaction with a bad id.
+    s = new_session(seed, factions=FACTIONS_UNKNOWN_IDS)
+    s.load()
+    assert not s.world.popups, f"popups on load: {s.world.popups[:2]}"
+    dread = {d["faction"] for n, d in s.world.npc_defs.items() if n.startswith("dread_")}
+    assert dread and all(f.startswith("dread_") for f in dread), f"factions: {sorted(dread)}"
+    hostile = {a for (a, b), v in s.world.faction_relations.items() if b == "player" and v == 250}
+    assert dread <= hostile, f"not hostile to player: {sorted(dread - hostile)}"
+    raid(s, frames=60)
+
+
+def scenario_faction_ids_documented(seed):
+    # With the documented names present, DREAD uses the vanilla factions
+    # (hunters have no documented faction, so they get their own).
+    s = new_session(seed)
+    s.load()
+    used = {d["faction"] for n, d in s.world.npc_defs.items() if n.startswith("dread_")}
+    expected = {"Bandits", "Green Army", "Watcher", "Crimson Corporation", "dread_hunters"}
+    assert used == expected, f"factions: {sorted(used)}"
+
+
 def stability(seeds=range(5)):
     print("\nSTABILITY MATRIX (strict: any runtime error = crash in game)")
     seeds = list(seeds)
@@ -266,6 +290,8 @@ def stability(seeds=range(5)):
         run_scenario("unmapped coordinates (nothing walkable)", scenario_unmapped_coordinates, seeds),
         run_scenario("player spawns on top of a spawn cluster", scenario_player_on_spawn_cluster, seeds),
         run_scenario("mod reloaded twice from the mod menu", scenario_reload_mods_twice, seeds[:2]),
+        run_scenario("game has none of the documented faction ids", scenario_faction_ids_unknown, seeds[:2]),
+        run_scenario("documented faction ids use vanilla factions", scenario_faction_ids_documented, seeds[:2]),
     ]
     ok = all(results)
     print(f"\n  {'ALL PASS' if ok else 'FAILURES PRESENT'}: {sum(results)}/{len(results)} scenarios")
