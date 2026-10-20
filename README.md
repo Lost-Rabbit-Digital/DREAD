@@ -181,6 +181,12 @@ python -I tools/simulate_raids.py all
 - Fixed crash on load: "assigning the NPC ... to a non-existent faction, "Bandits"". Faction ids are
   now checked with `FactionExists` against several candidates; if none exist DREAD creates its own
   faction hostile to the player instead of aborting the mod load
+- Crash guards: if a faction can't be created, its spawns use vanilla preset objects instead of DREAD
+  NPCs; enemy objects missing from the game, empty spawn tables, spawn points without coordinates and a
+  missing player instance are skipped instead of crashing; repeated errors pop up only once
+- `enabled` kill switch in `DREAD_CONFIG`
+- `debug_mode` is ON for playtesting: one popup on load (with the faction mapping) and one per raid
+  start; per-spawn detail goes to `ShowDebugMessage` instead of popups. Turn it off for release
 - Harness models the game's faction table (`FactionExists`/`FactionCreate`/`FactionSetRelationship`)
   instead of trusting the documented names
 

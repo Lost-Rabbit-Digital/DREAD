@@ -809,7 +809,8 @@ def _load_lenient_json(path):
 class World:
     """Mutable game state the mocks read and write."""
 
-    def __init__(self, seed=0, map_w=3000, map_h=3000, walkable_ratio=0.85, factions=FACTIONS):
+    def __init__(self, seed=0, map_w=3000, map_h=3000, walkable_ratio=0.85, factions=FACTIONS,
+                 faction_create_works=True):
         self.rng = random.Random(seed)
         self.room = "r_menu"
         self.map_w, self.map_h = map_w, map_h
@@ -826,6 +827,8 @@ class World:
         self.warnings = []
         self.factions = set(factions)
         self.faction_relations = {}
+        self.faction_create_works = faction_create_works
+        self.debug_log = []
 
 
 def build_api(world, exposed, gamedata_dir=None, filedata_missing="empty", lenient=False):
@@ -869,7 +872,8 @@ def build_api(world, exposed, gamedata_dir=None, filedata_missing="empty", lenie
 
     def FactionCreate(faction):
         need(isinstance(faction, str), "FactionCreate: id must be a string")
-        world.factions.add(faction)
+        if world.faction_create_works:
+            world.factions.add(faction)
 
     def FactionSetRelationship(a, b, value):
         need(a in world.factions and b in world.factions,
@@ -995,7 +999,8 @@ def build_api(world, exposed, gamedata_dir=None, filedata_missing="empty", lenie
         "InstanceCreate": InstanceCreate, "NpcObjectSpawnNearPlayer": NpcObjectSpawnNearPlayer,
         "CollisionWalkable": CollisionWalkable, "EventAssignFunction": EventAssignFunction,
         "ObjectSetScript": ObjectSetScript, "ObjectGetAllInstances": ObjectGetAllInstances,
-        "ShowMessage": ShowMessage, "FileDataRead": FileDataRead, "FileDataWrite": FileDataWrite,
+        "ShowMessage": ShowMessage,
+        "ShowDebugMessage": lambda msg=UNDEF: world.debug_log.append(to_display(msg)), "FileDataRead": FileDataRead, "FileDataWrite": FileDataWrite,
         "Irandom": Irandom, "String": String, "Round": Round, "Clamp": Clamp,
         "ArrayLength": ArrayLength, "ArrayPush": ArrayPush,
         "RoomGetCurrent": lambda: world.room,

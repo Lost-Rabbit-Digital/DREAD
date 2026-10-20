@@ -35,9 +35,14 @@ DREAD_CONFIG = {
     -- "tourist" | "normal" | "hardcore" | "nightmare"  (see DREAD_PRESETS below)
     difficulty: "normal",
 
-    -- true = popup log messages and the F8 coordinate logger.
-    -- Popups interrupt play; leave this off unless you are mapping spawns.
-    debug_mode: false,
+    -- false = DREAD does nothing (no NPC definitions, no spawns) without
+    -- having to uninstall the mod.
+    enabled: true,
+
+    -- true = a summary popup on load and at raid start, per-spawn details via
+    -- ShowDebugMessage, and the F8 coordinate logger.
+    -- ON for 0.3.x playtesting so the faction mapping is visible; set false for release.
+    debug_mode: true,
 
     -- Fixed spawn points never fire within this many pixels of the player at
     -- raid start, so nobody gets jumped while the screen fades in.
@@ -124,7 +129,8 @@ DREAD = {
     raid_enemies: 0
 };
 
--- Logging. ShowMessage opens a popup, so normal logs only show in debug mode.
+-- Logging. ShowMessage opens a popup, so only summaries use it (debug mode).
+-- Per-spawn detail goes to ShowDebugMessage, which does not interrupt play.
 DREAD_Log = func(message) {
     if (DREAD.debug) {
         ShowMessage("[DREAD] " + String(message));
@@ -133,12 +139,20 @@ DREAD_Log = func(message) {
 
 DREAD_LogDebug = func(category, message) {
     if (DREAD.debug) {
-        ShowMessage("[DREAD:" + category + "] " + String(message));
+        ShowDebugMessage("[DREAD:" + category + "] " + String(message));
     }
 };
 
+-- message -> true once it has been shown, so a repeating problem pops up once.
+DREAD_ERRORS_SHOWN = {};
+
 DREAD_LogError = func(message) {
-    ShowMessage("[DREAD ERROR] " + String(message));
+    let text = "[DREAD ERROR] " + String(message);
+    ShowDebugMessage(text);
+    if (DREAD_ERRORS_SHOWN[text] == undefined) {
+        DREAD_ERRORS_SHOWN[text] = true;
+        ShowMessage(text);
+    }
 };
 
 DREAD_SafeGet = func(obj, key, default_val) {
@@ -172,6 +186,9 @@ DREAD_WeightedRandom = func(weighted_items) {
     while (i < ArrayLength(weighted_items)) {
         total_weight += weighted_items[i].weight;
         i += 1;
+    }
+    if (ArrayLength(weighted_items) == 0) {
+        return undefined;
     }
     if (total_weight <= 0) {
         return weighted_items[0].item;
@@ -219,7 +236,7 @@ DREAD_FindValidSpawnPosition = func(center_x, center_y, radius, max_attempts) {
 -- Returns the player instance or undefined.
 DREAD_GetPlayer = func() {
     let players = ObjectGetAllInstances(obj_player);
-    if (ArrayLength(players) == 0) {
+    if ((players == undefined) or (ArrayLength(players) == 0)) {
         return undefined;
     }
     return players[0];
@@ -336,6 +353,8 @@ DREAD_ARCHETYPES = {
 
 DREAD_FACTION_ORDER = ["bandits", "green_army", "hunters", "watchers", "crimson"];
 
+-- fallback_objects: vanilla preset objects per tier, spawned instead of DREAD's
+-- NPC definitions if the faction could not be set up (see DREAD_SpawnHuman).
 -- preset: npc_preset.json prefix. factions: candidate faction ids, tried in
 -- order with FactionExists (see DREAD_ResolveFactions). The API docs list display
 -- names like "Bandits", but 0.3.0 crashed at load because the game had no faction
@@ -345,6 +364,7 @@ DREAD_FACTION_ORDER = ["bandits", "green_army", "hunters", "watchers", "crimson"
 DREAD_FACTIONS = {
     bandits: {
         preset: "bandit", factions: ["Bandits", "bandits", "bandit", "Bandit"],
+        fallback_objects: [obj_bandit_preset_rookie, obj_bandit_preset_intermediate, obj_bandit_preset_skilled, obj_bandit_preset_expert, obj_bandit_preset_veteran, obj_bandit_preset_master],
         hp: [45, 45, 55, 55, 65, 65],
         recoil_min: [18, 18, 15, 12, 9, 7],
         recoil_max: [28, 28, 25, 22, 19, 16],
@@ -354,6 +374,7 @@ DREAD_FACTIONS = {
     },
     green_army: {
         preset: "green_army", factions: ["Green Army", "green_army", "army", "Army"],
+        fallback_objects: [obj_green_army_preset_rookie, obj_green_army_preset_intermediate, obj_green_army_preset_skilled, obj_green_army_preset_expert, obj_green_army_preset_veteran, obj_green_army_preset_master],
         hp: [55, 55, 65, 65, 75, 100],
         recoil_min: [18, 15, 12, 9, 7, 5],
         recoil_max: [28, 25, 22, 19, 16, 13],
@@ -363,6 +384,7 @@ DREAD_FACTIONS = {
     },
     hunters: {
         preset: "hunter", factions: ["Hunters", "hunters", "hunter", "Hunter"],
+        fallback_objects: [obj_hunter_preset_rookie, obj_hunter_preset_intermediate, obj_hunter_preset_skilled, obj_hunter_preset_expert, obj_hunter_preset_veteran, obj_hunter_preset_master],
         hp: [55, 55, 65, 65, 75, 100],
         recoil_min: [18, 15, 12, 9, 7, 5],
         recoil_max: [28, 25, 22, 19, 16, 13],
@@ -372,6 +394,7 @@ DREAD_FACTIONS = {
     },
     watchers: {
         preset: "watcher", factions: ["Watcher", "Watchers", "watcher", "watchers"],
+        fallback_objects: [obj_watcher_preset_rookie, obj_watcher_preset_intermediate, obj_watcher_preset_skilled, obj_watcher_preset_expert, obj_watcher_preset_veteran, obj_watcher_preset_master],
         hp: [65, 65, 65, 75, 75, 100],
         recoil_min: [15, 12, 9, 7, 5, 5],
         recoil_max: [25, 22, 19, 16, 13, 13],
@@ -381,6 +404,7 @@ DREAD_FACTIONS = {
     },
     crimson: {
         preset: "crimson", factions: ["Crimson Corporation", "crimson", "Crimson", "crimson_corporation"],
+        fallback_objects: [obj_crimson_preset_rookie, obj_crimson_preset_intermediate, obj_crimson_preset_skilled, obj_crimson_preset_expert, obj_crimson_preset_veteran, obj_crimson_preset_master],
         hp: [55, 55, 65, 65, 75, 100],
         recoil_min: [18, 15, 12, 9, 7, 5],
         recoil_max: [28, 25, 22, 19, 16, 13],
@@ -408,30 +432,48 @@ DREAD_FirstExistingFaction = func(candidates) {
 
 -- NpcSetFaction aborts the whole mod load on an unknown faction, so every id is
 -- checked first. If no candidate exists, DREAD creates its own faction that is
--- hostile to the player instead of crashing.
+-- hostile to the player. If even that fails, the faction is left out of
+-- DREAD_FACTION_IDS and its spawns use fallback_objects instead.
+-- Returns a one-line summary for the load popup.
 DREAD_ResolveFactions = func() {
     let player_faction = DREAD_FirstExistingFaction(DREAD_PLAYER_FACTIONS);
+    let summary = "";
     let f = 0;
     while (f < ArrayLength(DREAD_FACTION_ORDER)) {
         let key = DREAD_FACTION_ORDER[f];
         let faction_id = DREAD_FirstExistingFaction(DREAD_FACTIONS[key].factions);
+        let note = "";
         if (faction_id == undefined) {
             faction_id = "dread_" + key;
             if (FactionExists(faction_id) == false) {
                 FactionCreate(faction_id);
             }
-            if (player_faction != undefined) {
-                FactionSetRelationship(faction_id, player_faction, FACTION_REP_enemy);
+            if (FactionExists(faction_id) == false) {
+                DREAD_LogError("Could not create faction " + faction_id + "; using vanilla " + key);
+                faction_id = undefined;
+                note = "vanilla objects";
             } else {
-                DREAD_LogError("No player faction found; " + faction_id + " may not be hostile");
+                note = "created " + faction_id;
+                if (player_faction != undefined) {
+                    FactionSetRelationship(faction_id, player_faction, FACTION_REP_enemy);
+                } else {
+                    DREAD_LogError("No player faction found; " + faction_id + " may not be hostile");
+                }
             }
-            DREAD_LogDebug("Faction", key + " -> created " + faction_id);
         } else {
-            DREAD_LogDebug("Faction", key + " -> " + faction_id);
+            note = faction_id;
         }
-        DREAD_FACTION_IDS[key] = faction_id;
+        if (faction_id != undefined) {
+            DREAD_FACTION_IDS[key] = faction_id;
+        }
+        DREAD_LogDebug("Faction", key + " -> " + note);
+        if (summary != "") {
+            summary += ", ";
+        }
+        summary += key + "=" + note;
         f += 1;
     }
+    return summary;
 };
 
 DREAD_GetArchetype = func(archetype_name) {
@@ -498,17 +540,19 @@ DREAD_DefineNpc = func(faction, tier, archetype_name) {
 };
 
 DREAD_DefineAllNpcs = func() {
-    DREAD_ResolveFactions();
     let f = 0;
     while (f < ArrayLength(DREAD_FACTION_ORDER)) {
-        let tier = 0;
-        while (tier < 6) {
-            let a = 0;
-            while (a < ArrayLength(DREAD_ARCHETYPE_ORDER)) {
-                DREAD_DefineNpc(DREAD_FACTION_ORDER[f], tier, DREAD_ARCHETYPE_ORDER[a]);
-                a += 1;
+        -- No usable faction: never define these NPCs (that would abort the load).
+        if (DREAD_FACTION_IDS[DREAD_FACTION_ORDER[f]] != undefined) {
+            let tier = 0;
+            while (tier < 6) {
+                let a = 0;
+                while (a < ArrayLength(DREAD_ARCHETYPE_ORDER)) {
+                    DREAD_DefineNpc(DREAD_FACTION_ORDER[f], tier, DREAD_ARCHETYPE_ORDER[a]);
+                    a += 1;
+                }
+                tier += 1;
             }
-            tier += 1;
         }
         f += 1;
     }
@@ -586,8 +630,22 @@ DREAD_SpawnHuman = func(faction, x, y, archetype_name, zone_name) {
     if (archetype == undefined) {
         archetype = DREAD_SelectArchetype();
     }
+    if (DREAD_ARCHETYPES[archetype] == undefined) {
+        archetype = "normal";
+    }
     let tier = DREAD_GetTier(archetype, zone_name);
-    NpcSpawn(DREAD_NpcId(faction, tier, archetype), pos.x, pos.y);
+    if (DREAD_FACTION_IDS[faction] == undefined) {
+        -- The faction could not be set up at load, so no DREAD NPCs exist for
+        -- it: spawn the vanilla preset object of the same tier instead.
+        let obj = DREAD_FACTIONS[faction].fallback_objects[tier];
+        if (obj == undefined) {
+            DREAD_LogError("No fallback object for " + faction + " tier " + String(tier));
+            return 0;
+        }
+        InstanceCreate(pos.x, pos.y, obj);
+    } else {
+        NpcSpawn(DREAD_NpcId(faction, tier, archetype), pos.x, pos.y);
+    }
 
     DREAD.raid_enemies += 1;
     DREAD_SpawnStats.humans_spawned += 1;
@@ -597,6 +655,10 @@ DREAD_SpawnHuman = func(faction, x, y, archetype_name, zone_name) {
 };
 
 DREAD_SpawnObjectAt = func(obj, x, y, radius) {
+    -- An object missing from this game version reads as undefined.
+    if (obj == undefined) {
+        return 0;
+    }
     if (!DREAD_CanSpawnMore(1)) {
         DREAD_SpawnStats.skipped_cap += 1;
         return 0;
@@ -663,16 +725,20 @@ DREAD_SpawnSquad = func(faction, center_x, center_y, size, zone_name) {
 -- spawn_point: { name, x, y, type, faction|mutant_type|fauna_type, min, max, chance }
 -- density scales the chance without mutating the shared table.
 DREAD_ProcessSpawnPoint = func(spawn_point, zone_name, density, player) {
+    if ((spawn_point == undefined) or (spawn_point.x == undefined) or (spawn_point.y == undefined)) {
+        DREAD_LogError("Spawn point without x/y in " + String(zone_name) + "; skipped");
+        return 0;
+    }
     let chance = DREAD_SafeGet(spawn_point, "chance", 1.0) * density;
     if (DREAD_RandomFloat() >= chance) {
         return 0;
     }
 
-    if (player != undefined) {
+    if ((player != undefined) and (player.x != undefined)) {
         let safe_radius = DREAD_SafeGet(DREAD_CONFIG, "safe_start_radius", 400);
         if (PointDistance(player.x, player.y, spawn_point.x, spawn_point.y) < safe_radius) {
             DREAD_SpawnStats.skipped_safe_start += 1;
-            DREAD_LogDebug("Spawn", "Skipped " + spawn_point.name + " (too close to player)");
+            DREAD_LogDebug("Spawn", "Skipped " + String(spawn_point.name) + " (too close to player)");
             return 0;
         }
     }
@@ -728,7 +794,7 @@ DREAD_ExecuteSpawnPoints = func(zone_name, spawn_points) {
         spawned += DREAD_ProcessSpawnPoint(spawn_points[i], zone_name, density, player);
         i += 1;
     }
-    DREAD_Log(zone_name + " spawning complete. Total: " + String(spawned));
+    DREAD_LogDebug("Zone", zone_name + " spawning complete. Total: " + String(spawned));
     return spawned;
 };
 
@@ -829,7 +895,7 @@ DREAD_SpawnWave = func(zone) {
 
     DREAD_Invasion.enemies_this_raid += spawned;
     DREAD_Invasion.wave_count += 1;
-    DREAD_Log("Invasion wave " + String(DREAD_Invasion.wave_count) + ": " + String(spawned) + " enemies");
+    DREAD_LogDebug("Invasion", "Wave " + String(DREAD_Invasion.wave_count) + ": " + String(spawned) + " enemies");
     return spawned;
 };
 
@@ -857,7 +923,7 @@ DREAD_InitInvasion = func() {
     }
     let first_delay = DREAD_SafeGet(inv_cfg, "first_wave_delay_seconds", 300);
     DREAD_Invasion.next_wave_time = first_delay * 60;
-    DREAD_Log("Invasions armed. First wave in " + String(first_delay) + " seconds");
+    DREAD_LogDebug("Invasion", "Armed. First wave in " + String(first_delay) + " seconds");
 };
 
 DREAD_UpdateInvasion = func(zone) {
@@ -867,7 +933,7 @@ DREAD_UpdateInvasion = func(zone) {
     let inv_cfg = DREAD_GetInvasionConfig();
     if (DREAD_Invasion.wave_count >= DREAD_SafeGet(inv_cfg, "max_waves", 0)) {
         DREAD_Invasion.active = false;
-        DREAD_Log("Invasions complete: " + String(DREAD_Invasion.enemies_this_raid) + " enemies over " + String(DREAD_Invasion.wave_count) + " waves");
+        DREAD_LogDebug("Invasion", "Complete: " + String(DREAD_Invasion.enemies_this_raid) + " enemies over " + String(DREAD_Invasion.wave_count) + " waves");
         return;
     }
 
@@ -1061,7 +1127,7 @@ DREAD_ExecuteForestBossSpawns = func() {
         let boss_point = FOREST_BOSS_SPAWNS[i];
         if (DREAD_RandomFloat() < chance) {
             if (DREAD_SpawnObjectAt(DREAD_BOSS_OBJECTS[boss_point.boss], boss_point.x, boss_point.y, 30) > 0) {
-                DREAD_Log("BOSS SPAWN: " + boss_point.name);
+                DREAD_LogDebug("Boss", "Spawned " + boss_point.name);
                 let g = 0;
                 while (g < boss_point.guards) {
                     DREAD_SpawnObjectAt(DREAD_BOSS_OBJECTS.lazar_guard,
@@ -1080,9 +1146,14 @@ DREAD_ExecuteForestBossSpawns = func() {
 
 DREAD_Initialize = func() {
     DREAD_LoadConfig();
+    if (DREAD_SafeGet(DREAD_CONFIG, "enabled", true) == false) {
+        DREAD_Log("DREAD v" + DREAD.version + " is disabled in DREAD_CONFIG");
+        return;
+    }
+    let factions = DREAD_ResolveFactions();
     DREAD_DefineAllNpcs();
     DREAD.initialized = true;
-    DREAD_Log("DREAD v" + DREAD.version + " loaded (" + DREAD.preset_name + ")");
+    DREAD_Log("DREAD v" + DREAD.version + " loaded (" + DREAD.preset_name + ")\nFactions: " + factions);
 };
 
 DREAD_ExecuteZoneSpawns = func(zone) {
@@ -1148,7 +1219,7 @@ DREAD_OnStep = func(player) {
     DREAD_UpdateInvasion(zone);
 
     -- Spawn-mapping helper: F8 shows the room and player position.
-    if (DREAD.debug and KeyboardCheckPressed(vk_f8)) {
+    if (DREAD.debug and (player != undefined) and KeyboardCheckPressed(vk_f8)) {
         ShowMessage("[DREAD] room=" + String(RoomGetCurrent()) + " x=" + String(Round(player.x)) + " y=" + String(Round(player.y)));
     }
 };

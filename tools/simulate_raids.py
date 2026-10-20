@@ -85,8 +85,17 @@ def legacy_scope_fix(src):
     return "\n".join(out)
 
 
-def new_session(seed, script=SCRIPT, **kw):
-    return ModSession(script, EXPOSED, GAMEDATA, seed=seed, map_w=MAP, map_h=MAP, **kw)
+def set_debug(on):
+    return lambda src: re.sub(r"debug_mode: (true|false),", f"debug_mode: {'true' if on else 'false'},", src, count=1)
+
+
+def new_session(seed, script=SCRIPT, debug=False, src_transform=None, **kw):
+    # Scenarios run with debug_mode off (the release setting) unless asked, so
+    # "no popups" means "no errors and no interruptions for players".
+    dbg = set_debug(debug)
+    transform = (lambda src: src_transform(dbg(src))) if src_transform else dbg
+    return ModSession(script, EXPOSED, GAMEDATA, seed=seed, map_w=MAP, map_h=MAP,
+                      src_transform=transform, **kw)
 
 
 def threat_of(spawn):
@@ -275,6 +284,48 @@ def scenario_faction_ids_documented(seed):
     assert used == expected, f"factions: {sorted(used)}"
 
 
+def scenario_debug_mode_popups(seed):
+    # Debug mode (the playtest default) shows one summary popup on load and one
+    # per raid start; per-spawn detail must go to ShowDebugMessage, not popups.
+    s = new_session(seed, debug=True)
+    s.load()
+    assert len(s.world.popups) == 1 and "Factions:" in s.world.popups[0], f"load popups: {s.world.popups}"
+    assert any("[DREAD:Faction]" in m for m in s.world.debug_log), "no faction debug log"
+    raid(s)
+    raid_popups = s.world.popups[1:]
+    assert len(raid_popups) == 1 and raid_popups[0].startswith("[DREAD] Raid start"), f"raid popups: {raid_popups[:3]}"
+
+
+def scenario_faction_create_fails(seed):
+    # Worst case: no usable faction ids and FactionCreate does nothing. DREAD
+    # must still load and fall back to vanilla preset objects.
+    s = new_session(seed, factions=set(), faction_create_works=False)
+    s.load()
+    assert not [n for n in s.world.npc_defs if n.startswith("dread_")], "defined NPCs without a faction"
+    errors = [m for m in s.world.popups if "ERROR" in m]
+    assert len(errors) == len(set(errors)), f"repeated error popups: {errors}"
+    raid(s, frames=60)
+    humans = [sp for sp in s.world.spawns if "_preset_" in sp.get("obj", "")]
+    assert humans, "no vanilla fallback humans spawned"
+
+
+def scenario_missing_objects(seed):
+    # Objects missing from this game version read as undefined; spawns using
+    # them are skipped instead of crashing.
+    strip = lambda src: re.sub(r"\bobj_enemy_ghoul\b(?!_)", "obj_does_not_exist", src)
+    s = new_session(seed, src_transform=strip)
+    s.load()
+    raid(s, frames=60)
+
+
+def scenario_disabled(seed):
+    s = new_session(seed, src_transform=lambda src: src.replace("enabled: true,\n\n    -- true = a summary", "enabled: false,\n\n    -- true = a summary", 1))
+    s.load()
+    assert not s.world.npc_defs and not s.rt.globals["DREAD"]["initialized"]
+    raid(s, frames=60)
+    assert not s.world.spawns
+
+
 def stability(seeds=range(5)):
     print("\nSTABILITY MATRIX (strict: any runtime error = crash in game)")
     seeds = list(seeds)
@@ -292,6 +343,10 @@ def stability(seeds=range(5)):
         run_scenario("mod reloaded twice from the mod menu", scenario_reload_mods_twice, seeds[:2]),
         run_scenario("game has none of the documented faction ids", scenario_faction_ids_unknown, seeds[:2]),
         run_scenario("documented faction ids use vanilla factions", scenario_faction_ids_documented, seeds[:2]),
+        run_scenario("no factions and FactionCreate fails", scenario_faction_create_fails, seeds[:2]),
+        run_scenario("enemy object missing from the game", scenario_missing_objects, seeds[:2]),
+        run_scenario("DREAD disabled in config", scenario_disabled, seeds[:2]),
+        run_scenario("debug mode: summary popups only", scenario_debug_mode_popups, seeds[:2]),
     ]
     ok = all(results)
     print(f"\n  {'ALL PASS' if ok else 'FAILURES PRESENT'}: {sum(results)}/{len(results)} scenarios")
