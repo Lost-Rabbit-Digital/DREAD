@@ -185,8 +185,15 @@ python -I tools/simulate_raids.py all
   NPCs; enemy objects missing from the game, empty spawn tables, spawn points without coordinates and a
   missing player instance are skipped instead of crashing; repeated errors pop up only once
 - `enabled` kill switch in `DREAD_CONFIG`
-- `debug_mode` is ON for playtesting: one popup on load (with the faction mapping) and one per raid
-  start; per-spawn detail goes to `ShowDebugMessage` instead of popups. Turn it off for release
+- Fixed "Katspeak: process exceeded allowed time of 1000 ms" on load: a popup blocks while Katspeak's
+  wall-clock budget runs, so popups are now queued and shown on the next player step, never mid-script
+- NPC definitions are created on first spawn instead of all 150 at load, keeping `init.script` far
+  inside Katspeak's 1000 ms budget (a first Forest raid defines about 0-7)
+- Vanilla factions (even "Player") don't exist yet while `init.script` runs, so DREAD's own factions
+  are made hostile to the player at raid start instead of at load
+- `debug_mode` is ON for playtesting: one popup once you're in game with the load summary, the faction
+  mapping and which faction ids exist at raid start, plus one per raid start; per-spawn detail goes
+  to `ShowDebugMessage`. Turn it off for release
 - Harness models the game's faction table (`FactionExists`/`FactionCreate`/`FactionSetRelationship`)
   instead of trusting the documented names
 

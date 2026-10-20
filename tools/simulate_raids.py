@@ -260,6 +260,21 @@ def scenario_reload_mods_twice(seed):
     raid(s, frames=60)
 
 
+def scenario_factions_load_late(seed):
+    # What 0.3.1 hit in game: no faction (not even "Player") exists while
+    # init.script runs. DREAD creates its own factions at load and makes them
+    # hostile once the player faction exists at raid start, with no popup
+    # during load (a blocking popup trips Katspeak's 1000 ms limit).
+    s = new_session(seed, debug=True, factions=set())
+    s.load()
+    assert not s.world.popups, f"popup during load: {s.world.popups}"
+    s.world.factions |= {"Player", "Loners"}
+    raid(s, frames=60)
+    hostile = {a for (a, b), v in s.world.faction_relations.items() if b == "Player" and v == 250}
+    assert hostile == {"dread_" + k for k in ("bandits", "green_army", "hunters", "watchers", "crimson")}, hostile
+    assert not any("ERROR" in m for m in s.world.popups), s.world.popups
+
+
 def scenario_faction_ids_unknown(seed):
     # 0.3.0 crashed at load: the game had no faction "Bandits". Model a faction
     # table with none of the documented names; DREAD must fall back to its own
@@ -267,11 +282,11 @@ def scenario_faction_ids_unknown(seed):
     s = new_session(seed, factions=FACTIONS_UNKNOWN_IDS)
     s.load()
     assert not s.world.popups, f"popups on load: {s.world.popups[:2]}"
+    raid(s, frames=60)
     dread = {d["faction"] for n, d in s.world.npc_defs.items() if n.startswith("dread_")}
     assert dread and all(f.startswith("dread_") for f in dread), f"factions: {sorted(dread)}"
     hostile = {a for (a, b), v in s.world.faction_relations.items() if b == "player" and v == 250}
     assert dread <= hostile, f"not hostile to player: {sorted(dread - hostile)}"
-    raid(s, frames=60)
 
 
 def scenario_faction_ids_documented(seed):
@@ -279,21 +294,48 @@ def scenario_faction_ids_documented(seed):
     # (hunters have no documented faction, so they get their own).
     s = new_session(seed)
     s.load()
+    ids = dict(s.rt.globals["DREAD_FACTION_IDS"])
+    expected = {"bandits": "Bandits", "green_army": "Green Army", "hunters": "dread_hunters",
+                "watchers": "Watcher", "crimson": "Crimson Corporation"}
+    assert ids == expected, f"faction ids: {ids}"
+    raid(s)
     used = {d["faction"] for n, d in s.world.npc_defs.items() if n.startswith("dread_")}
-    expected = {"Bandits", "Green Army", "Watcher", "Crimson Corporation", "dread_hunters"}
-    assert used == expected, f"factions: {sorted(used)}"
+    assert used and used <= set(expected.values()), f"factions: {sorted(used)}"
+
+
+def scenario_lazy_npc_definitions(seed):
+    # NPC definitions are made on first spawn, not at load (defining all 150 at
+    # load risked Katspeak's 1000 ms limit), and each one only once.
+    s = new_session(seed)
+    s.load()
+    assert not s.world.npc_defs, f"{len(s.world.npc_defs)} NPCs defined at load"
+    for _ in range(3):
+        raid(s)
+    spawned = {sp["id"] for sp in s.world.spawns if sp["kind"] == "npc"}
+    assert spawned, "no DREAD NPCs spawned"
+    assert spawned <= set(s.world.npc_defs), f"spawned undefined NPCs: {sorted(spawned - set(s.world.npc_defs))[:3]}"
+    assert s.world.npc_create_calls == len(s.world.npc_defs), \
+        f"{s.world.npc_create_calls} NpcCreate calls for {len(s.world.npc_defs)} NPCs"
 
 
 def scenario_debug_mode_popups(seed):
-    # Debug mode (the playtest default) shows one summary popup on load and one
-    # per raid start; per-spawn detail must go to ShowDebugMessage, not popups.
+    # Debug mode (the playtest default). A popup blocks while Katspeak's 1000 ms
+    # budget keeps counting, so none may open during load or a spawn loop: they
+    # are queued and shown together on the next player step. Per-spawn detail
+    # goes to ShowDebugMessage.
     s = new_session(seed, debug=True)
     s.load()
-    assert len(s.world.popups) == 1 and "Factions:" in s.world.popups[0], f"load popups: {s.world.popups}"
+    assert not s.world.popups, f"popup during load: {s.world.popups}"
     assert any("[DREAD:Faction]" in m for m in s.world.debug_log), "no faction debug log"
-    raid(s)
-    raid_popups = s.world.popups[1:]
-    assert len(raid_popups) == 1 and raid_popups[0].startswith("[DREAD] Raid start"), f"raid popups: {raid_popups[:3]}"
+    s.enter_room("r_forest", (1500, 1500))
+    s.fire("enter_raid")
+    assert not s.world.popups, f"popup during enter_raid: {s.world.popups}"
+    s.step(1)
+    assert len(s.world.popups) == 1, f"popups: {s.world.popups}"
+    text = s.world.popups[0]
+    assert "Factions:" in text and "Raid start" in text and "exist at raid start" in text, text
+    s.step(600)
+    assert len(s.world.popups) == 1, f"extra popups: {s.world.popups[1:3]}"
 
 
 def scenario_faction_create_fails(seed):
@@ -343,6 +385,8 @@ def stability(seeds=range(5)):
         run_scenario("mod reloaded twice from the mod menu", scenario_reload_mods_twice, seeds[:2]),
         run_scenario("game has none of the documented faction ids", scenario_faction_ids_unknown, seeds[:2]),
         run_scenario("documented faction ids use vanilla factions", scenario_faction_ids_documented, seeds[:2]),
+        run_scenario("NPCs defined lazily, once each", scenario_lazy_npc_definitions, seeds[:2]),
+        run_scenario("no factions exist until after load (0.3.1 in game)", scenario_factions_load_late, seeds[:2]),
         run_scenario("no factions and FactionCreate fails", scenario_faction_create_fails, seeds[:2]),
         run_scenario("enemy object missing from the game", scenario_missing_objects, seeds[:2]),
         run_scenario("DREAD disabled in config", scenario_disabled, seeds[:2]),
