@@ -126,14 +126,39 @@ DREAD = {
     preset: undefined,
     preset_name: "normal",
     raid_active: false,
-    raid_enemies: 0
+    raid_enemies: 0,
+    faction_probe_done: false
 };
 
--- Logging. ShowMessage opens a popup, so only summaries use it (debug mode).
--- Per-spawn detail goes to ShowDebugMessage, which does not interrupt play.
+-- Logging. Katspeak aborts any script run that takes over 1000 ms of wall
+-- time, and a ShowMessage popup blocks until the player clicks OK, so popups
+-- are NEVER shown directly: they are queued and DREAD_FlushPopups shows them
+-- as the very last thing a player step does. Per-spawn detail goes to
+-- ShowDebugMessage, which does not block.
+DREAD_UI = { popups: [] };
+
+DREAD_QueuePopup = func(text) {
+    ArrayPush(DREAD_UI.popups, text);
+};
+
+-- Must be the last call of a script run (nothing may execute after the popup).
+DREAD_FlushPopups = func() {
+    let text = "";
+    let i = 0;
+    while (i < ArrayLength(DREAD_UI.popups)) {
+        if (i > 0) {
+            text += "\n\n";
+        }
+        text += DREAD_UI.popups[i];
+        i += 1;
+    }
+    DREAD_UI.popups = [];
+    ShowMessage(text);
+};
+
 DREAD_Log = func(message) {
     if (DREAD.debug) {
-        ShowMessage("[DREAD] " + String(message));
+        DREAD_QueuePopup("[DREAD] " + String(message));
     }
 };
 
@@ -151,7 +176,7 @@ DREAD_LogError = func(message) {
     ShowDebugMessage(text);
     if (DREAD_ERRORS_SHOWN[text] == undefined) {
         DREAD_ERRORS_SHOWN[text] = true;
-        ShowMessage(text);
+        DREAD_QueuePopup(text);
     }
 };
 
@@ -419,6 +444,9 @@ DREAD_PLAYER_FACTIONS = ["Player", "player"];
 -- DREAD faction key -> faction id the game accepts. Filled by DREAD_ResolveFactions.
 DREAD_FACTION_IDS = {};
 
+-- Factions DREAD created itself; DREAD_ApplyFactionRelations makes them hostile.
+DREAD_CREATED_FACTIONS = [];
+
 DREAD_FirstExistingFaction = func(candidates) {
     let i = 0;
     while (i < ArrayLength(candidates)) {
@@ -431,12 +459,14 @@ DREAD_FirstExistingFaction = func(candidates) {
 };
 
 -- NpcSetFaction aborts the whole mod load on an unknown faction, so every id is
--- checked first. If no candidate exists, DREAD creates its own faction that is
--- hostile to the player. If even that fails, the faction is left out of
--- DREAD_FACTION_IDS and its spawns use fallback_objects instead.
+-- checked first. If no candidate exists, DREAD creates its own faction (made
+-- hostile to the player by DREAD_ApplyFactionRelations at raid start). If even
+-- that fails, the faction is left out of DREAD_FACTION_IDS and its spawns use
+-- fallback_objects instead.
+-- In 0.3.1 testing, FactionExists was false at load for "Player", "Bandits"
+-- and every other candidate, so vanilla factions may only exist later.
 -- Returns a one-line summary for the load popup.
 DREAD_ResolveFactions = func() {
-    let player_faction = DREAD_FirstExistingFaction(DREAD_PLAYER_FACTIONS);
     let summary = "";
     let f = 0;
     while (f < ArrayLength(DREAD_FACTION_ORDER)) {
@@ -454,11 +484,7 @@ DREAD_ResolveFactions = func() {
                 note = "vanilla objects";
             } else {
                 note = "created " + faction_id;
-                if (player_faction != undefined) {
-                    FactionSetRelationship(faction_id, player_faction, FACTION_REP_enemy);
-                } else {
-                    DREAD_LogError("No player faction found; " + faction_id + " may not be hostile");
-                }
+                ArrayPush(DREAD_CREATED_FACTIONS, faction_id);
             }
         } else {
             note = faction_id;
@@ -474,6 +500,58 @@ DREAD_ResolveFactions = func() {
         f += 1;
     }
     return summary;
+};
+
+-- Runs at every raid start (vanilla faction data should be loaded by then).
+-- Relationships are set each raid in case loading a save resets them.
+DREAD_ApplyFactionRelations = func() {
+    if (ArrayLength(DREAD_CREATED_FACTIONS) == 0) {
+        return;
+    }
+    let player_faction = DREAD_FirstExistingFaction(DREAD_PLAYER_FACTIONS);
+    if (player_faction == undefined) {
+        DREAD_LogError("No player faction found at raid start; DREAD factions keep the game's default relationship");
+        return;
+    }
+    let i = 0;
+    while (i < ArrayLength(DREAD_CREATED_FACTIONS)) {
+        FactionSetRelationship(DREAD_CREATED_FACTIONS[i], player_faction, FACTION_REP_enemy);
+        i += 1;
+    }
+};
+
+-- Debug: reports once which candidate faction ids exist after load, so the
+-- real vanilla ids can be filled in.
+DREAD_ProbeFactions = func() {
+    if (DREAD.faction_probe_done) {
+        return;
+    }
+    DREAD.faction_probe_done = true;
+    let found = "";
+    let lists = [DREAD_PLAYER_FACTIONS];
+    let f = 0;
+    while (f < ArrayLength(DREAD_FACTION_ORDER)) {
+        ArrayPush(lists, DREAD_FACTIONS[DREAD_FACTION_ORDER[f]].factions);
+        f += 1;
+    }
+    let l = 0;
+    while (l < ArrayLength(lists)) {
+        let c = 0;
+        while (c < ArrayLength(lists[l])) {
+            if (FactionExists(lists[l][c])) {
+                if (found != "") {
+                    found += ", ";
+                }
+                found += lists[l][c];
+            }
+            c += 1;
+        }
+        l += 1;
+    }
+    if (found == "") {
+        found = "none";
+    }
+    DREAD_Log("Faction ids that exist at raid start: " + found);
 };
 
 DREAD_GetArchetype = func(archetype_name) {
@@ -1197,6 +1275,8 @@ DREAD_OnRaidStart = func() {
     }
     DREAD.raid_active = true;
 
+    DREAD_ApplyFactionRelations();
+    DREAD_ProbeFactions();
     DREAD_ExecuteZoneSpawns(zone);
     if (DREAD_IsZoneEnabled(zone)) {
         DREAD_InitInvasion();
@@ -1208,6 +1288,11 @@ DREAD_OnRaidStart = func() {
 };
 
 DREAD_OnStep = func(player) {
+    -- Popups go out on their own step, with nothing running after them.
+    if (ArrayLength(DREAD_UI.popups) > 0) {
+        DREAD_FlushPopups();
+        return;
+    }
     if (!DREAD.raid_active) {
         return;
     }
@@ -1220,7 +1305,7 @@ DREAD_OnStep = func(player) {
 
     -- Spawn-mapping helper: F8 shows the room and player position.
     if (DREAD.debug and (player != undefined) and KeyboardCheckPressed(vk_f8)) {
-        ShowMessage("[DREAD] room=" + String(RoomGetCurrent()) + " x=" + String(Round(player.x)) + " y=" + String(Round(player.y)));
+        DREAD_QueuePopup("[DREAD] room=" + String(RoomGetCurrent()) + " x=" + String(Round(player.x)) + " y=" + String(Round(player.y)));
     }
 };
 
