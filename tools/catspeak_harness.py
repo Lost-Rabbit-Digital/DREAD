@@ -792,8 +792,12 @@ class Runtime:
 GAME_EVENTS = {"enter_hub", "enter_raid", "exit_train", "player_spawn", "player_death", "trade_completed"}
 OBJECT_EVENTS = {"create_event", "step_begin_event", "step_normal_event", "step_end_event",
                  "draw_normal_event", "draw_end_event", "destroy_event", "cleanup_event"}
+# Faction names from the API docs. The real game rejected "Bandits" at load in
+# 0.3.0, so this is NOT the game's faction table; World(factions=...) lets
+# scenarios model other tables (e.g. FACTIONS_UNKNOWN_IDS).
 FACTIONS = {"Player", "Loners", "Green Army", "Crimson Corporation", "Scientists", "Bandits",
             "Mutants", "Watcher", "All Enemy", "All Friend", "Horizon"}
+FACTIONS_UNKNOWN_IDS = {"player"}
 
 
 def _load_lenient_json(path):
@@ -805,7 +809,8 @@ def _load_lenient_json(path):
 class World:
     """Mutable game state the mocks read and write."""
 
-    def __init__(self, seed=0, map_w=3000, map_h=3000, walkable_ratio=0.85):
+    def __init__(self, seed=0, map_w=3000, map_h=3000, walkable_ratio=0.85, factions=FACTIONS,
+                 faction_create_works=True):
         self.rng = random.Random(seed)
         self.room = "r_menu"
         self.map_w, self.map_h = map_w, map_h
@@ -820,6 +825,10 @@ class World:
         self.filedata = {}
         self.frame = 0
         self.warnings = []
+        self.factions = set(factions)
+        self.faction_relations = {}
+        self.faction_create_works = faction_create_works
+        self.debug_log = []
 
 
 def build_api(world, exposed, gamedata_dir=None, filedata_missing="empty", lenient=False):
@@ -855,8 +864,22 @@ def build_api(world, exposed, gamedata_dir=None, filedata_missing="empty", lenie
         npc_def(npc_id)["preset"] = preset
 
     def NpcSetFaction(npc_id, faction):
-        need(faction in FACTIONS, f"NpcSetFaction: unknown faction '{to_display(faction)}'")
+        need(faction in world.factions, f"NpcSetFaction: unknown faction '{to_display(faction)}'")
         npc_def(npc_id)["faction"] = faction
+
+    def FactionExists(faction):
+        return faction in world.factions
+
+    def FactionCreate(faction):
+        need(isinstance(faction, str), "FactionCreate: id must be a string")
+        if world.faction_create_works:
+            world.factions.add(faction)
+
+    def FactionSetRelationship(a, b, value):
+        need(a in world.factions and b in world.factions,
+             f"FactionSetRelationship: unknown faction '{to_display(a)}' or '{to_display(b)}'")
+        need(is_num(value), "FactionSetRelationship: value must be a number")
+        world.faction_relations[(a, b)] = float(value)
 
     def NpcSetHp(npc_id, hp):
         need(is_num(hp) and hp > 0, f"NpcSetHp: bad hp {to_display(hp)}")
@@ -968,13 +991,16 @@ def build_api(world, exposed, gamedata_dir=None, filedata_missing="empty", lenie
     num = lambda name, f: Native(name, lambda *a: (need(all(is_num(x) for x in a), f"{name}: needs numbers") or f(*a)))
     natives = {
         "NpcCreate": NpcCreate, "NpcSetPreset": NpcSetPreset, "NpcSetFaction": NpcSetFaction,
+        "FactionExists": FactionExists, "FactionCreate": FactionCreate,
+        "FactionSetRelationship": FactionSetRelationship,
         "NpcSetHp": NpcSetHp, "NpcSetRecoilAimRadius": NpcSetRecoilAimRadius,
         "NpcSetArmor": NpcSetArmor, "NpcSetChestDropped": NpcSetChestDropped,
         "NpcSetExperience": NpcSetExperience, "NpcSpawn": NpcSpawn,
         "InstanceCreate": InstanceCreate, "NpcObjectSpawnNearPlayer": NpcObjectSpawnNearPlayer,
         "CollisionWalkable": CollisionWalkable, "EventAssignFunction": EventAssignFunction,
         "ObjectSetScript": ObjectSetScript, "ObjectGetAllInstances": ObjectGetAllInstances,
-        "ShowMessage": ShowMessage, "FileDataRead": FileDataRead, "FileDataWrite": FileDataWrite,
+        "ShowMessage": ShowMessage,
+        "ShowDebugMessage": lambda msg=UNDEF: world.debug_log.append(to_display(msg)), "FileDataRead": FileDataRead, "FileDataWrite": FileDataWrite,
         "Irandom": Irandom, "String": String, "Round": Round, "Clamp": Clamp,
         "ArrayLength": ArrayLength, "ArrayPush": ArrayPush,
         "RoomGetCurrent": lambda: world.room,
@@ -994,6 +1020,9 @@ def build_api(world, exposed, gamedata_dir=None, filedata_missing="empty", lenie
             def unmocked(*a, _n=name):
                 raise CatError(f"harness: API function '{_n}' is not mocked")
             api[name] = Native(name, unmocked)
+    for name, value in (("FACTION_REP_min", 0.0), ("FACTION_REP_enemy", 250.0), ("FACTION_REP_ally", 450.0),
+                        ("FACTION_REP_join", 600.0), ("FACTION_REP_max", 1000.0)):
+        api[name] = value
     api["Sqrt"] = num("Sqrt", lambda v: math.sqrt(v))
     api["Min"] = num("Min", lambda *v: float(min(v)))
     api["Max"] = num("Max", lambda *v: float(max(v)))
