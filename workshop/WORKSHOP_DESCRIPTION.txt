@@ -49,7 +49,7 @@ Cross-zone enemy variety with weighted rarity:
 
 [h2]Configuration[/h2]
 
-DREAD is fully configurable via [b]dread_config.json[/b]. Customize:
+DREAD is configured in the [b]DREAD_CONFIG[/b] block at the top of init.script. Pick a difficulty preset (Tourist, Normal, Hardcore, Nightmare) or customize:
 [list]
 [*] Enable/disable individual features
 [*] Spawn density per zone (sparse/normal/dense/extreme)
@@ -99,5 +99,5 @@ Subscribe to install automatically. The mod activates on raid start.
 [h2]Feedback & Bug Reports[/h2]
 Please leave comments with any issues, suggestions, or zone coordinate contributions!
 
-[b]Version:[/b] 0.2.1
+[b]Version:[/b] 0.3.0
 [b]License:[/b] MIT

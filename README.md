@@ -10,7 +10,7 @@
 
 DREAD is a comprehensive spawn overhaul mod for Zero Sievert that enhances the game's enemy spawning with new spawn points, SAIN-inspired enemy archetypes, squad mechanics, and invasion waves.
 
-**Version:** 0.2.0
+**Version:** 0.3.0
 **Author:** Lost Rabbit Digital
 **License:** MIT
 
@@ -27,25 +27,26 @@ DREAD is a comprehensive spawn overhaul mod for Zero Sievert that enhances the g
 ### 2. SAIN-Inspired Enemy Archetypes
 Enemies spawn with varied equipment and stats based on archetype:
 
-| Archetype | Spawn Weight | HP | Accuracy | Gear Tier |
-|-----------|--------------|-----|----------|-----------|
-| GigaChad | 5% | 150% | +30% | Master |
-| Chad | 15% | 120% | +15% | Expert |
-| Normal | 40% | 100% | Base | Intermediate |
-| Rat | 25% | 80% | -10% | Skilled |
-| Timmy | 15% | 60% | -20% | Rookie |
+Each archetype picks a rung on the vanilla preset ladder (rookie > intermediate > skilled > expert > veteran > master) relative to the zone, then scales that preset's own HP and aim. In the Forest a GigaChad is an expert-tier bandit. Loot chest, armor, XP and faction come from the matching vanilla preset.
+
+| Archetype | Weight (Normal) | Tier in Forest | HP vs preset | Aim radius vs preset |
+|-----------|-----------------|----------------|--------------|----------------------|
+| GigaChad | 4% | Expert | 130% | 85% |
+| Chad | 14% | Skilled | 115% | 92% |
+| Normal | 42% | Intermediate | 100% | 100% |
+| Rat | 22% | Rookie | 90% | 110% |
+| Timmy | 18% | Rookie | 80% | 120% |
 
 ### 3. Squad Spawning
-- Groups of 2-5 enemies spawn together as cohesive squads
+- Groups of 2-4 enemies spawn together as cohesive squads
 - 30% chance for squad to have a Chad/GigaChad leader
 - Configurable squad size and leader probability
 
 ### 4. Invasion Waves
-Timed enemy waves spawn near the player during raids:
-- First wave: 2 minutes after raid start
-- Subsequent waves: Every 3 minutes
-- Maximum 3 waves per raid
-- Zone-appropriate enemy selection
+Timed enemy waves spawn at the edge of the player's view and move toward them:
+- Normal: first wave at 5:00, then every 4:00, 2 waves of 1-3 enemies
+- Hardcore: first wave at 2:00, then every 3:00, 3 waves of 2-5 enemies
+- The wave clock pauses inside buildings and stops on death/extract
 
 ### 5. Chaos Mode
 Cross-zone enemy variety with weighted rarity tiers:
@@ -61,56 +62,42 @@ Cross-zone enemy variety with weighted rarity tiers:
 
 ## Installation
 
-1. Download `DREAD.catspeak` and `dread_config.json`
-2. Place both files in your Zero Sievert mods folder
-3. Enable the mod in the game's mod menu
-4. (Optional) Edit `dread_config.json` to customize settings
+1. Subscribe on the Steam Workshop, or copy `workshop/DREAD/` into `ZERO Sievert/Mods/`
+   (`init.script` there is a copy of `DREAD.catspeak`)
+2. Enable DREAD in the game's mod menu
+3. Start a Forest raid. DREAD runs silently unless `debug_mode` is on
 
 ---
 
 ## Configuration
 
-DREAD uses a JSON configuration file for customization:
+Zero Sievert mods cannot read their own JSON files (`FileDataRead` reads save-data keys), so all
+settings live in the `DREAD_CONFIG` block at the top of `init.script`:
 
-```json
-{
-    "general": {
-        "enabled": true,
-        "debug_mode": true,
-        "spawn_multiplier": 1.0
-    },
-    "zones": {
-        "forest": { "enabled": true, "spawn_density": "normal" }
-    },
-    "chaos_mode": {
-        "enabled": false
-    },
-    "squad_spawning": {
-        "enabled": true,
-        "min_squad_size": 2,
-        "max_squad_size": 5,
-        "leader_chance": 0.3
-    },
-    "invasion_events": {
-        "enabled": true,
-        "first_wave_delay_seconds": 120,
-        "wave_interval_seconds": 180,
-        "max_waves": 3
-    }
-}
+```
+DREAD_CONFIG = {
+    difficulty: "normal",       -- tourist | normal | hardcore | nightmare
+    debug_mode: false,          -- popup logs + F8 coordinate logger
+    safe_start_radius: 400,     -- no fixed spawns this close to you at raid start
+    squads: { enabled: true, min_size: 2, max_size: 4, leader_chance: 0.3 },
+    zones: { forest: { enabled: true, density: "normal" }, ... }
+};
 ```
 
-### Spawn Density Options
-- `sparse` - 50% spawn chance
-- `normal` - 100% spawn chance (default)
-- `dense` - 150% spawn chance
-- `extreme` - 200% spawn chance
+Density: `sparse` x0.5, `normal` x1, `dense` x1.5, `extreme` x2 spawn chance.
 
 ### Difficulty Presets
-- **Tourist** - 30% spawns, easy archetypes
-- **Normal** - Standard experience
-- **Hardcore** - 150% spawns, tougher enemies
-- **Nightmare** - 200% spawns, Chaos Mode enabled, elite enemies only
+Benchmarked headlessly with `tools/simulate_raids.py` (15-minute Forest raid, 60 raids; see `docs/PLAYTEST_REPORT.md`):
+
+| Preset | Added hostiles | Invasion enemies | Threat (rookie-bandit eq.) | Raid cap |
+|--------|----------------|------------------|----------------------------|----------|
+| Tourist | ~9 | none | ~7 | 20 |
+| **Normal** (default) | ~14 | ~4 from 5:00 | ~17 | 30 |
+| Hardcore | ~22 | ~16 from 2:00 | ~47 | 50 |
+| Nightmare | ~28 + Chaos | ~35 from 1:30 | ~100 | 70 |
+
+### Mapping spawn coordinates
+Set `debug_mode: true`, enter a raid and press **F8** to show the room and your x/y.
 
 ---
 
@@ -127,7 +114,7 @@ DREAD uses a JSON configuration file for customization:
 | City | Template | 2 points |
 | CNPP | Template | 2 points |
 
-*Forest has detailed spawn configurations. Other zones use template spawns pending in-game coordinate mapping.*
+*All coordinates (Forest included) are estimates pending in-game mapping; non-Forest zones are disabled by default. Unwalkable points are skipped.*
 
 ---
 
@@ -136,9 +123,10 @@ DREAD uses a JSON configuration file for customization:
 ```
 DREAD/
 ├── DREAD.catspeak           # Bundled mod for distribution
-├── dread_config.json        # User configuration
+├── workshop/DREAD/          # Mods-folder package (init.script = DREAD.catspeak)
+├── tools/                   # lint_catspeak.py, catspeak_harness.py, simulate_raids.py
 ├── src/
-│   ├── main.catspeak        # Entry point (development)
+│   ├── main.catspeak        # Older modular draft (stale, not shipped)
 │   ├── config/
 │   │   └── default_config.json
 │   ├── utils/
@@ -163,10 +151,21 @@ DREAD/
 ### API Limitations
 DREAD works within Zero Sievert's content-focused modding API. Features like AI behavior modification are not possible - see `docs/SAIN_FEASIBILITY_ANALYSIS.md` for details on what the API does and doesn't support.
 
+### Catspeak gotcha: no closures
+Catspeak 3.1.1 functions cannot see top-level `let` variables; inside a `func` they resolve as file
+globals and read `undefined`. That crashed v0.2.x on load ("value is not a function, got 'undefined'").
+Shared values are declared without `let` at the top level.
+
+### Testing before you ship
+```
+python -I tools/lint_catspeak.py DREAD.catspeak
+python -I tools/simulate_raids.py all
+```
+
 ### Event Hooks Used
-- `enter_raid` - Triggers initial spawn execution
-- `step_normal_event` - Updates invasion wave timer
-- `enter_hub` - Cleans up invasion state
+- `enter_raid` - initial spawns
+- `obj_player` `step_end_event` - invasion timer (step_end avoids replacing other mods' step_normal scripts)
+- `enter_hub` / `player_death` - stop invasions
 
 ### Key Functions
 - `DREAD_SpawnHuman(faction, x, y, archetype)` - Spawn human with archetype
@@ -177,6 +176,16 @@ DREAD works within Zero Sievert's content-focused modding API. Features like AI 
 ---
 
 ## Changelog
+
+### v0.3.0
+- Fixed crash on load (top-level `let` used from functions; Catspeak has no closures)
+- Fixed crashes in every Forest raid (`result.members` on an array; `NpcSetRecoilAimRadius` missing max)
+- Fixed chaos waves passing `undefined` to the spawner; spawn chances no longer compound each raid
+- Fixed spawned humans inheriting the friendly Loners faction and fixed loot of `loner_novice`
+- Fixed `r_industrial` room name; DREAD idles in prologue, interiors and unknown rooms
+- Rebalanced around vanilla preset stats; gentler Normal preset; per-preset raid cap; safe-start radius
+- Config moved into `init.script` (the JSON file was never read); F8 coordinate logger
+- Added linter, headless Catspeak harness and raid simulator
 
 ### v0.2.0
 - Added SAIN-inspired archetype system
