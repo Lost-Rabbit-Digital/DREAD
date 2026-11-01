@@ -125,20 +125,6 @@ DREAD/
 ├── DREAD.catspeak           # Bundled mod for distribution
 ├── workshop/DREAD/          # Mods-folder package (init.script = DREAD.catspeak)
 ├── tools/                   # lint_catspeak.py, catspeak_harness.py, simulate_raids.py
-├── src/
-│   ├── main.catspeak        # Older modular draft (stale, not shipped)
-│   ├── config/
-│   │   └── default_config.json
-│   ├── utils/
-│   │   ├── core.catspeak    # Utility functions
-│   │   ├── config.catspeak  # Config system
-│   │   └── archetypes.catspeak
-│   ├── systems/
-│   │   ├── spawning.catspeak
-│   │   └── invasion.catspeak
-│   └── spawns/
-│       ├── forest.catspeak
-│       └── zones.catspeak
 └── docs/
     ├── API_NOTES.md         # Technical reference
     └── SAIN_FEASIBILITY_ANALYSIS.md
