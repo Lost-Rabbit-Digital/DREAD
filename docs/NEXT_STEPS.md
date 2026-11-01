@@ -16,7 +16,7 @@ All API analysis is done. The mod is architecturally sound and ready for impleme
   - Road intersections
   - Forest edge areas
 - [ ] Screenshot reference images with coordinate overlays
-- [ ] Update `src/spawns/forest.catspeak` with real coordinates
+- [ ] Update the Forest spawn table in `DREAD.catspeak` with real coordinates
 
 ### 1.2 Basic Hook Testing
 - [ ] Create minimal test mod with just:
@@ -117,10 +117,7 @@ let room = RoomGetCurrent();
 ```
 
 ### File Locations
-- Main entry: `src/main.catspeak`
-- Forest spawns: `src/spawns/forest.catspeak`
-- Chaos tables: `src/chaos/rarity_tables.catspeak`
-- Config: `src/config/default_config.json`
+- Main entry: `DREAD.catspeak` (copied to `workshop/DREAD/init.script`)
 - API reference: `docs/API_NOTES.md`
 
 ---

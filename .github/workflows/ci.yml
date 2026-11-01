@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: workshop/DREAD/init.script matches DREAD.catspeak
+        run: cmp DREAD.catspeak workshop/DREAD/init.script
+      - name: Lint
+        run: python -I tools/lint_catspeak.py DREAD.catspeak
+      # ZS_vanilla/gamedata is not available in CI; simulate_raids.py
+      # warns and skips id validation when it is missing.
+      - name: Stability harness
+        run: python -I tools/simulate_raids.py stability
